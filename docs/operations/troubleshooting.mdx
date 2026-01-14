@@ -1,0 +1,48 @@
+---
+title: Troubleshooting
+description: Common failures and how to fix them.
+---
+
+## Cannot connect to host
+
+- Verify Tailscale is up on both client and host.
+- Check the target with `yeet list-hosts`.
+- Override host: `CATCH_HOST=<host> yeet status`.
+
+## Architecture mismatch
+
+- `yeet run` will fail if the binary arch does not match the host.
+- Build with `GOOS=linux GOARCH=<arch>`.
+
+## Docker errors
+
+- Docker compose services require docker on the host.
+- `catch install` can prompt to install docker if missing.
+
+## `edit` fails without TTY
+
+- `yeet edit` needs a TTY to launch `$EDITOR`.
+- Run from a real shell, not a non-interactive session.
+
+## `stage clear` not implemented
+
+- Use `stage show` to inspect, then `stage commit` to apply.
+
+## `copy` destination errors
+
+- One side must be a remote `svc:` or `svc:path`.
+- Remote paths are relative to the service data dir (`data/`).
+- `yeet copy` defaults to rsync-like `-avz` behavior (archive/recursive,
+  verbose, compress).
+- Use a trailing slash on the source to copy directory contents (rsync-style).
+- Absolute paths are rejected.
+
+## Status output
+
+- Use `--format=json` or `--format=json-pretty` if the table is not useful.
+
+## Service type mismatch
+
+- A service's type is fixed after first install.
+- If you installed as docker compose, you cannot later install a binary with
+  the same name.

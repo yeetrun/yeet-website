@@ -1,0 +1,35 @@
+---
+title: Data Layout
+description: On-host storage layout for catch.
+---
+
+Catch stores state on the host under a single data directory (`--data-dir`).
+The default is `./data`.
+
+## Top-level
+
+```
+<data-dir>/
+  db.json
+  services/
+  mounts/
+  registry/
+  tsnet/
+```
+
+## Per-service layout
+
+```
+<data-dir>/services/<svc>/
+  bin/   # binaries, compose files, units
+  run/   # runtime files
+  data/  # persistent app data
+  env/   # env files
+```
+
+Notes:
+
+- Env files are versioned under `env/` and surfaced via `yeet env show` or
+  `yeet env edit`.
+- Compose network files and tailscale artifacts live under `bin/` and `run/`.
+- `mounts/` is host-global and used by `yeet mount` / `yeet umount`.

@@ -1,0 +1,47 @@
+---
+title: catch CLI
+description: Catch flags, commands, and RPC surface overview.
+---
+
+The catch binary runs on remote hosts and serves RPC requests. In normal use you
+install it with `yeet init`.
+
+## Usage
+
+```bash
+catch [flags] [install|version|is-catch]
+```
+
+## Commands
+
+- `install`: installs catch as a system service on the host.
+- `version`: prints the catch build version.
+- `is-catch`: prints `yes` (used for detection).
+
+## Flags
+
+- `--data-dir`: base directory for data (default `./data`).
+- `--tsnet-host`: tsnet hostname (default `catch`).
+- `--tsnet-port`: tsnet port (default `41547`).
+- `--registry-internal-addr`: internal registry bind address.
+
+## RPC surface
+
+You usually do not call these directly, but the server exposes:
+
+- `/rpc` JSON-RPC (e.g. `catch.Info`)
+- `/rpc/exec` streaming exec endpoint
+- `/rpc/events` streaming events endpoint
+- `/v2/` internal registry endpoint (HTTPS on port 443; loopback listener for
+  host docker pulls)
+
+## Service commands (RPC)
+
+These are the command names yeet forwards over RPC:
+
+- `run`, `start`, `stop`, `restart`, `status`, `logs`, `remove`, `rollback`
+- `env show`, `env edit`, `env copy`, `env set`, `edit`, `stage`, `ip`, `ts`,
+  `mount`, `umount`, `events`, `version`
+- `copy`, `cron`, `docker pull`, `docker update`, `enable`, `disable`
+
+See the [yeet CLI](/docs/cli/yeet-cli) and [Workflows](/docs/operations/workflows) for usage.

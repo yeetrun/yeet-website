@@ -1,0 +1,45 @@
+.codeBlock {
+  border-radius: 8px;
+  font-size: 16px;
+  margin: 16px 0;
+  overflow: hidden;
+  border: 1px solid var(--gray-2);
+  position: relative;
+  background: var(--code-bg);
+}
+
+.codeBlock code {
+  padding: 16px;
+  color: var(--code-fg);
+  /* Font fallback safeguard for code blocks. */
+  font-family: var(--mono-font), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.copyButton {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  background-color: rgba(255, 255, 255, 0.08);
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  cursor: pointer;
+  transition:
+    background-color 0.25s ease-in-out,
+    opacity 0.25s ease-in-out;
+  color: var(--code-fg);
+  opacity: 0;
+}
+
+.codeBlock:hover .copyButton,
+.copyButton:focus {
+  opacity: 1;
+}
+
+.copyButton:hover {
+  background-color: rgba(255, 255, 255, 0.18);
+}
+
+.copyButtonSuccess {
+  color: var(--atom-one-green);
+}

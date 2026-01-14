@@ -1,0 +1,90 @@
+---
+title: Configuration & Prefs
+description: Client preferences, project config, and environment variables.
+---
+
+This page documents client and server configuration inputs.
+
+## Client prefs
+
+Yeet stores preferences in:
+
+```
+~/.yeet/prefs.json
+```
+
+Schema:
+
+```json
+{
+  "defaultHost": "<host>"
+}
+```
+
+`defaultHost` is the **catch host** (Tailscale/tsnet hostname used for RPC) that
+yeet uses when no host is specified via `@<host>`, `--host`, or `yeet.toml`.
+
+Commands:
+
+```bash
+yeet prefs
+yeet prefs --save
+```
+
+## Project config (`yeet.toml`)
+
+When you run yeet from a project directory it can persist service defaults in a
+`yeet.toml` file. This is a convenience layer for the CLI (payloads + flags) and
+is not a mirror of catch internals.
+
+Example:
+
+```toml
+version = 1
+hosts = ["yeet-hetz", "host-b"]
+
+[[services]]
+name = "uptime-kuma"
+host = "yeet-hetz"
+payload = "./uptime-kuma/compose.yml"
+args = ["--net=svc,ts", "--ts-tags", "tag:app"]
+
+[[services]]
+name = "api"
+host = "host-b"
+payload = "./bin/api"
+args = ["--flagA", "valueA"]
+
+[[services]]
+name = "owesplit"
+host = "yeet-pve1"
+type = "cron"
+payload = "./owesplit/owesplit"
+schedule = "0 9 15 * *"
+args = ["-live"]
+```
+
+Notes:
+
+- `payload` is stored relative to the `yeet.toml` directory when possible.
+- `type` is optional; omit it (or set `run`) for `yeet run`, and set `cron` for
+  `yeet cron`.
+- `args` stores run flags followed by payload args, with the `--` separator
+  removed. Yeet re-inserts `--` when needed to re-run the service (for cron this
+  is just the binary args after `--`).
+- `schedule` is the 5-field cron expression for `type = "cron"`.
+- `hosts` is used for host-scoped commands like `yeet status` with no args.
+
+## Environment variables
+
+Client:
+
+- `CATCH_HOST`: default target **catch host** (Tailscale/tsnet hostname).
+
+Server:
+
+- None documented yet.
+
+## Editor
+
+`yeet edit` uses `$EDITOR` if set, otherwise `vim`.

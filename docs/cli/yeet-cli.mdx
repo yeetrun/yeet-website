@@ -1,0 +1,388 @@
+---
+title: yeet CLI
+description: Client-side command reference for yeet.
+---
+
+This is the client-side command reference. Most commands are forwarded to
+catch.
+
+## Host terminology
+
+Yeet uses "host" in two different ways:
+
+- **catch host (Tailscale/tsnet)**: the hostname that `yeet` targets for RPC.
+  This is what `CATCH_HOST`, `--host`, and `@<host>` refer to.
+- **machine host (SSH)**: the SSH target you use with `yeet init` (for
+  installing catch). Example: `yeet init root@<host>`.
+
+After `yeet init`, catch will advertise a tsnet hostname (default `catch` or
+`--tsnet-host`). That tsnet name is the **catch host** you use for `yeet run`,
+`yeet status`, etc.
+
+## Global flags
+
+- `--host=<host>`: target host (overrides prefs).
+- `--service=<svc>`: force the service name.
+- `--tty`: force TTY mode for remote commands.
+- `--no-tty`: disable TTY mode for remote commands.
+- `--progress=<mode>`: progress output mode (`auto`, `tty`, `plain`, `quiet`).
+
+Host scoping shortcuts:
+
+- `yeet <command>@<host>` for host-only commands (e.g. `events@host`).
+- `yeet <command> <svc>@<host>` to target a service on a specific host.
+
+## Commands
+
+Note: Binary payloads uploaded by `run`, `stage`, and `cron` are
+zstd-compressed; catch auto-decompresses on receipt.
+
+### `yeet init [REMOTE]`
+
+Install or update catch on a remote host via SSH.
+
+```bash
+yeet init root@<host>
+```
+
+If omitted, `init` uses the current `CATCH_HOST` value.
+
+Note: the `root@<host>` here is the **machine host** you can reach over SSH. It
+is not the catch/tsnet host you target for `yeet run` or `yeet status`.
+
+Run `init` from the yeet source repo (it builds `./cmd/catch`). If you are in a
+different repo, clone `github.com/shayne/yeet` and run it from there.
+
+If you omit the SSH user, `init` will try to use the install user reported by
+catch (recorded during the last install). If unavailable, SSH defaults apply.
+If catch reports an install host, `init` will prefer that host for SSH.
+
+In interactive terminals, `init` will prompt to accept the SSH host key if
+needed. For non-interactive runs, pre-populate `~/.ssh/known_hosts`.
+
+When stdout is a terminal, `init` uses the full TTY progress UI (spinners, live
+updates). Pipe output for plain text. Use `--progress=plain` (or
+`--progress=quiet`) for POSIX-friendly scripted output.
+
+### `yeet ssh [<svc>] [-- <remote-cmd...>]`
+
+Open an SSH session to the **catch host** over the tailnet/tsnet address. If
+you pass a service name, the session starts in that service's data directory
+(`<data-dir>/services/<svc>/data`).
+
+```bash
+yeet ssh
+yeet ssh <svc>
+yeet ssh -- uname -a
+yeet ssh <svc> -- ls -la
+```
+
+Notes:
+
+- `yeet ssh` targets the **catch host**, not the machine host you used for
+  `yeet init`.
+- `yeet ssh <svc>` resolves the host from `<svc>@<host>`, `--host`,
+  `CATCH_HOST`, or `yeet.toml` service entries, then drops into the service data
+  dir.
+- Because it connects over Tailscale/tsnet, you can firewall port 22 on
+  public/LAN interfaces and still reach the host via your tailnet.
+- If catch reports an install user, that user is used for SSH; otherwise your
+  SSH defaults apply.
+- SSH options can be passed before the service name (e.g.,
+  `yeet ssh -i ~/.ssh/id_ed25519 <svc>`).
+- Use `--` to pass a remote command. If `<svc>` is provided, the command runs
+  from the service directory.
+
+### `yeet run <svc> <file-or-image> [-- <args...>]`
+
+Install or update a service based on the payload:
+
+- Binary or script -> systemd service
+- Docker Compose file -> docker compose service
+- TypeScript file -> docker compose service using a container runtime
+- Python file -> docker compose service using a container runtime
+- Docker image ref (`nginx:latest`, `ghcr.io/org/app:latest`) -> pulled on the
+  catch host and installed
+- `Dockerfile` -> built locally for the remote platform, pushed to the
+  internal registry, then installed
+
+Examples:
+
+```bash
+yeet run <svc>@<host> ./compose.yml
+yeet run <svc> ./compose.yml --net=svc,ts --ts-tags=tag:app
+yeet run --pull <svc> ./compose.yml
+yeet run <svc> ./Dockerfile
+yeet run <svc> ./bin/<svc> -- --app-flag value
+yeet run <svc> ghcr.io/org/app:latest
+yeet run -p 8000:8000 <svc> ./server.py
+```
+
+`-p`/`--publish` publishes host ports for python/TypeScript/Dockerfile payloads
+and registry image refs (e.g. `-p 8000:8000`). For docker compose payloads,
+define ports in the compose file.
+
+When stdout is a terminal, `run` uses the full TTY progress UI (spinners, live
+updates). Pipe output for plain text. Use `--progress=plain` (or
+`--progress=quiet`) for POSIX-friendly scripted output.
+
+If a `yeet.toml` exists (or after your first `run`), you can omit the payload:
+
+```bash
+yeet run <svc>
+```
+
+Yeet will expand the stored payload + args for that service.
+
+If you want to run a local image instead of pulling from a registry, use
+`yeet docker push --run`:
+
+```bash
+yeet docker push <svc> <local-image>:<tag> --run
+```
+
+Run flags:
+
+- `--pull`: for docker compose/image payloads, pull latest images on deploy.
+  Without this, `run` reuses existing images.
+- `--net=<list>`: network modes (`ts`, `svc`, `lan`). Comma-separated.
+- `--ts-ver=<ver>`: tailscale version for service netns.
+- `--ts-exit=<node>`: tailscale exit node.
+- `--ts-tags=<tag>`: tailscale tags (repeatable or comma-separated).
+- `--ts-auth-key=<key>`: tailscale auth key for service netns.
+- `--macvlan-parent=<iface>`: parent interface for `lan`.
+- `--macvlan-vlan=<vlan>`: VLAN id for `lan`.
+- `--macvlan-mac=<mac>`: MAC address for `lan`.
+- `--restart=<bool>`: currently unused.
+
+For compose services, `yeet docker update <svc>` also pulls and recreates
+containers.
+
+### `yeet stage <svc> [args...]`
+
+Stage a change without installing it yet.
+
+Examples:
+
+```bash
+yeet stage <svc> ./bin/<svc>
+yeet stage <svc> --net=ts --ts-tags=tag:app
+yeet stage <svc> show
+yeet stage <svc> commit
+```
+
+Notes:
+
+- `stage show` prints the staged config.
+- `stage clear` is not implemented.
+- `stage commit` applies the staged version.
+
+Stage flags match `run` flags (see above).
+
+### `yeet copy|cp [-avz] <src> <dst>`
+
+Copy files between local paths and a service data dir (rsync-like).
+Exactly one side must be remote using `svc:` or `svc:path` (paths are relative
+to the service `data/` directory). By default, `yeet copy` behaves like
+`rsync -avz` (archive + verbose + compress).
+
+Examples:
+
+```bash
+# Local -> remote (data dir root)
+yeet copy ./app.env svc:
+
+# Local -> remote (explicit destination file)
+yeet copy ./config.yml svc:config/config.yml
+
+# Local dir contents -> remote dir (rsync-style)
+yeet copy ./configs/ svc:config/
+
+# Remote -> local
+yeet copy svc:config ./config
+```
+
+Notes:
+
+- `-a` is archive mode (includes recursion and metadata preservation).
+- `-z` compresses the transfer stream.
+- Output mirrors rsync’s file list and summary format.
+- File ownership (uid/gid) is not preserved.
+- A trailing slash on the source copies directory contents (rsync-style).
+- A trailing slash on the destination forces directory semantics.
+- Transfers are staged and moved into place only after completion.
+
+### `yeet cron <svc> <file> "<expr>" [-- <args...>]`
+
+Install a cron job from a file. The cron expression must have 5 fields.
+
+```bash
+yeet cron <svc> ./job.sh "0 9 * * *" -- --job-arg foo
+```
+
+If a `yeet.toml` exists (or after your first `cron`), you can omit the payload
+and cron expression:
+
+```bash
+yeet cron <svc>
+```
+
+When stdout is a terminal, `cron` uses the full TTY progress UI (spinners, live
+updates). Use `--progress=plain` (or `--progress=quiet`) for POSIX-friendly
+scripted output.
+
+### `yeet logs <svc> [-f] [-n <lines>]`
+
+Tail service logs.
+
+- `-f`/`--follow`: follow logs.
+- `-n`/`--lines`: number of lines (default `-1`).
+
+### `yeet status [<svc>] [--format=table|json|json-pretty]`
+
+Show service status.
+
+```bash
+yeet status
+yeet status <svc> --format=json
+```
+
+Notes:
+
+- With no `<svc>`, yeet uses `yeet.toml` host list (if present) and queries
+  each host.
+- Use `<svc>@<host>` to disambiguate services that exist on multiple hosts.
+- Table output always includes the `HOST` column, even for single-host queries.
+- Cron services (installed via `yeet cron`) show `TYPE` as `cron`.
+- Services show `TYPE` as `binary`, `typescript`, or `python` when detected;
+  otherwise `service` or `docker` based on the underlying service type.
+- For docker compose services in the no-`<svc>` view, containers are summarized
+  into a single `CONTAINERS` column and the status shows running/stopped/partial
+  counts.
+
+### `yeet info <svc> [--format=plain|json|json-pretty]`
+
+Show detailed service information collected from both the local `yeet.toml` and
+ the remote catch host.
+
+```bash
+yeet info <svc>
+yeet info <svc>@<host>
+yeet info <svc> --format=json
+```
+
+Plain output is grouped by section (host, service, client config, server
+config, network, runtime, images). Use `--format=json` or
+`--format=json-pretty` for machine-readable output.
+
+### `yeet start|stop|restart <svc>`
+
+Manage service lifecycle.
+
+### `yeet enable|disable <svc>`
+
+Enable or disable autostart for a service (systemd-backed services only).
+
+### `yeet remove <svc>`
+
+Remove a service. `yeet` attempts to stop the service and clean up files, but
+will still remove the service from the database even if cleanup fails. Any
+stop/cleanup failures are printed as warnings.
+
+### `yeet rollback <svc>`
+
+Roll back to the previous generation if available.
+
+### `yeet env show <svc> [--staged]`
+
+Print the current env file for a service. Use `--staged` to inspect the staged
+env file.
+
+### `yeet env edit <svc>`
+
+Edit the env file for a service.
+
+### `yeet env copy|cp <svc> <file>`
+
+Upload a local env file.
+
+### `yeet env set <svc> KEY=VALUE [KEY=VALUE...]`
+
+Set one or more env keys (creates the env file if missing). Use `KEY=` (or
+`KEY=""`) to unset a key.
+
+### `yeet edit <svc> [--config] [--ts] [--restart]`
+
+Open the current config for editing in `$EDITOR` (defaults to vim).
+
+- `--config` edits the service JSON (limited; not implemented for
+  docker/systemd content).
+- `--ts` is reserved.
+- `--restart` is currently unused.
+
+### `yeet ip <svc>`
+
+Show the service IP (only meaningful when `--net=svc` was used).
+
+### `yeet mount <source> [name] [flags]`
+
+Mount a network filesystem on the host (global, not per-service). If no args
+are given, it lists mounts.
+
+```bash
+yeet mount host:/export data-share --type=nfs --opts=defaults
+yeet mount             # list mounts
+```
+
+### `yeet umount <name>`
+
+Unmount a mount by name.
+
+```bash
+yeet umount data-share
+```
+
+### `yeet tailscale <svc> -- <tailscale args...>` (alias: `ts`)
+
+Run tailscale commands inside the service netns.
+
+```bash
+yeet tailscale <svc> -- serve --bg 8080
+yeet tailscale <svc> -- debug daemon-logs
+```
+
+### `yeet events [<svc>] [--all]`
+
+Subscribe to events. Use `--all` for global events.
+
+`yeet events@<host>` is shorthand for subscribing to all events on that host.
+
+### `yeet docker pull|update <svc>`
+
+Docker compose maintenance for services that were installed from compose files.
+
+- `pull` prefetches images without restarting.
+- `update` pulls images and recreates containers (restart).
+
+### `yeet docker push <svc> <image> [--run] [--all-local]`
+
+Push a local image into the internal registry.
+
+- `--run`: tag image as `run`.
+- `--all-local`: push all local images for the service matching remote OS/arch.
+
+### `yeet list-hosts [--tags=<tags>]`
+
+List tailnet hosts matching tags (default `tag:catch`).
+
+### `yeet prefs [--save]`
+
+Show or save client preferences.
+
+### `yeet version [--json]`
+
+Show the catch server version for the current host.
+
+### `yeet skirt`
+
+Hidden easter egg.

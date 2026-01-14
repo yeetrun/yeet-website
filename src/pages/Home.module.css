@@ -1,0 +1,236 @@
+.homePage {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-bottom: 120px;
+}
+
+.hero {
+  position: relative;
+  padding: 96px 0 72px;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(800px 500px at 10% 10%, rgba(56, 225, 123, 0.18), transparent 60%),
+    radial-gradient(700px 420px at 90% 0%, rgba(79, 214, 211, 0.2), transparent 60%);
+  pointer-events: none;
+}
+
+.heroGrid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 32px;
+  align-items: center;
+}
+
+.heroContent {
+  grid-column: span 7;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.heroBadge {
+  display: inline-flex;
+  align-self: flex-start;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(56, 225, 123, 0.12);
+  color: var(--gray-7);
+  border: 1px solid rgba(56, 225, 123, 0.25);
+}
+
+.heroTitle {
+  font-size: clamp(36px, 5vw, 56px);
+  letter-spacing: -0.02em;
+  color: var(--gray-9);
+}
+
+.heroSubtitle {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--gray-5);
+  max-width: 620px;
+}
+
+.heroActions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.heroNote {
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--gray-1);
+  border: 1px solid var(--gray-2);
+  color: var(--gray-6);
+  font-size: 14px;
+}
+
+.heroPanel {
+  grid-column: span 5;
+  background: var(--gray-1);
+  border: 1px solid var(--gray-2);
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.panelHeader {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--gray-6);
+}
+
+.panelFooter {
+  font-size: 14px;
+  color: var(--gray-6);
+}
+
+.panelFooter a {
+  color: var(--brand-color);
+  text-decoration: none;
+}
+
+.section {
+  padding: 72px 0;
+}
+
+.sectionAlt {
+  padding: 72px 0;
+  background: rgba(22, 22, 26, 0.9);
+  border-top: 1px solid var(--gray-2);
+  border-bottom: 1px solid var(--gray-2);
+}
+
+.sectionHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.featureCard {
+  padding: 20px;
+  background: var(--gray-1);
+  border: 1px solid var(--gray-2);
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+}
+
+.featureCard h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: var(--gray-9);
+}
+
+.featureCard p {
+  color: var(--gray-5);
+  line-height: 1.5;
+}
+
+.workflowGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.workflowCard {
+  padding: 20px;
+  background: var(--gray-1);
+  border: 1px solid var(--gray-2);
+  border-radius: 16px;
+}
+
+.workflowCard h3 {
+  margin-bottom: 12px;
+  color: var(--gray-9);
+}
+
+.workflowCard pre {
+  background: #0f1114;
+  color: #f2f4f7;
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  overflow-x: auto;
+}
+
+.docsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.docsCard {
+  padding: 20px;
+  border-radius: 16px;
+  background: var(--gray-1);
+  border: 1px solid var(--gray-2);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.docsCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35);
+}
+
+.docsCard h3 {
+  margin-bottom: 8px;
+  color: var(--gray-9);
+}
+
+.docsCard p {
+  color: var(--gray-5);
+}
+
+@media (max-width: 1024px) {
+  .heroGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .heroContent,
+  .heroPanel {
+    grid-column: span 12;
+  }
+
+  .featureGrid,
+  .workflowGrid,
+  .docsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .hero {
+    padding-top: 72px;
+  }
+
+  .featureGrid,
+  .workflowGrid,
+  .docsGrid {
+    grid-template-columns: 1fr;
+  }
+}

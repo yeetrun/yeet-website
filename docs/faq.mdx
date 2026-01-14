@@ -1,0 +1,29 @@
+---
+title: FAQ
+description: Short answers to common yeet questions.
+---
+
+## Is this intended for general use?
+
+No. This is a personal homelab toolchain. The defaults and workflow are tuned
+for a specific environment.
+
+## Does yeet require Tailscale?
+
+Yes. Yeet communicates with catch over Tailscale RPC.
+
+## Do services run as root?
+
+Yes. This is acceptable for this lab but not recommended for shared
+environments.
+
+## Can I use docker compose?
+
+Yes. Provide a compose file to `yeet run`.
+
+## How do I update a service?
+
+Re-run `yeet run` with the updated payload. For compose services, `yeet run`
+does not pull images by default; use `yeet run --pull <svc> ./compose.yml` or
+`yeet docker update` (pulls images and recreates containers) when you want
+fresh images.

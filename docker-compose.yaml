@@ -1,0 +1,10 @@
+version: '3'
+services:
+  website:
+    container_name: yeet-website
+    build: .
+    image: yeet/website
+    environment:
+      - PORT
+    ports:
+      - "${PORT}:${PORT}"

@@ -1,0 +1,29 @@
+& .scrollToTopButton {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--gray-1);
+  color: var(--gray-8);
+  border-radius: 10px;
+  border: 1px solid var(--gray-2);
+  padding: 8px 12px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s, bottom 0.25s ease;
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  @media (prefers-reduced-motion) {
+    transition: none;
+  }
+  &.isAtBottom {
+    bottom: 100px;
+  }
+  &:hover {
+    background: var(--gray-2);
+  }
+}

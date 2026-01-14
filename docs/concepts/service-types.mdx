@@ -1,0 +1,64 @@
+---
+title: Service Types
+description: Payload detection and installation behavior.
+---
+
+Yeet detects payload type and installs the service accordingly.
+
+## Binary
+
+- ELF or Mach-O binary.
+- Installed as a systemd service on the host.
+- Use `yeet run <svc> ./bin/<svc>`.
+
+## Script
+
+- Shebang file (e.g., `#!/usr/bin/env bash`).
+- Treated like a binary; installed as a systemd service.
+
+## Docker Compose
+
+- Any YAML with a top-level `services:` key.
+- Installed as a docker compose service.
+- Use `--pull` on `yeet run` when you want to refresh images; otherwise `run`
+  reuses existing images.
+- Configure port mappings in the compose file.
+
+```bash
+yeet run <svc> ./compose.yml
+```
+
+## Docker image
+
+- If the payload looks like an OCI image ref (e.g. `nginx:latest`,
+  `ghcr.io/org/app:1.2.3`), yeet generates a compose file and catch pulls the
+  image on the host.
+- For local images, use `yeet docker push <svc> <image>:<tag> --run`.
+- For Dockerfiles, use `yeet run <svc> ./Dockerfile` (builds for the host arch
+  and pushes).
+- Use `-p`/`--publish` with `yeet run` to expose ports (e.g. `-p 8000:8000`).
+
+## TypeScript
+
+- `.ts` files are run via a Deno container.
+- Installed as a docker compose service (via Deno).
+- Use `-p`/`--publish` with `yeet run` to expose ports (e.g. `-p 8000:8000`).
+
+## Python
+
+- `.py` files are run via a `uv` container image.
+- Installed as a docker compose service (via `uv`).
+- Use `-p`/`--publish` with `yeet run` to expose ports (e.g. `-p 8000:8000`).
+
+## Zstd
+
+- Zstd-compressed binaries are detected and unpacked.
+
+## Cron
+
+- `yeet cron` installs a cron-style job as a timer on the host.
+
+## Notes
+
+- File type is detected by extension or content.
+- Architecture must match the target host; mismatches fail early.

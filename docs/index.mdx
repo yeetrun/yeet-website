@@ -1,0 +1,91 @@
+---
+title: Yeet Docs
+description: A focused user manual for the yeet + catch homelab workflow.
+---
+
+> [!NOTE]
+> Yeet is personal infrastructure tooling tuned for a specific homelab. Use it
+> as a reference or starting point, not a general-purpose platform.
+
+## Start here
+
+<ButtonLinks
+  columns={2}
+  columnsWhenSmall={1}
+  links={[
+    { text: "Quick Start", href: "/docs/getting-started/quick-start" },
+    { text: "Installation", href: "/docs/getting-started/installation", theme: "neutral" },
+    { text: "Workflows", href: "/docs/operations/workflows" },
+    { text: "CLI Overview", href: "/docs/cli/cli-overview", theme: "neutral" },
+  ]}
+/>
+
+## Documentation map
+
+<CardLinks
+  cards={[
+    {
+      title: "Architecture",
+      description: "How yeet and catch work together over Tailscale RPC.",
+      href: "/docs/concepts/architecture",
+    },
+    {
+      title: "Networking",
+      description: "Network modes, service IPs, and tailscale options.",
+      href: "/docs/concepts/networking",
+    },
+    {
+      title: "Service Types",
+      description: "Payload detection and install behavior by type.",
+      href: "/docs/concepts/service-types",
+    },
+    {
+      title: "Configuration & Prefs",
+      description: "Client preferences, yeet.toml, and environment variables.",
+      href: "/docs/concepts/configuration-and-prefs",
+    },
+    {
+      title: "Yeet CLI",
+      description: "Full command reference for yeet.",
+      href: "/docs/cli/yeet-cli",
+    },
+    {
+      title: "Catch CLI",
+      description: "Catch flags and RPC surface overview.",
+      href: "/docs/cli/catch-cli",
+    },
+    {
+      title: "Data Layout",
+      description: "On-host storage structure and service directories.",
+      href: "/docs/concepts/data-layout",
+    },
+    {
+      title: "Troubleshooting",
+      description: "Common failure modes and fixes.",
+      href: "/docs/operations/troubleshooting",
+    },
+    {
+      title: "Development",
+      description: "Local dev setup and build/test commands.",
+      href: "/docs/development",
+    },
+    {
+      title: "FAQ",
+      description: "Short answers to common questions.",
+      href: "/docs/faq",
+    },
+  ]}
+/>
+
+## How this homelab runs
+
+- Catch runs on each host, and yeet runs from the workstation.
+- Services are deployed over Tailscale RPC with explicit network modes.
+- Host targeting and defaults are driven by `CATCH_HOST` and `yeet.toml`.
+
+## Conventions
+
+- `<svc>` means a service name.
+- `<host>` means a host name or `user@host`.
+- `<file>` means a local file path.
+- Code blocks are intended to be copy-pasteable.

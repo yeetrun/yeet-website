@@ -1,0 +1,138 @@
+---
+title: Installation
+description: Install yeet locally and bootstrap catch on a remote host.
+---
+
+This is a personal homelab setup. The install flow assumes:
+
+- A Linux host with systemd and Tailscale connected to the same tailnet.
+- SSH access to the host.
+- Go toolchain on your workstation.
+
+## Host terminology
+
+- **machine host (SSH)**: the host you connect to for `yeet init root@<host>`.
+- **catch host (Tailscale/tsnet)**: the hostname that `yeet` targets for RPC
+  (`CATCH_HOST`, `--host`, `@<host>`). After install, this is the tsnet name
+  advertised by catch (default `catch` or `--tsnet-host`).
+
+## Toolchain (recommended: mise)
+
+If you already have Go in your `PATH`, you can skip mise and use the Go commands
+below. Otherwise:
+
+```bash
+curl https://mise.run | sh
+echo 'eval "$(mise activate zsh)"' >> ~/.zshrc
+```
+
+Swap `zsh` for your shell (bash/fish/etc.) if needed.
+
+From the repo root, install tools (Go 1.25.5):
+
+```bash
+mise install
+```
+
+## Install yeet
+
+Release install (recommended):
+
+```bash
+curl -fsSL https://yeetrun.com/install.sh | sh
+```
+
+Nightly build:
+
+```bash
+curl -fsSL https://yeetrun.com/install.sh | sh -s -- --nightly
+```
+
+From the repo root (dev):
+
+```bash
+go build ./cmd/yeet
+```
+
+Or install globally:
+
+```bash
+go install ./cmd/yeet
+```
+
+## Install catch on a host
+
+`yeet init` installs `catch` on the remote host. When run from the repo it
+builds locally and uploads the binary; when run from a released yeet (or with
+`--from-github`) it downloads the latest stable release from GitHub before
+installing.
+
+Use `--nightly` to install the nightly build instead of the latest stable
+release.
+
+```bash
+yeet init root@<host>
+```
+
+Or use the mise task:
+
+```bash
+mise run init-host -- root@<host>
+```
+
+Notes:
+
+- If you pass a non-root user, yeet will run the install with sudo on the
+  remote.
+- The catch service runs as root.
+
+## Docker requirements (internal registry)
+
+Yeet’s internal registry expects Docker to use the containerd snapshotter so
+pushed images show up locally (no pull needed). Ensure the host has this in
+`/etc/docker/daemon.json`:
+
+```json
+{
+  "features": {
+    "containerd-snapshotter": true
+  }
+}
+```
+
+Then restart Docker:
+
+```bash
+systemctl restart docker
+```
+
+## Manual catch install
+
+If you want to install without yeet:
+
+1) Build `catch` for the target architecture.
+2) Copy it to the host.
+3) Run `./catch install` on the host.
+
+Example (from the repo root):
+
+```bash
+GOOS=linux GOARCH=amd64 go build -o catch ./cmd/catch
+scp catch root@<host>:
+ssh root@<host> ./catch install
+```
+
+## Catch flags and environment
+
+See the [Catch CLI](/docs/cli/catch-cli) for detailed flags. Common settings:
+
+- `--data-dir` to control where state is stored on the host.
+- `--tsnet-host` for RPC connectivity.
+
+## Client defaults
+
+`yeet` stores prefs in `~/.yeet/prefs.json`. You can override at runtime with:
+
+```bash
+CATCH_HOST=<host> yeet status
+```

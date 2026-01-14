@@ -1,0 +1,149 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: var(--header-height);
+  background: rgba(15, 15, 17, 0.9);
+  border-bottom: 1px solid var(--gray-2);
+  backdrop-filter: blur(12px);
+
+  @media print {
+    display: none;
+  }
+
+  & .gridContainer {
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    & .desktopLinks {
+      display: flex;
+      align-items: center;
+      @media (max-width: 768px) {
+        display: none;
+      }
+
+      & .linkList {
+        list-style: none;
+        display: flex;
+        gap: 28px;
+        & a {
+          color: var(--gray-5);
+          text-decoration: none;
+          font-weight: 500;
+          &.active {
+            color: var(--gray-9);
+          }
+          &:hover {
+            color: var(--gray-9);
+          }
+        }
+      }
+
+      & .cta {
+        margin-left: 28px;
+      }
+    }
+  }
+
+  & .mobileContent {
+    display: none;
+    overflow: scroll;
+    &.mobileMenuOpen {
+      display: block;
+    }
+    background: rgba(15, 15, 17, 0.98);
+    height: calc(100dvh - var(--header-height));
+    border-top: 1px solid var(--gray-2);
+    padding: 24px;
+  }
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--gray-9);
+  font-family: var(--display-font);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.brandMark {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: var(--brand-color);
+  box-shadow: 0 0 24px rgba(56, 225, 123, 0.25);
+  background-image: url("/yeet-mark.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 70%;
+}
+
+.brandText {
+  font-size: 18px;
+}
+
+.menuToggle {
+  display: none;
+  @media (max-width: 768px) {
+    display: block;
+  }
+
+  appearance: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  height: var(--header-height);
+  padding: 0 24px;
+  margin: 0 -24px 0 0;
+
+  & .hamburger {
+    position: relative;
+    width: 24px;
+    height: 1em;
+
+    & .hamburgerLayer {
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      border-radius: 1px;
+      background: var(--gray-8);
+
+      transition-property: transform, opacity;
+      transition-timing-function: ease-in-out;
+      transition-duration: 100ms;
+
+      @media (prefers-reduced-motion) {
+        transition: none;
+      }
+
+      &:nth-child(1) {
+        transform: translate(0, 0em) rotate(0);
+      }
+      &:nth-child(2) {
+        transform: translate(0, calc(0.5em - 1px)) rotate(0);
+      }
+      &:nth-child(3) {
+        transform: translate(0, calc(1em - 2px)) rotate(0);
+      }
+    }
+
+    &[data-open="true"] .hamburgerLayer {
+      &:nth-child(1) {
+        transform: translate(0, 0.5em) rotate(45deg);
+      }
+      &:nth-child(2) {
+        transform: translate(0, 0.5em) rotate(30deg);
+        opacity: 0;
+      }
+      &:nth-child(3) {
+        transform: translate(0, 0.5em) rotate(-45deg);
+      }
+    }
+  }
+}

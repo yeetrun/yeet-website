@@ -1,0 +1,128 @@
+---
+title: Workflows
+description: Common deploy and update flows for yeet.
+---
+
+These are the core workflows used day-to-day. All examples use placeholders.
+
+## Deploy a compose stack (most common)
+
+```bash
+yeet run <svc> ./compose.yml --net=svc,ts --ts-tags=tag:app
+```
+
+After your first run, yeet writes a `yeet.toml` in the project directory. You
+can then re-run with just the service:
+
+```bash
+yeet run <svc>
+```
+
+Update later (compose services; `update` pulls images and recreates
+containers):
+
+```bash
+yeet run <svc> ./compose.yml          # redeploy config, reuse existing images
+yeet run --pull <svc> ./compose.yml   # pull latest + redeploy
+yeet docker pull <svc>     # prefetch images without restarting
+yeet docker update <svc>   # pull + recreate containers (restart)
+```
+
+## Build from a Dockerfile and run
+
+```bash
+yeet run <svc> ./Dockerfile
+```
+
+## Deploy a binary
+
+```bash
+GOOS=linux GOARCH=amd64 go build -o ./bin/<svc> ./cmd/<svc>
+yeet run <svc> ./bin/<svc>
+```
+
+## Run a registry image or push a local image (less common)
+
+Pull a public image on the catch host:
+
+```bash
+yeet run <svc> nginx:latest
+```
+
+Push a local image instead (for custom builds):
+
+```bash
+yeet docker push <svc> <local-image>:<tag> --run
+```
+
+## Update a service
+
+For binaries or compose files, just re-run `yeet run` with the new payload. For
+compose images, add `--pull` (or use `yeet docker update`) when you want to
+refresh images.
+
+```bash
+yeet run <svc> ./bin/<svc>
+```
+
+## Stage then commit
+
+```bash
+yeet stage <svc> ./bin/<svc>
+yeet stage <svc> show
+yeet stage <svc> commit
+```
+
+## Edit config or env
+
+```bash
+yeet edit <svc>          # compose or systemd units
+yeet env edit <svc>       # env file
+yeet env copy|cp <svc> ./app.env
+yeet env set <svc> PORT=8080 LOG_LEVEL=debug
+yeet env set <svc> LOG_LEVEL=     # unset
+```
+
+## Copy files into a service
+
+```bash
+yeet copy ./app.env <svc>:
+yeet copy ./config.yml <svc>:config/config.yml
+yeet copy ./configs/ <svc>:config/
+```
+
+## Run a cron job
+
+```bash
+yeet cron <svc> ./job.sh "0 9 * * *" -- --job-arg foo
+```
+
+## Tail logs
+
+```bash
+yeet logs -f <svc>
+```
+
+## Multi-host usage
+
+Here, `<host>` refers to the **catch host** (Tailscale/tsnet hostname), not the
+SSH machine host.
+
+Set the host per command:
+
+```bash
+CATCH_HOST=<host> yeet status
+```
+
+Or use `@host`:
+
+```bash
+yeet status@<host>
+yeet run <svc>@<host> ./compose.yml
+```
+
+Or save it:
+
+```bash
+yeet prefs --host=<host> --save
+```

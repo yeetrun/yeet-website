@@ -1,0 +1,68 @@
+---
+title: Networking
+description: Network modes and flags for yeet services.
+---
+
+Yeet/catch can place services into different network modes. The mode is
+selected with `--net` on `run` or `stage`.
+
+## Modes
+
+- `host` (default): no network namespace, service uses the host network.
+- `ts`: Tailscale netns for the service.
+- `svc`: per-service virtual IP on an internal subnet.
+- `lan`: macvlan on the host LAN.
+
+Modes are comma-separated:
+
+```bash
+yeet run <svc> ./compose.yml --net=svc,ts
+```
+
+## Tailscale (`ts`)
+
+Tailscale options:
+
+- `--ts-ver=<ver>`: Tailscale version (default is set in code).
+- `--ts-tags=<tag>`: tags (repeatable or comma-separated).
+- `--ts-exit=<node>`: exit node.
+- `--ts-auth-key=<key>`: auth key for the service netns.
+
+Use `yeet tailscale` (alias: `ts`) to run tailscale commands in the service
+netns:
+
+```bash
+yeet tailscale <svc> -- serve --bg 8080
+yeet tailscale <svc> -- debug daemon-logs
+```
+
+## Service network (`svc`)
+
+`svc` assigns a stable private IP from an internal range (`192.168.100.0/24`).
+
+- Use `yeet ip <svc>` to view it.
+- This is useful for service-to-service traffic or when combined with
+  Tailscale.
+
+## LAN (`lan`)
+
+`lan` uses macvlan to attach the service to the LAN.
+
+- Default parent interface is the system default route.
+- Override with `--macvlan-parent`.
+- Optional `--macvlan-vlan` and `--macvlan-mac`.
+
+## Mounts
+
+`mount` and `umount` manage network mounts for a service.
+
+```bash
+yeet mount <svc> host:/export /mnt/data --type=nfs --opts=defaults
+yeet umount <svc> /mnt/data
+```
+
+Mount flags:
+
+- `--type` (default `nfs`)
+- `--opts` (default `defaults`)
+- `--deps` (list of systemd dependencies)

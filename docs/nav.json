@@ -1,0 +1,54 @@
+{
+  "items": [
+    {
+      "type": "folder",
+      "path": "/getting-started",
+      "title": "Getting Started",
+      "children": [
+        { "type": "link", "path": "/quick-start", "title": "Quick Start" },
+        { "type": "link", "path": "/installation", "title": "Installation" }
+      ]
+    },
+    { "type": "break" },
+    {
+      "type": "folder",
+      "path": "/concepts",
+      "title": "Concepts",
+      "children": [
+        { "type": "link", "path": "/architecture", "title": "Architecture" },
+        { "type": "link", "path": "/networking", "title": "Networking" },
+        { "type": "link", "path": "/service-types", "title": "Service Types" },
+        { "type": "link", "path": "/data-layout", "title": "Data Layout" },
+        { "type": "link", "path": "/configuration-and-prefs", "title": "Configuration & Prefs" }
+      ]
+    },
+    {
+      "type": "folder",
+      "path": "/cli",
+      "title": "CLI",
+      "children": [
+        { "type": "link", "path": "/cli-overview", "title": "CLI Overview" },
+        { "type": "link", "path": "/yeet-cli", "title": "yeet CLI" },
+        { "type": "link", "path": "/catch-cli", "title": "catch CLI" }
+      ]
+    },
+    {
+      "type": "folder",
+      "path": "/operations",
+      "title": "Operations",
+      "children": [
+        { "type": "link", "path": "/workflows", "title": "Workflows" },
+        { "type": "link", "path": "/troubleshooting", "title": "Troubleshooting" }
+      ]
+    },
+    {
+      "type": "folder",
+      "path": "/development",
+      "title": "Development",
+      "children": [
+        { "type": "link", "path": "/", "title": "Overview" }
+      ]
+    },
+    { "type": "link", "path": "/faq", "title": "FAQ" }
+  ]
+}

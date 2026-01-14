@@ -1,0 +1,61 @@
+---
+title: Development
+description: Local development setup for the yeet repo.
+---
+
+This page is for local dev on the yeet repo.
+
+## Toolchain (recommended: mise)
+
+If you already have Go in your `PATH`, you can skip mise and use the Go commands
+below. Otherwise:
+
+```bash
+curl https://mise.run | sh
+echo 'eval "$(mise activate zsh)"' >> ~/.zshrc
+```
+
+Swap `zsh` for your shell (bash/fish/etc.) if needed.
+
+From the repo root, install tools (Go 1.25.5):
+
+```bash
+mise install
+mise run install-githooks
+```
+
+The hook install uses `pre-commit` and sets up both the `pre-commit` and
+`prepare-commit-msg` hook types. It also clears any existing `core.hooksPath` so
+pre-commit can manage the hooks.
+
+## Build
+
+```bash
+go build ./cmd/yeet
+go build ./cmd/catch
+```
+
+## Test
+
+```bash
+go test ./...
+```
+
+## Run locally
+
+Run catch in the foreground with a local data dir:
+
+```bash
+go run ./cmd/catch --data-dir ./data
+```
+
+Run yeet against a target host:
+
+```bash
+CATCH_HOST=<host> go run ./cmd/yeet status
+```
+
+## Notes
+
+- Most CLI behavior is in `cmd/yeet` and `pkg/cli`.
+- RPC handling lives in `pkg/catch` and `pkg/catchrpc`.

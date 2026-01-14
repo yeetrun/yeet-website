@@ -1,0 +1,123 @@
+---
+title: Quick Start
+description: Fastest path to a working yeet + catch install.
+---
+
+This is the fastest path to a working install. It assumes you have a Linux host
+with Tailscale connected and systemd available.
+
+## 0) Install the toolchain (recommended: mise)
+
+If you already have Go in your `PATH`, skip this step. Otherwise:
+
+```bash
+curl https://mise.run | sh
+echo 'eval "$(mise activate zsh)"' >> ~/.zshrc
+```
+
+Swap `zsh` for your shell (bash/fish/etc.) if needed.
+
+From the repo root, install tools (Go 1.25.5):
+
+```bash
+mise install
+```
+
+## 1) Install yeet locally
+
+Release install (recommended):
+
+```bash
+curl -fsSL https://yeetrun.com/install.sh | sh
+```
+
+Nightly build:
+
+```bash
+curl -fsSL https://yeetrun.com/install.sh | sh -s -- --nightly
+```
+
+From the repo root (dev):
+
+```bash
+go build ./cmd/yeet
+```
+
+Or install globally:
+
+```bash
+go install ./cmd/yeet
+```
+
+## 2) Bootstrap catch on a host
+
+Use SSH to install the catch service on a remote host:
+
+```bash
+yeet init root@<host>
+```
+
+Or use the mise task:
+
+```bash
+mise run init-host -- root@<host>
+```
+
+If you use a non-root user, yeet will invoke sudo on the remote.
+
+By default, a repo checkout builds and uploads `catch`. To force GitHub releases
+instead (or when using a released yeet binary), add `--from-github`. Use
+`--nightly` to install the nightly build.
+
+Note: this `<host>` is the **machine host** you SSH into. After install,
+`yeet run <svc>@<host>` uses the **catch host** (Tailscale/tsnet hostname).
+
+## 3) Sanity check
+
+```bash
+yeet version
+yeet status
+```
+
+## 4) Deploy something
+
+Docker Compose (most common):
+
+```bash
+yeet run <svc> ./compose.yml --net=svc,ts --ts-tags=tag:app
+```
+
+Dockerfile (built locally for the host’s arch, then pushed):
+
+```bash
+yeet run <svc> ./Dockerfile
+```
+
+Binary:
+
+```bash
+yeet run <svc> ./bin/<svc>
+```
+
+Docker image (pulled on the host):
+
+```bash
+yeet run <svc> nginx:latest
+```
+
+Local image (push it, then run it):
+
+```bash
+yeet docker push <svc> <local-image>:<tag> --run
+```
+
+## 5) Observe and iterate
+
+```bash
+yeet logs -f <svc>
+yeet restart <svc>
+```
+
+If you change the binary or compose file, re-run the same `yeet run` command to
+roll a new generation. For compose images, add `--pull` (or use
+`yeet docker update`) when you want to refresh images.

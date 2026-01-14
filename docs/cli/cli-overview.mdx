@@ -1,0 +1,81 @@
+---
+title: CLI Overview
+description: Command model, host targeting, and argument routing.
+---
+
+Yeet is the client. Catch runs on remote hosts. Most yeet commands are forwarded
+to catch over RPC on your tailnet.
+
+## Command model
+
+Common patterns:
+
+```bash
+yeet <command> <svc> [flags] [-- <args...>]
+```
+
+## Help
+
+Use `--help` for standard help and `--help-llm` for structured help:
+
+```bash
+yeet --help
+yeet run --help
+yeet run --help-llm
+```
+
+## Service selection
+
+- Most commands target a service. If you pass a service name, yeet routes the
+  command to that service.
+- `--service=<svc>` overrides the service for any command.
+- If no service is provided, commands run against the system service (`sys`).
+- Some commands are host-level and ignore service selection (e.g., `mount`,
+  `umount`, `list-hosts`, `prefs`).
+
+Service name placement:
+
+- The service name should come after known flags/args.
+- Unknown flags before the service name can confuse detection. Use `--` to stop
+  flag parsing.
+
+Examples:
+
+```bash
+yeet status                  # system-wide view
+yeet status <svc>             # single service
+yeet info <svc>               # detailed service info
+yeet status <svc>@<host>       # specific host
+yeet --service=<svc> logs -f  # service override
+yeet run <svc> ./bin/<svc> -- --app-flag value
+```
+
+## Global flags
+
+- `--host=<host>`: override the target **catch host** (also set by `CATCH_HOST`).
+- `--service=<svc>`: force a service name for the command.
+
+`yeet prefs` shows the resolved default host. Use `yeet prefs --save` to persist.
+
+Host scoping shortcuts (catch host):
+
+- `yeet <command>@<host>` for host-only commands (e.g., `events@host`).
+- `yeet <command> <svc>@<host>` to target a service on a specific host.
+
+If a `yeet.toml` exists with a host list, `yeet status` (no args) queries each
+host.
+
+## Passing args to services
+
+For commands that accept arbitrary arguments (run, stage, cron), use `--` to
+separate service args from yeet flags and avoid mis-detection:
+
+```bash
+yeet run <svc> ./bin/<svc> -- --flag value
+yeet cron <svc> ./job "0 9 * * *" -- --job-arg foo
+```
+
+## TTY requirements
+
+`yeet edit` and interactive commands require a TTY. Run them from an
+interactive shell.
