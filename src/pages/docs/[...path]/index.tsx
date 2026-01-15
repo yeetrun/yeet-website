@@ -18,7 +18,7 @@ import s from "./DocsPage.module.css";
 // This is the location that we expect our docs mdx files to be located,
 // relative to the root of the Next.js project.
 export const DOCS_DIRECTORY = "./docs";
-const GITHUB_REPO_URL = "https://github.com/shayne/yeet-website";
+const GITHUB_REPO_URL = "https://github.com/yeetrun/yeet-website";
 // This is the URL path for all of our docs pages
 export const DOCS_PAGES_ROOT_PATH = "/docs";
 

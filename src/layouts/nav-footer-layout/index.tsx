@@ -15,7 +15,7 @@ const navLinks: Array<SimpleLink> = [
   },
   {
     text: "GitHub",
-    href: "https://github.com/shayne/yeet",
+    href: "https://github.com/yeetrun/yeet",
   },
 ];
 
