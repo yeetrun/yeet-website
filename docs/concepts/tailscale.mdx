@@ -51,6 +51,12 @@ yeet info <svc>
 
 `--net` can be combined with other modes (for example, `--net=svc,ts`).
 
+Note: `--net=ts` alone means the Tailscale TAP interface is the only network
+device for the service. That can be useful, but it often means no general
+internet access unless you route via a Tailscale exit node. A common pattern is
+`--net=svc,ts` so the service has a local service IP for outbound access while
+still getting its Tailscale address for tailnet traffic.
+
 Tailscale options:
 
 - `--ts-ver=<ver>`: Tailscale version to install for the service.
