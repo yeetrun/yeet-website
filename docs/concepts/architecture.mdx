@@ -31,7 +31,8 @@ on your homelab hosts.
 ## Networking
 
 Services can run in `host`, `ts`, `svc`, or `lan` network modes. See
-[Networking](/docs/concepts/networking) for details.
+[Networking](/docs/concepts/networking) for details and
+[Tailscale](/docs/concepts/tailscale) for how RPC and service netns are wired.
 
 ## Authorization
 
@@ -40,6 +41,8 @@ RPC access is gated by Tailscale identity:
 - Tagged nodes must share tags to connect.
 - Untagged nodes must match the owner of the catch node (unless the catch node
   is tagged).
+
+See [Tailscale](/docs/concepts/tailscale) for setup and tailnet behaviors.
 
 ## Registry
 

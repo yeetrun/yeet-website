@@ -8,14 +8,16 @@ This is a personal homelab setup. The install flow assumes:
 - A Linux host with systemd.
 - SSH access to that host.
 - You can reach the host from your laptop (LAN or tailnet). You do **not** need
-  Tailscale installed locally; yeet embeds tsnet for RPC.
+  Tailscale installed locally; yeet embeds tsnet for RPC. See
+  [Tailscale](/docs/concepts/tailscale).
 
 ## Host terminology
 
 - **machine host (SSH)**: the host you connect to for `yeet init root@<host>`.
 - **catch host (Tailscale/tsnet)**: the hostname that `yeet` targets for RPC
   (`CATCH_HOST`, `--host`, `@<host>`). After install, this is the tsnet name
-  advertised by catch (default `catch` or `--tsnet-host`).
+  advertised by catch (default `catch` or `--tsnet-host`). See
+  [Tailscale](/docs/concepts/tailscale).
 
 ## Install yeet
 

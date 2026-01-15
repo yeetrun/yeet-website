@@ -1,0 +1,102 @@
+---
+title: Tailscale
+description: How yeet uses Tailscale for RPC and per-service networking.
+---
+
+Yeet integrates deeply with Tailscale: catch exposes RPC over an embedded
+tsnet instance, and services can optionally get their own Tailscale interfaces
+and IPs.
+
+## What yeet uses Tailscale for
+
+- **RPC to catch**: `yeet` talks to `catch` over Tailscale/tsnet. You do not
+  need Tailscale installed locally for RPC to work.
+- **Per-service networking**: `--net=ts` gives a service its own Tailscale
+  interface and IP address.
+
+## Get started (OAuth setup)
+
+Before using `--net=ts`, configure the catch host with a Tailscale OAuth client
+secret:
+
+```bash
+yeet tailscale --setup
+```
+
+This stores a `tskey-client-...` secret on the catch host. When you deploy a
+service with `--net=ts`, yeet uses that secret to mint per-service auth keys.
+
+If you prefer, you can bypass OAuth and provide your own key:
+
+```bash
+yeet run <svc> ./compose.yml --net=ts --ts-auth-key=tskey-...
+```
+
+## Service networking (`--net=ts`)
+
+Using `--net=ts` starts a dedicated tailscaled instance for the service and
+adds a Tailscale interface inside the service's network namespace. The service
+gets its own tailnet IP:
+
+```bash
+yeet run <svc> ./compose.yml --net=ts --ts-tags=tag:app
+```
+
+Check the IPs:
+
+```bash
+yeet ip <svc>
+yeet info <svc>
+```
+
+`--net` can be combined with other modes (for example, `--net=svc,ts`).
+
+Tailscale options:
+
+- `--ts-ver=<ver>`: Tailscale version to install for the service.
+- `--ts-tags=<tag>`: tags (repeatable or comma-separated).
+- `--ts-exit=<node>`: exit node.
+- `--ts-auth-key=<key>`: auth key for the service netns.
+
+## Running Tailscale commands for a service
+
+Use `yeet tailscale` (alias: `yeet ts`) to run Tailscale commands inside the
+service's netns:
+
+```bash
+yeet tailscale <svc> -- status
+yeet ts <svc> -- debug daemon-logs
+```
+
+### Tailscale Serve (HTTP proxy + TLS)
+
+Serve is useful for exposing a service over HTTPS on your tailnet. For example,
+to proxy a service running on port 3000:
+
+```bash
+yeet ts mysvc serve --bg 3000
+```
+
+- `serve` can reverse-proxy a local HTTP server (by port or URL).
+- HTTPS uses an automatically provisioned TLS certificate.
+- Serve requires HTTPS to be enabled on the tailnet; the CLI will prompt you to
+  enable it if needed.
+- With `--bg`, Serve runs persistently and resumes after reboot; without it,
+  you must restart Serve after a reboot.
+
+## Host discovery
+
+`yeet list-hosts` uses your local Tailscale client to discover tagged nodes,
+so it requires Tailscale running locally.
+
+## Cleanup
+
+When you remove a service, yeet attempts to delete the corresponding Tailscale
+device from your tailnet.
+
+## References
+
+- https://tailscale.com/kb/1215/oauth-clients
+- https://tailscale.com/kb/1068/acl-tags
+- https://tailscale.com/kb/1242/tailscale-serve
+- https://tailscale.com/kb/1312/serve

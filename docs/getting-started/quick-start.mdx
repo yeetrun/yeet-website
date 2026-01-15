@@ -5,7 +5,8 @@ description: Fastest path to a working yeet + catch install.
 
 This is the TL;DR path to a working install. It assumes you have a Linux host
 with systemd and SSH access. You do not need Tailscale installed on either
-machine; yeet uses an embedded tsnet client for RPC.
+machine; yeet uses an embedded tsnet client for RPC. See
+[Tailscale](/docs/concepts/tailscale) for details.
 
 ## 1) Install yeet locally
 
@@ -33,7 +34,8 @@ If you use a non-root user, yeet will invoke sudo on the remote. Add `--nightly`
 for nightly.
 
 Note: this `<host>` is the **machine host** you SSH into. After install,
-`yeet run <svc>@<host>` uses the **catch host** (Tailscale/tsnet hostname).
+`yeet run <svc>@<host>` uses the **catch host** (Tailscale/tsnet hostname). See
+[Tailscale](/docs/concepts/tailscale).
 
 ## 3) Sanity check
 

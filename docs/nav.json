@@ -17,6 +17,7 @@
       "children": [
         { "type": "link", "path": "/architecture", "title": "Architecture" },
         { "type": "link", "path": "/networking", "title": "Networking" },
+        { "type": "link", "path": "/tailscale", "title": "Tailscale" },
         { "type": "link", "path": "/service-types", "title": "Service Types" },
         { "type": "link", "path": "/data-layout", "title": "Data Layout" },
         { "type": "link", "path": "/configuration-and-prefs", "title": "Configuration & Prefs" }

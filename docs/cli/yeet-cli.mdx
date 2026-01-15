@@ -19,6 +19,9 @@ After `yeet init`, catch will advertise a tsnet hostname (default `catch` or
 `--tsnet-host`). That tsnet name is the **catch host** you use for `yeet run`,
 `yeet status`, etc.
 
+See [Tailscale](/docs/concepts/tailscale) for how RPC and tailnet addressing
+work.
+
 ## Global flags
 
 - `--host=<host>`: target host (overrides prefs).
@@ -154,6 +157,9 @@ Run flags:
 - `--macvlan-vlan=<vlan>`: VLAN id for `lan`.
 - `--macvlan-mac=<mac>`: MAC address for `lan`.
 - `--restart=<bool>`: currently unused.
+
+See [Tailscale](/docs/concepts/tailscale) for setup, netns behavior, and Serve
+examples.
 
 For compose services, `yeet docker update <svc>` also pulls and recreates
 containers.
@@ -349,6 +355,9 @@ walks you through creating a tag and a trust credential, then stores the
 `tskey-client-...` secret on the target host. Use `--client-secret` to skip
 the prompt.
 
+See [Tailscale](/docs/concepts/tailscale) for the full setup flow and related
+flags.
+
 ### `yeet tailscale <svc> -- <tailscale args...>` (alias: `ts`)
 
 Run tailscale commands inside the service netns.
@@ -357,6 +366,8 @@ Run tailscale commands inside the service netns.
 yeet tailscale <svc> -- serve --bg 8080
 yeet tailscale <svc> -- debug daemon-logs
 ```
+
+See [Tailscale](/docs/concepts/tailscale) for Serve/TLS details.
 
 ### `yeet events [<svc>] [--all]`
 

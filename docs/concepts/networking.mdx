@@ -21,49 +21,12 @@ yeet run <svc> ./compose.yml --net=svc,ts
 
 ## Tailscale (`ts`)
 
-### Setup (OAuth client)
+`--net=ts` adds a Tailscale interface to the service netns, giving the service
+its own tailnet IP. Use `yeet tailscale` (alias: `yeet ts`) to run Tailscale
+commands for that service.
 
-Use `yeet tailscale --setup` to configure the catch host with a Tailscale OAuth
-client secret. The flow is:
-
-1. Create a tag for services (for example, `tag:app`) in the admin console
-   Tags tab or by editing policy. See Tailscale's tag docs and visual editor
-   reference for details.
-2. Create a trust credential (OAuth client) with **Devices -> Core (write)**
-   scope and select the tag you created. This scope requires tags and allows
-   tag-based auth keys.
-3. Copy the client secret (it starts with `tskey-client-`) and paste it into
-   the prompt.
-
-Once the secret is stored, yeet will generate per-service auth keys when you
-use `--net=ts` and `--ts-tags`.
-
-Tailscale's pricing FAQ notes a free Personal tier for homelab/personal use, and
-tags are available on all plans. This setup works on a free Personal tailnet.
-
-References:
-
-- https://tailscale.com/kb/1623/trust-credentials
-- https://tailscale.com/kb/1215/oauth-clients
-- https://tailscale.com/kb/1068/acl-tags
-- https://tailscale.com/kb/1587/visual-editor-reference
-- https://tailscale.com/kb/1277/key-prefixes
-- https://tailscale.com/pricing/
-
-Tailscale options:
-
-- `--ts-ver=<ver>`: Tailscale version (default is set in code).
-- `--ts-tags=<tag>`: tags (repeatable or comma-separated).
-- `--ts-exit=<node>`: exit node.
-- `--ts-auth-key=<key>`: auth key for the service netns.
-
-Use `yeet tailscale` (alias: `ts`) to run tailscale commands in the service
-netns:
-
-```bash
-yeet tailscale <svc> -- serve --bg 8080
-yeet tailscale <svc> -- debug daemon-logs
-```
+See the [Tailscale](/docs/concepts/tailscale) page for setup, flags, and Serve
+examples.
 
 ## Service network (`svc`)
 
