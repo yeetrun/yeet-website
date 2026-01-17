@@ -50,6 +50,7 @@
         { "type": "link", "path": "/", "title": "Overview" }
       ]
     },
-    { "type": "link", "path": "/faq", "title": "FAQ" }
+    { "type": "link", "path": "/faq", "title": "FAQ" },
+    { "type": "link", "path": "/changelog", "title": "Changelog" }
   ]
 }
