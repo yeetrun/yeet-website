@@ -74,6 +74,27 @@ yeet tailscale <svc> -- status
 yeet ts <svc> -- debug daemon-logs
 ```
 
+`yeet ts <svc> update` runs a **yeet-managed** updater (not Tailscale's official
+self-update path). It resolves the latest version on the service's current
+track (stable/unstable), replaces the managed `tailscaled` binary, and restarts
+the service's tailscaled unit. It prompts for confirmation before applying the
+upgrade.
+
+You can pin a specific version:
+
+```bash
+yeet ts <svc> update 1.95.112
+# or
+yeet ts <svc> update --version=1.95.112
+```
+
+If you intentionally want the official upstream subcommand behavior, pass it
+through explicitly:
+
+```bash
+yeet ts <svc> -- update
+```
+
 ### Tailscale Serve (HTTP proxy + TLS)
 
 Serve is useful for exposing a service over HTTPS on your tailnet. For example,

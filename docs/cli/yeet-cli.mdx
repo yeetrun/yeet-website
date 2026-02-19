@@ -363,9 +363,20 @@ Run tailscale commands inside the service netns.
 ```bash
 yeet tailscale <svc> -- serve --bg 8080
 yeet tailscale <svc> -- debug daemon-logs
+yeet ts <svc> update
+yeet ts <svc> update 1.95.112
+yeet ts <svc> update --version=1.95.112
 ```
 
 Alias: `yeet ts <svc> -- ...`.
+
+Notes:
+
+- `yeet ts <svc> update` uses a yeet-managed updater (not the official
+  `tailscale update` self-update path).
+- It asks for confirmation before upgrading.
+- To force the official subcommand behavior, use:
+  `yeet ts <svc> -- update`.
 
 See [Tailscale](/docs/concepts/tailscale) for Serve/TLS details.
 
