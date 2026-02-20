@@ -60,6 +60,7 @@ Examples:
 yeet run <svc>@<host> ./compose.yml
 yeet run <svc> ./compose.yml --net=lan
 yeet run --pull <svc> ./compose.yml
+yeet run --force <svc> ./compose.yml
 yeet run --env-file=prod.env <svc> ./compose.yml
 yeet run <svc> ./Dockerfile
 yeet run <svc> ./bin/<svc> -- --app-flag value
@@ -79,6 +80,7 @@ If a `yeet.toml` exists (or after your first `run`), you can omit the payload:
 
 ```bash
 yeet run <svc>
+yeet run <svc> --force
 ```
 
 Yeet will expand the stored payload + args for that service.
@@ -94,6 +96,7 @@ Run flags:
 
 - `--pull`: for docker compose/image payloads, pull latest images on deploy.
   Without this, `run` reuses existing images.
+- `--force`: redeploy even when yeet detects no payload/env/arg changes.
 - `--net=<list>`: network modes (`ts`, `svc`, `lan`). Comma-separated.
 - `--ts-ver=<ver>`: tailscale version for service netns.
 - `--ts-exit=<node>`: tailscale exit node.

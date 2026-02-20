@@ -31,6 +31,7 @@ containers):
 ```bash
 yeet run <svc> ./compose.yml          # redeploy config, reuse existing images
 yeet run --pull <svc> ./compose.yml   # pull latest + redeploy
+yeet run --force <svc> ./compose.yml  # redeploy even if no changes are detected
 yeet docker pull <svc>     # prefetch images without restarting
 yeet docker update <svc>   # pull + recreate containers (restart)
 ```
