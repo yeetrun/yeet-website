@@ -42,6 +42,11 @@ examples.
 - Yeet owns its own firewall objects for this path (`table ip yeet` for `nft`,
   or `YEET_FORWARD` / `YEET_POSTROUTING` chains for `iptables` backends)
   instead of appending anonymous one-off rules directly into the host ruleset.
+- If a named service netns is recreated, catch now detects stale compose
+  containers and restarts the whole compose project so it rejoins the current
+  netns.
+- catch also performs this reconciliation pass at startup for netns-backed
+  docker services and logs when it restarts a service for this reason.
 
 You can inspect the current host-side firewall state with:
 

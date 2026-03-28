@@ -19,6 +19,14 @@ description: Common failures and how to fix them.
 
 - Docker compose services require docker on the host.
 - `catch install` can prompt to install docker if missing.
+- If a netns-backed compose service becomes unreachable after networking
+  changes, catch will now reconcile that service at startup by restarting the
+  compose project when it detects the containers are still attached to an old
+  service netns. Check the catch logs for a message saying it restarted the
+  service during netns reconciliation.
+- If you need to force the same repair manually, restart the service through
+  yeet or restart the service's `yeet-<svc>-ns.service` unit and let catch
+  reconcile it on the next start.
 
 ## `svc` network firewall issues
 
