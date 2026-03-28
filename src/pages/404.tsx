@@ -5,6 +5,7 @@ import { DOCS_DIRECTORY } from "./docs/[...path]";
 import { NavTreeNode } from "@/components/nav-tree";
 import { H2, P } from "@/components/text";
 import { ButtonLink } from "@/components/link";
+import Image from "next/image";
 
 export async function getStaticProps() {
   return {
@@ -30,7 +31,14 @@ export default function NotFound({ docsNavTree }: NotFoundProps) {
     >
       <main className={s.notFoundPage}>
         <div className={s.card}>
-          <div className={s.mark} aria-hidden={true} />
+          <Image
+            className={s.mark}
+            src="/favicon.svg"
+            alt=""
+            aria-hidden={true}
+            width={64}
+            height={64}
+          />
           <H2>This page could not be found.</H2>
           <P>
             Try the docs navigation or hop back to the homepage. If you think

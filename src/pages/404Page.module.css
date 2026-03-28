@@ -22,20 +22,8 @@
 .mark {
   width: 64px;
   height: 64px;
-  border-radius: 18px;
   margin: 0 auto;
-  background: linear-gradient(135deg, #38e17b, #4fd6d3);
-  position: relative;
-  box-shadow: 0 0 24px rgba(56, 225, 123, 0.25);
-}
-
-.mark::after {
-  content: "";
-  position: absolute;
-  inset: 18px 12px;
-  border-left: 6px solid #0f0f11;
-  border-bottom: 6px solid #0f0f11;
-  transform: rotate(-45deg);
+  display: block;
 }
 
 .actions {
