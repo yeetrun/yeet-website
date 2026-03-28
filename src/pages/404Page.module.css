@@ -19,11 +19,36 @@
   text-align: center;
 }
 
-.mark {
-  width: 64px;
-  height: 64px;
-  margin: 0 auto;
+.logo {
+  margin: 0 auto 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--gray-9);
+}
+
+.logoMark {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  background: var(--brand-color);
+  box-shadow: 0 0 32px rgba(56, 225, 123, 0.25);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.logoMarkGlyph {
   display: block;
+}
+
+.logoText {
+  font-family: var(--display-font);
+  font-size: clamp(1.75rem, 2vw + 1rem, 2.25rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1;
 }
 
 .actions {

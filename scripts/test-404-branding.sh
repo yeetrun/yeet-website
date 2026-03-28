@@ -35,8 +35,18 @@ if [[ "${status_code}" != "404" ]]; then
   exit 1
 fi
 
-if ! printf '%s\n' "${not_found_html}" | rg -q '<img[^>]+src="/favicon\.svg"'; then
-  echo "expected 404 page to render the favicon image in the card"
+if ! printf '%s\n' "${not_found_html}" | rg -q '<img[^>]+src="/yeet-mark\.svg"'; then
+  echo "expected 404 page to render the full yeet mark in the card"
+  exit 1
+fi
+
+if ! printf '%s\n' "${not_found_html}" | rg -q '>yeet<'; then
+  echo "expected 404 page to render the yeet wordmark in the card"
+  exit 1
+fi
+
+if printf '%s\n' "${not_found_html}" | rg -q '<img[^>]+src="/favicon\.svg"'; then
+  echo "expected 404 page to stop rendering the favicon image in the card"
   exit 1
 fi
 

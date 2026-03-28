@@ -31,14 +31,18 @@ export default function NotFound({ docsNavTree }: NotFoundProps) {
     >
       <main className={s.notFoundPage}>
         <div className={s.card}>
-          <Image
-            className={s.mark}
-            src="/favicon.svg"
-            alt=""
-            aria-hidden={true}
-            width={64}
-            height={64}
-          />
+          <div className={s.logo} aria-hidden={true}>
+            <span className={s.logoMark}>
+              <Image
+                className={s.logoMarkGlyph}
+                src="/yeet-mark.svg"
+                alt=""
+                width={34}
+                height={34}
+              />
+            </span>
+            <span className={s.logoText}>yeet</span>
+          </div>
           <H2>This page could not be found.</H2>
           <P>
             Try the docs navigation or hop back to the homepage. If you think
