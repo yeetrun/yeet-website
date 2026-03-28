@@ -35,6 +35,24 @@ examples.
 - Use `yeet ip <svc>` to view it.
 - This is useful for service-to-service traffic or when combined with
   Tailscale.
+- On modern Debian and Ubuntu hosts, yeet prefers native `nft` for the host
+  forwarding and masquerade rules that support `svc`.
+- If `nft` is not available, yeet falls back to `iptables-nft`.
+- `iptables-legacy` is supported as a compatibility fallback only.
+- Yeet owns its own firewall objects for this path (`table ip yeet` for `nft`,
+  or `YEET_FORWARD` / `YEET_POSTROUTING` chains for `iptables` backends)
+  instead of appending anonymous one-off rules directly into the host ruleset.
+
+You can inspect the current host-side firewall state with:
+
+```bash
+sudo nft list table ip yeet
+sudo iptables-nft -S YEET_FORWARD
+sudo iptables-nft -t nat -S YEET_POSTROUTING
+```
+
+If the host is on legacy compatibility mode, use `iptables-legacy` in place of
+`iptables-nft`.
 
 ## LAN (`lan`)
 

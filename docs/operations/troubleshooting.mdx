@@ -20,6 +20,32 @@ description: Common failures and how to fix them.
 - Docker compose services require docker on the host.
 - `catch install` can prompt to install docker if missing.
 
+## `svc` network firewall issues
+
+- New Debian and Ubuntu hosts should prefer native `nft`.
+- `iptables-nft` is the compatibility path.
+- `iptables-legacy` should only appear as a fallback compatibility mode.
+- Check that the yeet-owned firewall objects exist:
+
+```bash
+sudo nft list table ip yeet
+sudo iptables-nft -S YEET_FORWARD
+sudo iptables-nft -t nat -S YEET_POSTROUTING
+```
+
+- On legacy hosts, replace `iptables-nft` with `iptables-legacy`.
+- Verify forwarding is enabled on the host:
+
+```bash
+sysctl net.ipv4.ip_forward
+```
+
+- If the yeet namespace service needs to rebuild networking state, restart it:
+
+```bash
+sudo systemctl restart yeet-ns.service
+```
+
 ## `edit` fails without TTY
 
 - `yeet edit` needs a TTY to launch `$EDITOR`.
