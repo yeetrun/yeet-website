@@ -42,6 +42,10 @@ examples.
 - Yeet owns its own firewall objects for this path (`table ip yeet` for `nft`,
   or `YEET_FORWARD` / `YEET_POSTROUTING` chains for `iptables` backends)
   instead of appending anonymous one-off rules directly into the host ruleset.
+- Inside each service netns, yeet also owns the DNAT chains used for published
+  compose ports (`YEET_PREROUTING` and `YEET_OUTPUT`) and now reconciles them
+  from the current docker endpoint state so stale sidecar-targeting rules are
+  removed automatically during container churn.
 - If a named service netns is recreated, catch now detects the stale docker
   endpoint wiring for that service and recreates the whole compose project so
   it rejoins the current netns cleanly.

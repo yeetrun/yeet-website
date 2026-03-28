@@ -24,6 +24,10 @@ description: Common failures and how to fix them.
   compose project when it detects stale docker endpoint wiring for the current
   service netns. Check the catch logs for a message saying it recreated the
   service during netns reconciliation.
+- For published compose ports inside `svc`, yeet now owns the service-netns
+  DNAT chains directly. If you suspect stale port forwarding, inspect the
+  service netns and expect to see `YEET_PREROUTING` and `YEET_OUTPUT` as the
+  active chains rather than old direct `OUTPUT ... DNAT` rules.
 - If you need to force the same repair manually, restart the service through
   yeet or restart the service's `yeet-<svc>-ns.service` unit and let catch
   reconcile it on the next start.
@@ -53,6 +57,11 @@ sysctl net.ipv4.ip_forward
 ```bash
 sudo systemctl restart yeet-ns.service
 ```
+
+- `catch` now runs host-level netns reconciliation in the background, so
+  `yeet status` should return promptly after `catch` restarts. If `catch`
+  shutdown or restart appears hung, inspect `journalctl -u catch` for the
+  underlying docker or netns command that failed to exit.
 
 ## `edit` fails without TTY
 
