@@ -27,7 +27,7 @@ export default function Home({ docsNavTree }: HomePageProps) {
     <NavFooterLayout
       docsNavTree={docsNavTree}
       meta={{
-        title: "yeet",
+        title: "yeet: Homelab Service Manager for Docker, Compose, and systemd",
         description:
           "Homelab service manager over Tailscale RPC for shipping services to remote hosts.",
       }}
