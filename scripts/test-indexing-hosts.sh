@@ -27,6 +27,8 @@ done
 
 production_headers="$(curl -fsSI -H 'Host: yeetrun.com' "${BASE_URL}/" | tr -d '\r')"
 preview_headers="$(curl -fsSI -H "Host: localhost:${PORT}" "${BASE_URL}/" | tr -d '\r')"
+docs_html="$(curl -fsS -H 'Host: yeetrun.com' "${BASE_URL}/docs")"
+docs_index_headers="$(curl -sSI -H 'Host: yeetrun.com' "${BASE_URL}/docs/index" | tr -d '\r')"
 
 if printf '%s\n' "${production_headers}" | rg -qi '^x-robots-tag:\s*noindex$'; then
   echo "expected yeetrun.com to be indexable, but it returned X-Robots-Tag: noindex"
@@ -35,6 +37,26 @@ fi
 
 if ! printf '%s\n' "${preview_headers}" | rg -qi '^x-robots-tag:\s*noindex$'; then
   echo "expected non-production hosts to return X-Robots-Tag: noindex"
+  exit 1
+fi
+
+if ! printf '%s\n' "${docs_index_headers}" | rg -qi '^HTTP/1\.1 308'; then
+  echo "expected /docs/index to redirect to /docs"
+  exit 1
+fi
+
+if ! printf '%s\n' "${docs_index_headers}" | rg -qi '^location:\s*/docs$'; then
+  echo "expected /docs/index redirect location to be /docs"
+  exit 1
+fi
+
+if ! printf '%s\n' "${docs_html}" | rg -q '<link rel="canonical" href="https://yeetrun.com/docs"'; then
+  echo "expected /docs to include a canonical URL"
+  exit 1
+fi
+
+if ! printf '%s\n' "${docs_html}" | rg -q '<meta property="og:url" content="https://yeetrun.com/docs"'; then
+  echo "expected /docs to publish a page-specific og:url"
   exit 1
 fi
 

@@ -30,6 +30,7 @@ export default function Home({ docsNavTree }: HomePageProps) {
         title: "yeet: Homelab Service Manager for Docker, Compose, and systemd",
         description:
           "Homelab service manager over Tailscale RPC for shipping services to remote hosts.",
+        path: "/",
       }}
     >
       <main className={s.homePage}>
@@ -61,9 +62,9 @@ export default function Home({ docsNavTree }: HomePageProps) {
                 />
               </div>
               <div className={s.heroNote}>
-                <strong>Read this first:</strong> Yeet is personal infrastructure
-                tooling tuned for a specific homelab. Use it as reference or a
-                starting point, not a general-purpose platform.
+                <strong>Read this first:</strong> Yeet is personal
+                infrastructure tooling tuned for a specific homelab. Use it as
+                reference or a starting point, not a general-purpose platform.
               </div>
             </div>
 
@@ -95,7 +96,9 @@ yeet run <svc> ./compose.yml --net=svc,ts`}</code>
           <div className={s.featureGrid}>
             <div className={s.featureCard}>
               <h3>yeet CLI</h3>
-              <p>Packages payloads, ships artifacts, and drives the workflow.</p>
+              <p>
+                Packages payloads, ships artifacts, and drives the workflow.
+              </p>
             </div>
             <div className={s.featureCard}>
               <h3>catch daemon</h3>

@@ -68,9 +68,13 @@ export async function loadDocsPage(
 }
 
 async function loadDocsPageFromRelativeFilePath(
-  relativeFilePath: string,
+  absoluteFilePath: string,
 ): Promise<DocsPageData> {
-  const mdxFileContent = matter.read(relativeFilePath);
+  const docsRoot = resolveDocsRoot();
+  const relativeFilePath = toPosixPath(
+    nodePath.relative(docsRoot, absoluteFilePath),
+  );
+  const mdxFileContent = matter.read(absoluteFilePath);
   const slug = slugFromRelativeFilePath(relativeFilePath);
 
   var pageHeaders: PageHeader[] = [];
@@ -249,4 +253,8 @@ function slugFromRelativeFilePath(relativeFilePath: string): string {
       // Include support for index files (`/docs/topic/index.mdx` -> `topic`)
       .replaceAll(/\/index$/gi, "")
   );
+}
+
+function toPosixPath(filePath: string): string {
+  return filePath.split(nodePath.sep).join("/");
 }

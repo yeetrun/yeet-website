@@ -32,6 +32,7 @@ export default function InstallPage({ docsNavTree }: InstallPageProps) {
         title: "Install yeet",
         description:
           "Install yeet locally, bootstrap catch on a host, and start deploying services.",
+        path: "/install",
       }}
     >
       <main className={s.installPage}>

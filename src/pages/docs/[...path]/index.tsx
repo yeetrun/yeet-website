@@ -25,13 +25,17 @@ export const DOCS_PAGES_ROOT_PATH = "/docs";
 export async function getStaticPaths() {
   const docsPageSlugs = await loadAllDocsPageSlugs(DOCS_DIRECTORY);
   return {
-    paths: docsPageSlugs.map((slug: string): StaticPropsParams => {
-      return {
-        params: {
-          path: slug.split("/"),
-        },
-      };
-    }),
+    paths: docsPageSlugs
+      // `/docs` is served by `src/pages/docs/index.tsx`, so avoid generating
+      // a duplicate `/docs/index` page from the catch-all route.
+      .filter((slug: string) => slug !== "index")
+      .map((slug: string): StaticPropsParams => {
+        return {
+          params: {
+            path: slug.split("/"),
+          },
+        };
+      }),
     fallback: false,
   };
 }
@@ -70,6 +74,7 @@ interface DocsPageProps {
 export default function DocsPage({
   navTreeData,
   docsPageData: {
+    slug,
     title,
     description,
     editOnGithubLink,
@@ -100,6 +105,7 @@ export default function DocsPage({
                 .join(" - ")
             : breadcrumbs[0].text,
         description,
+        path: slug === "index" ? "/docs" : `/docs/${slug}`,
       }}
     >
       <div className={s.docsPage}>
