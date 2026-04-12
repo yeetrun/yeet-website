@@ -45,6 +45,18 @@ Or install globally:
 go install ./cmd/yeet
 ```
 
+## Agent skill (optional)
+
+If you use an AI coding tool that supports `npx skills`, you can install the
+public `yeet` skill repo for product guidance, workflow selection, and
+troubleshooting help:
+
+```bash
+npx skills add yeetrun/skills --skill yeet
+```
+
+This installs agent guidance for `yeet` and `catch` workflows. It does **not** install the `yeet` CLI binary itself.
+
 ## Install catch on a host
 
 `yeet init` installs `catch` on the remote host. When run from the repo it
