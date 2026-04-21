@@ -25,13 +25,24 @@ for _ in $(seq 1 30); do
   sleep 1
 done
 
-production_headers="$(curl -fsSI -H 'Host: yeetrun.com' "${BASE_URL}/" | tr -d '\r')"
+production_headers="$(curl -fsSI -H 'Host: yeetrun.com' -H 'X-Forwarded-Proto: https' "${BASE_URL}/" | tr -d '\r')"
+http_headers="$(curl -sSI -H 'Host: yeetrun.com' -H 'X-Forwarded-Proto: http' "${BASE_URL}/" | tr -d '\r')"
 preview_headers="$(curl -fsSI -H "Host: localhost:${PORT}" "${BASE_URL}/" | tr -d '\r')"
-docs_html="$(curl -fsS -H 'Host: yeetrun.com' "${BASE_URL}/docs")"
-docs_index_headers="$(curl -sSI -H 'Host: yeetrun.com' "${BASE_URL}/docs/index" | tr -d '\r')"
+docs_html="$(curl -fsS -H 'Host: yeetrun.com' -H 'X-Forwarded-Proto: https' "${BASE_URL}/docs")"
+docs_index_headers="$(curl -sSI -H 'Host: yeetrun.com' -H 'X-Forwarded-Proto: https' "${BASE_URL}/docs/index" | tr -d '\r')"
 
 if printf '%s\n' "${production_headers}" | rg -qi '^x-robots-tag:\s*noindex$'; then
   echo "expected yeetrun.com to be indexable, but it returned X-Robots-Tag: noindex"
+  exit 1
+fi
+
+if ! printf '%s\n' "${http_headers}" | rg -qi '^HTTP/1\.1 308'; then
+  echo "expected http://yeetrun.com to redirect to https://yeetrun.com"
+  exit 1
+fi
+
+if ! printf '%s\n' "${http_headers}" | rg -qi '^location:\s*https://yeetrun\.com/$'; then
+  echo "expected http://yeetrun.com redirect location to be https://yeetrun.com/"
   exit 1
 fi
 
