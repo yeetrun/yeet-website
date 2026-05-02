@@ -5,6 +5,12 @@ description: Short notes for yeet + catch releases.
 
 ## May 2, 2026
 
+### v0.2.6
+
+- Docker published ports on yeet-managed network namespaces now replay from catch state when catch starts.
+- Docker container restarts now keep yeet port forwarding in sync through Docker's external-connectivity callbacks.
+- Services with shared namespaces no longer clear each other's published-port rules during container churn.
+
 ### v0.2.5
 
 - Docker startup prerequisites now avoid stop cascades when `catch` or yeet network units are refreshed.
