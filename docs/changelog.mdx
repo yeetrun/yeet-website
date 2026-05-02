@@ -3,6 +3,14 @@ title: Changelog
 description: Short notes for yeet + catch releases.
 ---
 
+## May 2, 2026
+
+### v0.2.4
+
+- Docker services on yeet-managed networks now come back more reliably after host reboots.
+- `catch` now installs Docker startup ordering so Docker waits for yeet's network plugin and service namespaces before restoring containers.
+- Existing hosts migrate their catch and network namespace systemd units during `yeet init` without forcing service redeploys.
+
 ## April 12, 2026
 
 ### v0.2.3
