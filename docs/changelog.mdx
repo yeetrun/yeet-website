@@ -5,6 +5,12 @@ description: Short notes for yeet + catch releases.
 
 ## May 2, 2026
 
+### v0.2.5
+
+- Docker startup prerequisites now avoid stop cascades when `catch` or yeet network units are refreshed.
+- Per-service Tailscale sidecars recover when LAN network namespaces are delayed during host boot.
+- Yeet refreshes the shared bridge namespace unit without interrupting an already-running namespace.
+
 ### v0.2.4
 
 - Docker services on yeet-managed networks now come back more reliably after host reboots.
