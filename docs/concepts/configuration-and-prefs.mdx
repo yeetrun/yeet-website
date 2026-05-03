@@ -42,11 +42,11 @@ Example:
 
 ```toml
 version = 1
-hosts = ["yeet-hetz", "host-b"]
+hosts = ["yeet-edge-b", "host-b"]
 
 [[services]]
 name = "uptime-kuma"
-host = "yeet-hetz"
+host = "yeet-edge-b"
 payload = "./uptime-kuma/compose.yml"
 args = ["--net=lan"]
 
@@ -58,7 +58,7 @@ args = ["--flagA", "valueA"]
 
 [[services]]
 name = "owesplit"
-host = "yeet-pve1"
+host = "yeet-edge-a"
 type = "cron"
 payload = "./owesplit/owesplit"
 schedule = "0 9 15 * *"
