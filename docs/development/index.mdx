@@ -17,7 +17,7 @@ echo 'eval "$(mise activate zsh)"' >> ~/.zshrc
 
 Swap `zsh` for your shell (bash/fish/etc.) if needed.
 
-From the repo root, install tools (Go 1.25.5):
+From the repo root, install tools (Go 1.26.2):
 
 ```bash
 mise install
@@ -39,6 +39,25 @@ go build ./cmd/catch
 
 ```bash
 go test ./...
+```
+
+## Quality gate
+
+The pre-commit hook also runs the repo quality gate:
+
+```bash
+mise run quality
+```
+
+That command runs Go tests with coverage, checks CRAP hotspots, and runs
+`golangci-lint` with complexity and bug-risk linters. Existing findings are
+baselined in `tools/quality/baseline/`, so new complexity, coverage-risk, or
+lint findings fail while older hotspots can be burned down over time.
+
+After intentionally fixing baseline entries, refresh the tracked baseline:
+
+```bash
+mise run quality:baseline
 ```
 
 ## Run locally
