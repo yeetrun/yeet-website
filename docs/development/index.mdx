@@ -60,6 +60,14 @@ After intentionally fixing baseline entries, refresh the tracked baseline:
 mise run quality:baseline
 ```
 
+The longer-term quality goal is stricter than the ratchet: at least 80% total
+coverage, zero CRAP hotspots, and zero golangci findings. To see whether the
+repo has reached that destination, run:
+
+```bash
+mise run quality:goal
+```
+
 ## Run locally
 
 Run catch in the foreground with a local data dir:
