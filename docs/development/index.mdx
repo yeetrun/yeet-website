@@ -49,10 +49,12 @@ The pre-commit hook also runs the repo quality gate:
 mise run quality
 ```
 
-That command runs Go tests with coverage, checks CRAP hotspots, and runs
-`golangci-lint` with complexity and bug-risk linters. Existing findings are
-baselined in `tools/quality/baseline/`, so new complexity, coverage-risk, or
-lint findings fail while older hotspots can be burned down over time.
+That command scans for private local references, runs Go tests with coverage,
+checks CRAP hotspots, runs `golangci-lint` with complexity and bug-risk
+linters, and writes a churn/coverage hotspot report to
+`.tmp/quality/hotspots.txt`. Existing findings are baselined in
+`tools/quality/baseline/`, so new complexity, coverage-risk, or lint findings
+fail while older hotspots can be burned down over time.
 
 After intentionally fixing baseline entries, refresh the tracked baseline:
 
@@ -60,9 +62,19 @@ After intentionally fixing baseline entries, refresh the tracked baseline:
 mise run quality:baseline
 ```
 
+Heavier empirical checks are available outside the normal pre-commit path:
+
+```bash
+mise run race
+mise run fuzz
+mise run mutation
+mise run hotspots
+```
+
 The longer-term quality goal is stricter than the ratchet: at least 80% total
-coverage, zero CRAP hotspots, and zero golangci findings. To see whether the
-repo has reached that destination, run:
+coverage, zero CRAP hotspots, zero golangci findings, 80% mutation score on the
+bounded mutation target set, the race detector passing, and at least four active
+fuzz targets. To see whether the repo has reached that destination, run:
 
 ```bash
 mise run quality:goal
