@@ -385,6 +385,21 @@ See [Tailscale](/docs/concepts/tailscale) for Serve/TLS details.
 
 ## Images and compose maintenance
 
+### docker outdated
+
+Checks Docker compose services for upstream image updates without pulling images,
+recreating containers, or restarting services.
+
+```bash
+yeet docker outdated
+yeet docker outdated <svc>
+yeet docker outdated <svc>@<host>
+yeet docker outdated --format=json
+```
+
+Default output shows only update, unknown, and error rows. Up-to-date containers
+are omitted.
+
 ### docker pull
 
 Prefetch images for a compose service without restarting.
