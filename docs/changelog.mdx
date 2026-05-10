@@ -3,6 +3,14 @@ title: Changelog
 description: Short notes for yeet + catch releases.
 ---
 
+## May 10, 2026
+
+### v0.2.8
+
+- `yeet docker outdated` now shows compact compose image update tables while keeping exact running and upstream digests available in JSON output.
+- `yeet docker update --outdated` updates only compose services with available image updates and streams the normal per-service update output.
+- Docker image checks now compare running containers against upstream registry digests for more accurate update detection.
+
 ## May 3, 2026
 
 ### v0.2.7

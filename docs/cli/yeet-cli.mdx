@@ -399,7 +399,9 @@ yeet docker outdated --format=json-pretty
 ```
 
 Default output shows only update, unknown, and error rows. Up-to-date containers
-are omitted.
+are omitted. The table output is compact and hides raw digests; use
+`--format=json` or `--format=json-pretty` when you need exact running and
+upstream image digests.
 
 ### docker pull
 
@@ -409,6 +411,18 @@ Prefetch images for a compose service without restarting.
 
 Pull images and recreate containers (restart) for compose services installed
 from compose files.
+
+```bash
+yeet docker update <svc>
+yeet docker update --outdated
+yeet --host=yeet-prod docker update --outdated
+```
+
+`--outdated` is a host-wide batch mode: it checks compose services for update
+rows, deduplicates by service, and updates only services with available image
+updates. Each update prints a short host/service marker, then streams the same
+output as `yeet docker update <svc>`. It does not take a service argument; use
+`yeet docker update <svc>` for one service.
 
 ### docker push
 

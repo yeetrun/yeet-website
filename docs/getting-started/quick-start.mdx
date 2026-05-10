@@ -92,4 +92,7 @@ yeet restart <svc>
 
 If you change the binary or compose file, re-run the same `yeet run` command to
 roll a new generation. For compose images, add `--pull` (or use
-`yeet docker update`) when you want to refresh images.
+`yeet docker update <svc>`) when you want to refresh one service. Use
+`yeet docker outdated` to check for image updates and
+`yeet docker update --outdated` to update only compose services with available
+image updates.
