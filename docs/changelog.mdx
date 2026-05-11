@@ -5,6 +5,11 @@ description: Short notes for yeet + catch releases.
 
 ## May 10, 2026
 
+### v0.2.9
+
+- `--net=lan` services now keep separate DHCP lease files, avoiding corrupt shared lease state when multiple services use LAN namespaces.
+- Remote sessions now close their stdin proxy reliably, preventing a rare hang during cleanup.
+
 ### v0.2.8
 
 - `yeet docker outdated` now shows compact compose image update tables while keeping exact running and upstream digests available in JSON output.
