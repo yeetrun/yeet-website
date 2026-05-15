@@ -25,8 +25,5 @@ commits the updated submodule pointer.
 ## Related Context
 
 - Root release policy: `../AGENTS.md`
-
-Planned for later agent-context tasks:
-
 - Docs skill: `../.codex/skills/yeet-docs/SKILL.md`
 - Release skill: `../.codex/skills/yeet-release/SKILL.md`
