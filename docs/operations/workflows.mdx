@@ -34,7 +34,7 @@ yeet run --pull <svc> ./compose.yml   # pull latest + redeploy
 yeet run --force <svc> ./compose.yml  # redeploy even if no changes are detected
 yeet docker outdated       # check for image updates without changing containers
 yeet docker pull <svc>     # prefetch images without restarting
-yeet docker update <svc>   # pull + recreate containers (restart)
+yeet docker update <svc...> # pull + recreate containers (restart)
 yeet docker update --outdated # update compose services that have image updates
 ```
 
@@ -68,9 +68,11 @@ yeet docker push <svc> <local-image>:<tag> --run
 ## Update a service
 
 For binaries or compose files, just re-run `yeet run` with the new payload. For
-compose images, add `--pull` (or use `yeet docker update <svc>`) when you want to
-refresh one service. Use `yeet docker update --outdated` to batch-refresh only
-compose services reported by `yeet docker outdated`.
+compose images, add `--pull` (or use `yeet docker update <svc...>`) when you
+want to refresh selected services. Use `svc@host` for individual targets that
+should run on a specific host, such as `yeet docker update web api@catch-b
+worker`. Use `yeet docker update --outdated` to batch-refresh only compose
+services reported by `yeet docker outdated`.
 
 ```bash
 yeet run <svc> ./bin/<svc>

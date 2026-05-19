@@ -114,7 +114,7 @@ file path in `yeet.toml` and re-uploads it on future runs.
 See [Tailscale](/docs/concepts/tailscale) for setup, netns behavior, and Serve
 examples.
 
-For compose services, `yeet docker update <svc>` also pulls and recreates
+For compose services, `yeet docker update <svc...>` also pulls and recreates
 containers.
 
 ### stage
@@ -414,15 +414,22 @@ from compose files.
 
 ```bash
 yeet docker update <svc>
+yeet docker update <svc-a> <svc-b>
+yeet docker update <svc-a> <svc-b>@<host>
 yeet docker update --outdated
 yeet --host=yeet-prod docker update --outdated
 ```
 
+Explicit service arguments update each requested compose service. A target like
+`svc@host` pins that service to one host; unqualified services use `--host`, a
+single matching `yeet.toml` service host, or the default catch host. When more
+than one target is updated, each update prints a short host/service marker
+before streaming the normal compose update output.
+
 `--outdated` is a host-wide batch mode: it checks compose services for update
 rows, deduplicates by service, and updates only services with available image
-updates. Each update prints a short host/service marker, then streams the same
-output as `yeet docker update <svc>`. It does not take a service argument; use
-`yeet docker update <svc>` for one service.
+updates. It does not take service arguments; use explicit services for selected
+updates.
 
 ### docker push
 
