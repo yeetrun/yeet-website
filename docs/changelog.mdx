@@ -3,6 +3,14 @@ title: Changelog
 description: Short notes for yeet + catch releases.
 ---
 
+## May 19, 2026
+
+### v0.2.10
+
+- `yeet docker update <svc...>` can update multiple compose services in one command, including mixed `svc@host` targets.
+- `yeet docker update --outdated` now reports skipped scan issues instead of treating them as clean no-update results.
+- Docker image update checks now include command stderr in scan errors, making registry and DNS failures visible.
+
 ## May 10, 2026
 
 ### v0.2.9
