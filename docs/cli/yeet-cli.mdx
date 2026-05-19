@@ -428,7 +428,9 @@ before streaming the normal compose update output.
 
 `--outdated` is a host-wide batch mode: it checks compose services for update
 rows, deduplicates by service, and updates only services with available image
-updates. It does not take service arguments; use explicit services for selected
+updates. Unknown or error rows are reported as skipped scan issues after
+running any updateable services, and the batch exits nonzero when scan issues
+remain. It does not take service arguments; use explicit services for selected
 updates.
 
 ### docker push

@@ -72,7 +72,8 @@ compose images, add `--pull` (or use `yeet docker update <svc...>`) when you
 want to refresh selected services. Use `svc@host` for individual targets that
 should run on a specific host, such as `yeet docker update web api@catch-b
 worker`. Use `yeet docker update --outdated` to batch-refresh only compose
-services reported by `yeet docker outdated`.
+services reported by `yeet docker outdated`; scan errors are printed as skipped
+rows so they are not mistaken for clean no-update results.
 
 ```bash
 yeet run <svc> ./bin/<svc>
