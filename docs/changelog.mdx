@@ -3,6 +3,14 @@ title: Changelog
 description: Short notes for yeet + catch releases.
 ---
 
+## May 24, 2026
+
+### v0.3.0
+
+- Service roots can now be set and migrated to custom filesystem paths or ZFS datasets, with explicit copy or empty-root migration modes.
+- `yeet service sync` pulls catch's live service-root identity back into existing `yeet.toml` entries, including ZFS dataset names.
+- `yeet service set` now warns when the live service changed but no matching local `yeet.toml` entry was updated.
+
 ## May 19, 2026
 
 ### v0.2.10
