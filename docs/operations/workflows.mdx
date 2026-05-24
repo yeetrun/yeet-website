@@ -46,27 +46,28 @@ Use `--service-root` to choose where a new service lives on the catch host:
 yeet run vaultwarden ./compose.yml --service-root=/srv/apps/vaultwarden
 ```
 
-The path is absolute on the catch host. The parent directory must already exist;
-yeet can create the final service directory. Each service root contains `bin`,
-`run`, `env`, and `data`.
+The path is absolute on the catch host. The parent directory (`/srv/apps` in
+this example) must already exist; yeet can create the final service directory.
+Each service root contains `bin`, `run`, `env`, and `data`.
 
 `yeet run` can set the initial root, but it cannot move an existing service. To
 move a service, stop it first, then use `yeet service set`:
 
 ```bash
 yeet stop vaultwarden
-yeet service set vaultwarden --service-root=/srv/apps/vaultwarden --copy
+yeet service set vaultwarden --service-root=/mnt/fast/vaultwarden --copy
 ```
 
 Use `--copy` to copy the old root into the new root, or `--empty` to create a
 new empty root:
 
 ```bash
-yeet service set vaultwarden --service-root=/srv/apps/vaultwarden --empty
+yeet service set vaultwarden --service-root=/mnt/fast/vaultwarden --empty
 ```
 
 `yeet service set` leaves the old root in place. Non-interactive migrations
-must pass either `--copy` or `--empty`.
+must pass either `--copy` or `--empty`. For the migration examples above,
+`/mnt/fast` must already exist.
 
 ## Build from a Dockerfile and run
 

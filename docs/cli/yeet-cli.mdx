@@ -252,13 +252,13 @@ Flags:
 Change service settings that require an explicit migration.
 
 ```bash
-yeet service set vaultwarden --service-root=/srv/apps/vaultwarden --copy
-yeet service set vaultwarden --service-root=/srv/apps/vaultwarden --empty
+yeet service set vaultwarden --service-root=/mnt/fast/vaultwarden --copy
+yeet service set vaultwarden --service-root=/mnt/fast/vaultwarden --empty
 ```
 
 `--service-root` is an absolute path on the catch host. The parent directory
-must already exist; yeet can create the final service directory. The root
-contains `bin`, `run`, `env`, and `data`.
+(`/mnt/fast` in these examples) must already exist; yeet can create the final
+service directory. The root contains `bin`, `run`, `env`, and `data`.
 
 Use `yeet service set` to move an existing service root. The service must be
 stopped first, and the old root is left in place. Non-interactive migrations
