@@ -19,8 +19,12 @@ The default is `./data`.
 
 ## Per-service layout
 
+By default, services live under `<data-dir>/services/<svc>/`. A service can use
+a custom root selected with `yeet run <svc> <payload> --service-root=/abs/path`
+or moved later with `yeet service set <svc> --service-root=/abs/path`.
+
 ```
-<data-dir>/services/<svc>/
+<service-root>/
   bin/   # binaries, compose files, units
   run/   # runtime files
   data/  # persistent app data
@@ -29,6 +33,13 @@ The default is `./data`.
 
 Notes:
 
+- A custom service root is an absolute path on the catch host. The parent must
+  already exist; yeet can create the final service directory.
+- `yeet run` can set the initial root for a new service, but cannot move an
+  existing service to a different root.
+- Moving a root uses `yeet service set`, requires the service to be stopped,
+  leaves the old root in place, and requires `--copy` or `--empty` when running
+  non-interactively.
 - Env files are versioned under `env/` and surfaced via `yeet env show` or
   `yeet env edit`.
 - Compose network files and Tailscale artifacts live under `bin/` and `run/`

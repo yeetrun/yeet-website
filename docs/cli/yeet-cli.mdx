@@ -62,6 +62,7 @@ yeet run <svc> ./compose.yml --net=lan
 yeet run --pull <svc> ./compose.yml
 yeet run --force <svc> ./compose.yml
 yeet run --env-file=prod.env <svc> ./compose.yml
+yeet run vaultwarden ./compose.yml --service-root=/srv/apps/vaultwarden
 yeet run <svc> ./Dockerfile
 yeet run <svc> ./bin/<svc> -- --app-flag value
 yeet run <svc> ghcr.io/org/app:latest
@@ -97,6 +98,10 @@ Run flags:
 - `--pull`: for docker compose/image payloads, pull latest images on deploy.
   Without this, `run` reuses existing images.
 - `--force`: redeploy even when yeet detects no payload/env/arg changes.
+- `--service-root=/abs/path`: choose the initial service root on the catch host.
+  The path must be absolute and the parent directory must already exist. `run`
+  cannot move an existing service to a different root; use `yeet service set`
+  for that.
 - `--net=<list>`: network modes (`ts`, `svc`, `lan`). Comma-separated.
 - `--ts-ver=<ver>`: tailscale version for service netns.
 - `--ts-exit=<node>`: tailscale exit node.
@@ -241,6 +246,26 @@ Flags:
 - `--clean-config`: delete the `yeet.toml` entry for the service. Without this
   flag, yeet prompts to keep or remove the local config after the service is
   removed.
+
+### service set
+
+Change service settings that require an explicit migration.
+
+```bash
+yeet service set vaultwarden --service-root=/srv/apps/vaultwarden --copy
+yeet service set vaultwarden --service-root=/srv/apps/vaultwarden --empty
+```
+
+`--service-root` is an absolute path on the catch host. The parent directory
+must already exist; yeet can create the final service directory. The root
+contains `bin`, `run`, `env`, and `data`.
+
+Use `yeet service set` to move an existing service root. The service must be
+stopped first, and the old root is left in place. Non-interactive migrations
+must choose one mode:
+
+- `--copy`: copy the old root into the new root.
+- `--empty`: create a new empty root.
 
 ## Config, env, and files
 

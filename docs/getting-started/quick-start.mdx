@@ -52,6 +52,13 @@ Docker Compose (most common):
 yeet run <svc> ./compose.yml --net=lan
 ```
 
+To place a new service under a custom root on the catch host, pass an absolute
+host path:
+
+```bash
+yeet run vaultwarden ./compose.yml --service-root=/srv/apps/vaultwarden
+```
+
 Find the service IP on your LAN:
 
 ```bash
