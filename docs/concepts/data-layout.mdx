@@ -32,6 +32,9 @@ For ZFS-backed service roots, pass `--zfs` and use the dataset name as
 `--service-root`; catch resolves the dataset mountpoint and stores both the
 dataset identity and the resolved filesystem path.
 
+If the dataset does not exist, catch runs plain `zfs create <dataset>`. Parent
+datasets must already exist.
+
 ```
 <service-root>/
   bin/   # binaries, compose files, units
@@ -44,7 +47,8 @@ Notes:
 
 - A custom service root is an absolute path on the catch host. The parent must
   already exist; yeet can create the final service directory.
-- A ZFS service root is a dataset name. Parent datasets must already exist.
+- A ZFS service root is a dataset name. If it does not exist, catch runs plain
+  `zfs create <dataset>`. Parent datasets must already exist.
 - `yeet run` can set the initial root for a new service, but cannot move an
   existing service to a different root.
 - Moving a root uses `yeet service set`, requires the service to be stopped,

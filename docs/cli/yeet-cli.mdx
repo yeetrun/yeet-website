@@ -104,8 +104,9 @@ Run flags:
   cannot move an existing service to a different root; use `yeet service set`
   for that.
 - `--zfs`: treat `--service-root` as a ZFS dataset name. Catch accepts an
-  existing dataset or creates it, resolves its mountpoint, and uses that path as
-  the service root. Parent datasets must already exist.
+  existing dataset or runs plain `zfs create <dataset>`, resolves its
+  mountpoint, and uses that path as the service root. Parent datasets must
+  already exist.
 
 For ZFS-backed service roots, pass `--zfs` and use the dataset name as
 `--service-root`; catch resolves the dataset mountpoint and stores both the
@@ -265,9 +266,15 @@ yeet service set vaultwarden --service-root=tank/apps/vaultwarden --zfs --copy
 yeet service set vaultwarden --service-root=/mnt/fast/vaultwarden --empty
 ```
 
-`--service-root` is an absolute path on the catch host. The parent directory
-(`/mnt/fast` in these examples) must already exist; yeet can create the final
-service directory. The root contains `bin`, `run`, `env`, and `data`.
+Without `--zfs`, `--service-root` is an absolute filesystem path on the catch
+host. The parent directory (`/mnt/fast` in these examples) must already exist;
+yeet can create the final service directory.
+
+With `--zfs`, `--service-root` is a ZFS dataset name. Catch accepts an existing
+dataset or runs plain `zfs create <dataset>`, resolves its mountpoint, and uses
+that path as the service root. Parent datasets must already exist.
+
+The root contains `bin`, `run`, `env`, and `data`.
 
 Use `yeet service set` to move an existing service root. The service must be
 stopped first, and the old root is left in place. Non-interactive migrations
