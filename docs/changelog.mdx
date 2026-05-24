@@ -7,9 +7,9 @@ description: Short notes for yeet + catch releases.
 
 ### v0.3.0
 
-- Service roots can now be set and migrated to custom filesystem paths or ZFS datasets, with explicit copy or empty-root migration modes.
-- `yeet service sync` pulls catch's live service-root identity back into existing `yeet.toml` entries, including ZFS dataset names.
-- `yeet service set` now warns when the live service changed but no matching local `yeet.toml` entry was updated.
+- Added per-service roots so `yeet run --service-root=...` can place a service's files under a custom root on the catch host.
+- Added ZFS-backed service roots with `--zfs`, using a dataset name that catch accepts or creates and resolves to its mountpoint.
+- Added `yeet service set` for stopped-service reconfiguration, including service-root moves with `--copy` or empty-root changes with `--empty`.
 
 ## May 19, 2026
 
