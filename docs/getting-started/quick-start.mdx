@@ -57,7 +57,14 @@ host path:
 
 ```bash
 yeet run vaultwarden ./compose.yml --service-root=/srv/apps/vaultwarden
+yeet run vaultwarden ./compose.yml --service-root=tank/apps/vaultwarden --zfs
 ```
+
+For ZFS-backed service roots, pass `--zfs` and use the dataset name as
+`--service-root`; catch resolves the dataset mountpoint and stores both the
+dataset identity and the resolved filesystem path.
+
+Parent datasets must already exist.
 
 Find the service IP on your LAN:
 

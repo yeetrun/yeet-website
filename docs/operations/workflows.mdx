@@ -44,11 +44,18 @@ Use `--service-root` to choose where a new service lives on the catch host:
 
 ```bash
 yeet run vaultwarden ./compose.yml --service-root=/srv/apps/vaultwarden
+yeet run vaultwarden ./compose.yml --service-root=tank/apps/vaultwarden --zfs
 ```
 
 The path is absolute on the catch host. The parent directory (`/srv/apps` in
 this example) must already exist; yeet can create the final service directory.
 Each service root contains `bin`, `run`, `env`, and `data`.
+
+For ZFS-backed service roots, pass `--zfs` and use the dataset name as
+`--service-root`; catch resolves the dataset mountpoint and stores both the
+dataset identity and the resolved filesystem path.
+
+Parent datasets must already exist.
 
 `yeet run` can set the initial root, but it cannot move an existing service. To
 move a service, stop it first, then use `yeet service set`:
@@ -56,6 +63,7 @@ move a service, stop it first, then use `yeet service set`:
 ```bash
 yeet stop vaultwarden
 yeet service set vaultwarden --service-root=/mnt/fast/vaultwarden --copy
+yeet service set vaultwarden --service-root=tank/apps/vaultwarden --zfs --copy
 ```
 
 Use `--copy` to copy the old root into the new root, or `--empty` to create a

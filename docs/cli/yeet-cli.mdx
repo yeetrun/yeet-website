@@ -63,6 +63,7 @@ yeet run --pull <svc> ./compose.yml
 yeet run --force <svc> ./compose.yml
 yeet run --env-file=prod.env <svc> ./compose.yml
 yeet run vaultwarden ./compose.yml --service-root=/srv/apps/vaultwarden
+yeet run vaultwarden ./compose.yml --service-root=tank/apps/vaultwarden --zfs
 yeet run <svc> ./Dockerfile
 yeet run <svc> ./bin/<svc> -- --app-flag value
 yeet run <svc> ghcr.io/org/app:latest
@@ -102,6 +103,13 @@ Run flags:
   The path must be absolute and the parent directory must already exist. `run`
   cannot move an existing service to a different root; use `yeet service set`
   for that.
+- `--zfs`: treat `--service-root` as a ZFS dataset name. Catch accepts an
+  existing dataset or creates it, resolves its mountpoint, and uses that path as
+  the service root. Parent datasets must already exist.
+
+For ZFS-backed service roots, pass `--zfs` and use the dataset name as
+`--service-root`; catch resolves the dataset mountpoint and stores both the
+dataset identity and the resolved filesystem path.
 - `--net=<list>`: network modes (`ts`, `svc`, `lan`). Comma-separated.
 - `--ts-ver=<ver>`: tailscale version for service netns.
 - `--ts-exit=<node>`: tailscale exit node.
@@ -253,6 +261,7 @@ Change service settings that require an explicit migration.
 
 ```bash
 yeet service set vaultwarden --service-root=/mnt/fast/vaultwarden --copy
+yeet service set vaultwarden --service-root=tank/apps/vaultwarden --zfs --copy
 yeet service set vaultwarden --service-root=/mnt/fast/vaultwarden --empty
 ```
 
