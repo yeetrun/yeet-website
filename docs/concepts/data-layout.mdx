@@ -32,6 +32,12 @@ For ZFS-backed service roots, pass `--zfs` and use the dataset name as
 `--service-root`; catch resolves the dataset mountpoint and stores both the
 dataset identity and the resolved filesystem path.
 
+Catch stores the authoritative live root in its DB, including both the mounted
+filesystem path and the ZFS dataset name when `--zfs` is used. `yeet.toml`
+stores the user-facing replay intent. If those drift because the service was
+mutated from a different directory, run `yeet service sync <svc>` to pull the
+root identity back into the local config.
+
 If the dataset does not exist, catch runs plain `zfs create <dataset>`. Parent
 datasets must already exist.
 

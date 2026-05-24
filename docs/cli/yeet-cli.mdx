@@ -284,6 +284,22 @@ must choose one mode:
 - `--copy`: copy the old root into the new root.
 - `--empty`: create a new empty root.
 
+### service sync
+
+Pull catch-owned service settings into an existing local `yeet.toml` entry.
+The first syncable settings are `service_root` and `service_root_zfs`.
+
+```bash
+yeet service sync vaultwarden
+yeet service sync vaultwarden --config ~/yeet-services/yeet.toml
+yeet service sync --all --config ~/yeet-services/yeet.toml
+```
+
+Use this after a live service is changed from another directory or another
+machine. The catch DB is the source of truth for live state; `yeet.toml` is the
+TOML replay recipe. Sync updates matching existing entries only and does not
+import every service from catch.
+
 ## Config, env, and files
 
 ### env show

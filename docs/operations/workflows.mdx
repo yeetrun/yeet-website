@@ -79,6 +79,19 @@ yeet service set vaultwarden --service-root=tank/apps/vaultwarden --zfs --empty
 must pass either `--copy` or `--empty`. For the migration examples above,
 `/mnt/fast` must already exist.
 
+If the migration command was run outside the directory that contains the
+service's `yeet.toml`, update the local replay config afterward:
+
+```bash
+yeet service sync vaultwarden --config ~/yeet-services/yeet.toml
+```
+
+For a config file with several services on the selected host:
+
+```bash
+yeet service sync --all --config ~/yeet-services/yeet.toml
+```
+
 ## Build from a Dockerfile and run
 
 ```bash
