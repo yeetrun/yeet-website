@@ -64,6 +64,7 @@ yeet run --force <svc> ./compose.yml
 yeet run --env-file=prod.env <svc> ./compose.yml
 yeet run vaultwarden ./compose.yml --service-root=/srv/apps/vaultwarden
 yeet run vaultwarden ./compose.yml --service-root=tank/apps/vaultwarden --zfs
+yeet run vaultwarden ./compose.yml --snapshots=off
 yeet run <svc> ./Dockerfile
 yeet run <svc> ./bin/<svc> -- --app-flag value
 yeet run <svc> ghcr.io/org/app:latest
@@ -111,6 +112,20 @@ Run flags:
 For ZFS-backed service roots, pass `--zfs` and use the dataset name as
 `--service-root`; catch resolves the dataset mountpoint and stores both the
 dataset identity and the resolved filesystem path.
+
+- `--snapshots=on|off|inherit`: override the service snapshot policy saved in
+  catch and `yeet.toml`. `inherit` clears the service override and uses the
+  catch default.
+- `--snapshot-keep-last=<n|inherit>`: keep at most this many yeet-created
+  snapshots for the service.
+- `--snapshot-max-age=<duration|inherit>`: prune yeet-created snapshots older
+  than this age. Durations accept Go-style values such as `72h`, plus day
+  values such as `7d`.
+- `--snapshot-required=<bool|inherit>`: decide whether a failed pre-change
+  snapshot aborts the operation.
+- `--snapshot-events=<list|inherit>`: comma-separated events that should create
+  snapshots. Supported events are `run`, `docker-update`, and
+  `service-root-migration`.
 - `--net=<list>`: network modes (`ts`, `svc`, `lan`). Comma-separated.
 - `--ts-ver=<ver>`: tailscale version for service netns.
 - `--ts-exit=<node>`: tailscale exit node.
@@ -265,6 +280,9 @@ yeet service set vaultwarden --service-root=/mnt/fast/vaultwarden --copy
 yeet service set vaultwarden --service-root=tank/apps/vaultwarden --zfs --copy
 yeet service set vaultwarden --service-root=/mnt/fast/vaultwarden --empty
 yeet service set vaultwarden --service-root=tank/apps/vaultwarden --zfs --empty
+yeet service set vaultwarden --snapshots=off
+yeet service set vaultwarden --snapshots=on --snapshot-keep-last=3 --snapshot-max-age=72h
+yeet service set vaultwarden --snapshots=inherit
 ```
 
 Without `--zfs`, `--service-root` is an absolute filesystem path on the catch
@@ -284,10 +302,18 @@ must choose one mode:
 - `--copy`: copy the old root into the new root.
 - `--empty`: create a new empty root.
 
+`yeet service set` also changes per-service snapshot overrides. Snapshot-only
+changes do not require the service to be stopped; service-root moves still do.
+Use `--snapshots=inherit` to clear the whole service snapshot override, or set
+individual fields to `inherit` with flags such as
+`--snapshot-keep-last=inherit`.
+
 ### service sync
 
 Pull catch-owned service settings into an existing local `yeet.toml` entry.
-The first syncable settings are `service_root` and `service_root_zfs`.
+Syncable settings include `service_root`, `service_root_zfs`, and snapshot
+override fields such as `snapshots`, `snapshot_keep_last`,
+`snapshot_max_age`, `snapshot_required`, and `snapshot_events`.
 
 ```bash
 yeet service sync vaultwarden
@@ -299,6 +325,23 @@ Use this after a live service is changed from another directory or another
 machine. The catch DB is the source of truth for live state; `yeet.toml` is the
 TOML replay recipe. Sync updates matching existing entries only and does not
 import every service from catch.
+
+### snapshots defaults
+
+Show or change catch-wide snapshot defaults:
+
+```bash
+yeet snapshots defaults show
+yeet snapshots defaults set --enabled=false
+yeet snapshots defaults set --enabled=true --keep-last=5 --max-age=7d
+yeet snapshots defaults set --events=run,docker-update --required=false
+```
+
+Snapshot defaults apply to ZFS-backed service roots. The built-in default is
+enabled and required, keeps 5 yeet-created snapshots, prunes yeet-created
+snapshots older than 7 days, and snapshots before `run`, `docker-update`, and
+`service-root-migration` events. Per-service overrides are managed with
+`yeet service set`.
 
 ## Config, env, and files
 

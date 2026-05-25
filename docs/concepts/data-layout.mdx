@@ -41,6 +41,24 @@ root identity back into the local config.
 If the dataset does not exist, catch runs plain `zfs create <dataset>`. Parent
 datasets must already exist.
 
+## ZFS snapshots
+
+For ZFS-backed service roots, catch can create yeet-managed snapshots before
+risky changes. The built-in default is enabled and required: catch snapshots
+before redeploys, Docker image updates, and ZFS-backed service-root migrations.
+First deploys are skipped because there is no prior service state to recover.
+
+Catch prunes only snapshots it created for that service. Yeet-created
+snapshots are named with a `yeet-` prefix and tagged with ZFS properties such
+as `com.yeetrun:created-by=catch`, `com.yeetrun:service=<svc>`, and
+`com.yeetrun:event=<event>`. The default retention keeps the newest 5 snapshots
+and prunes snapshots older than 7 days.
+
+Snapshot defaults and per-service overrides live in the catch DB because they
+control live service behavior. `yeet.toml` stores per-service overrides only as
+the local replay recipe; use `yeet service sync <svc>` if another checkout or
+machine changed the live policy.
+
 ```
 <service-root>/
   bin/   # binaries, compose files, units
@@ -60,6 +78,8 @@ Notes:
 - Moving a root uses `yeet service set`, requires the service to be stopped,
   leaves the old root in place, and requires `--copy` or `--empty` when running
   non-interactively.
+- ZFS snapshot settings are inherited from catch defaults unless a service has
+  a snapshot override set by `yeet run` or `yeet service set`.
 - Env files are versioned under `env/` and surfaced via `yeet env show` or
   `yeet env edit`.
 - Compose network files and Tailscale artifacts live under `bin/` and `run/`

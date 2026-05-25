@@ -92,6 +92,36 @@ For a config file with several services on the selected host:
 yeet service sync --all --config ~/yeet-services/yeet.toml
 ```
 
+## Configure ZFS snapshots
+
+ZFS-backed service roots get yeet-managed snapshots before redeploys, Docker
+image updates, and ZFS-backed service-root migrations. First deploys are
+skipped. The built-in default is enabled and required, keeps 5 yeet-created
+snapshots, and prunes yeet-created snapshots older than 7 days.
+
+Show or change catch-wide defaults:
+
+```bash
+yeet snapshots defaults show
+yeet snapshots defaults set --enabled=false
+yeet snapshots defaults set --enabled=true --keep-last=5 --max-age=7d
+yeet snapshots defaults set --events=run,docker-update --required=false
+```
+
+Override one service:
+
+```bash
+yeet service set vaultwarden --snapshots=off
+yeet service set vaultwarden --snapshots=on --snapshot-keep-last=3 --snapshot-max-age=72h
+yeet service set vaultwarden --snapshot-events=run,docker-update
+yeet service set vaultwarden --snapshots=inherit
+```
+
+Snapshot-only `yeet service set` commands do not require the service to be
+stopped. Service-root moves still require the service to be stopped. The catch
+DB is the live source of truth; run `yeet service sync <svc>` to mirror
+per-service snapshot overrides back into `yeet.toml`.
+
 ## Build from a Dockerfile and run
 
 ```bash
