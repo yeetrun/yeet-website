@@ -88,6 +88,17 @@ yeet run <svc> --force
 
 Yeet will expand the stored payload + args for that service.
 
+For an existing service, you can also provide only a new payload:
+
+```bash
+yeet run <svc> ./compose.yml
+```
+
+Yeet reuses the saved run options from `yeet.toml` and updates just the
+payload. If you pass new run args, saved `--net` and `--ts-tags` are still
+carried forward unless you explicitly provide different values, which is
+rejected after the initial deploy.
+
 If you want to run a local image instead of pulling from a registry, use
 `yeet docker push --run`:
 

@@ -111,7 +111,9 @@ yeet restart <svc>
 ```
 
 If you change the binary or compose file, re-run the same `yeet run` command to
-roll a new generation. For compose images, add `--pull` (or use
+roll a new generation. For an existing service, a payload-only redeploy reuses
+the saved run options from `yeet.toml` and changes only the payload. For compose
+images, add `--pull` (or use
 `yeet docker update <svc...>`) when you want to refresh selected services. Use
 `yeet docker outdated` to check for image updates and
 `yeet docker update --outdated` to update only compose services with available

@@ -160,6 +160,10 @@ worker`. Use `yeet docker update --outdated` to batch-refresh only compose
 services reported by `yeet docker outdated`; scan errors are printed as skipped
 rows so they are not mistaken for clean no-update results.
 
+When a service already has a `yeet.toml` entry, a payload-only redeploy reuses
+the saved run options and changes only the payload. You do not need to restate
+the original network, tags, service root, snapshot, or payload args.
+
 ```bash
 yeet run <svc> ./bin/<svc>
 ```
