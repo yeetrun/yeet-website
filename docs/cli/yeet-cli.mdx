@@ -107,7 +107,8 @@ Run flags:
 - `--zfs`: treat `--service-root` as a ZFS dataset name. Catch accepts an
   existing dataset or runs plain `zfs create <dataset>`, resolves its
   mountpoint, and uses that path as the service root. Parent datasets must
-  already exist.
+  already exist. If the dataset already exists or its mountpoint already
+  contains files, catch prints a warning and deploys into it.
 
 For ZFS-backed service roots, pass `--zfs` and use the dataset name as
 `--service-root`; catch resolves the dataset mountpoint and stores both the
@@ -291,7 +292,9 @@ yeet can create the final service directory.
 
 With `--zfs`, `--service-root` is a ZFS dataset name. Catch accepts an existing
 dataset or runs plain `zfs create <dataset>`, resolves its mountpoint, and uses
-that path as the service root. Parent datasets must already exist.
+that path as the service root. Parent datasets must already exist. If the
+dataset already exists or its mountpoint already contains files, catch prints a
+warning and deploys into it.
 
 The root contains `bin`, `run`, `env`, and `data`.
 

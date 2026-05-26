@@ -65,7 +65,8 @@ For ZFS-backed service roots, pass `--zfs` and use the dataset name as
 dataset identity and the resolved filesystem path.
 
 If the dataset does not exist, catch runs plain `zfs create <dataset>`. Parent
-datasets must already exist.
+datasets must already exist. If the dataset already exists or its mountpoint
+already contains files, catch prints a warning and deploys into it.
 
 ZFS-backed services also get yeet-managed snapshots before redeploys, Docker
 image updates, and ZFS-backed service-root migrations. The default policy is

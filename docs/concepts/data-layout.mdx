@@ -39,7 +39,8 @@ mutated from a different directory, run `yeet service sync <svc>` to pull the
 root identity back into the local config.
 
 If the dataset does not exist, catch runs plain `zfs create <dataset>`. Parent
-datasets must already exist.
+datasets must already exist. If the dataset already exists or its mountpoint
+already contains files, catch prints a warning and deploys into it.
 
 ## ZFS snapshots
 
