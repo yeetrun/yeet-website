@@ -5,6 +5,11 @@ description: Short notes for yeet + catch releases.
 
 ## May 25, 2026
 
+### v0.3.2
+
+- `yeet run <svc> <payload>` now reuses saved `yeet.toml` run options on existing services, so payload-only redeploys no longer require restating network flags.
+- ZFS-backed service roots now allow existing datasets and non-empty mountpoints with warnings, making service recreation safer when persistent data already exists.
+
 ### v0.3.1
 
 - Added automatic ZFS snapshots before service redeploys, Docker image updates, and ZFS-backed service-root migrations.
