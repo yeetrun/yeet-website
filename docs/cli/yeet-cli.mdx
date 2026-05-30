@@ -57,6 +57,9 @@ Install or update a service based on the payload:
 Examples:
 
 ```bash
+yeet run --web
+yeet run --web <svc>
+yeet run --web <svc> ./compose.yml
 yeet run <svc>@<host> ./compose.yml
 yeet run <svc> ./compose.yml --net=lan
 yeet run --pull <svc> ./compose.yml
@@ -78,6 +81,23 @@ define ports in the compose file.
 When stdout is a terminal, `run` uses the full TTY progress UI (spinners, live
 updates). Pipe output for plain text. Use `--progress=plain` (or
 `--progress=quiet`) for POSIX-friendly scripted output.
+
+### Web deploy
+
+For a guided first-time deployment, run:
+
+```bash
+yeet run --web
+yeet run --web <svc>
+yeet run --web <svc> ./compose.yml
+```
+
+Yeet opens a localhost browser form, validates the selected catch host and
+payload, deploys the new service, and then tells you to close the tab and return
+to the terminal. The terminal remains the authoritative progress log.
+
+The web flow is for new services in this release. Redeploy existing services
+with the CLI form of `yeet run`.
 
 If a `yeet.toml` exists (or after your first `run`), you can omit the payload:
 
@@ -108,6 +128,7 @@ yeet docker push <svc> <local-image>:<tag> --run
 
 Run flags:
 
+- `--web`: open a local browser form for a guided first-time deployment.
 - `--pull`: for docker compose/image payloads, pull latest images on deploy.
   Without this, `run` reuses existing images.
 - `--force`: redeploy even when yeet detects no payload/env/arg changes.

@@ -38,6 +38,11 @@ When you run yeet from a project directory it can persist service defaults in a
 `yeet.toml` file. This is a convenience layer for the CLI (payloads + flags) and
 is not a mirror of catch internals.
 
+`yeet run --web` writes the same service entries as CLI `yeet run`. The browser
+form is only a local frontend for the same deployment path, so payload paths,
+env files, service-root settings, ZFS flags, snapshot overrides, and payload
+args are saved in `yeet.toml` the same way.
+
 Example:
 
 ```toml
