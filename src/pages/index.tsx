@@ -8,6 +8,7 @@ import { DOCS_DIRECTORY } from "./docs/[...path]";
 import { NavTreeNode } from "@/components/nav-tree";
 import CodeBlock from "@/components/codeblock";
 import Link from "next/link";
+import Image from "next/image";
 import s from "./Home.module.css";
 
 export async function getStaticProps() {
@@ -87,6 +88,32 @@ yeet run <svc> ./compose.yml --net=svc,ts`}</code>
             </div>
           </GridContainer>
         </section>
+
+        <SectionWrapper className={s.section}>
+          <div className={s.deployPaths}>
+            <div className={s.deployCopy}>
+              <H2>Deploy from the terminal or the browser</H2>
+              <P>
+                Use the CLI when you know the flags. Use{" "}
+                <code>yeet run --web</code> for a guided first deploy with the
+                same config saved to <code>yeet.toml</code>.
+              </P>
+              <pre className={s.deployCode}>
+                <code>{`yeet run --web
+yeet run <svc> ./compose.yml --net=svc,ts`}</code>
+              </pre>
+            </div>
+            <figure className={s.webRunShotFrame}>
+              <Image
+                className={s.webRunShot}
+                src="/images/web-run-deploy.png"
+                alt="The yeet web deploy form configuring a new service"
+                width={1440}
+                height={963}
+              />
+            </figure>
+          </div>
+        </SectionWrapper>
 
         <SectionWrapper className={s.section}>
           <div className={s.sectionHeader}>
