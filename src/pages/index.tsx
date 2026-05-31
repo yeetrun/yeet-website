@@ -96,7 +96,8 @@ yeet run <svc> ./compose.yml --net=svc,ts`}</code>
               <P>
                 Use the CLI when you know the flags. Use{" "}
                 <code>yeet run --web</code> for a guided first deploy with the
-                same config saved to <code>yeet.toml</code>.
+                same config saved to <code>yeet.toml</code> and terminal output
+                mirrored in the browser.
               </P>
               <pre className={s.deployCode}>
                 <code>{`yeet run --web

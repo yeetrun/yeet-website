@@ -25,6 +25,11 @@ can then re-run with just the service:
 yeet run <svc>
 ```
 
+For a guided new-service deploy, run `yeet run --web` from the project
+directory. The web flow keeps the browser form alive until a deploy succeeds.
+Runtime errors appear in the browser terminal and the local terminal, and you
+can edit the form and retry without restarting `yeet run --web`.
+
 Update later (compose services; `update` pulls images and recreates
 containers):
 

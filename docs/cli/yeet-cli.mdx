@@ -93,8 +93,11 @@ yeet run --web <svc> ./compose.yml
 ```
 
 Yeet opens a localhost browser form, validates the selected catch host and
-payload, deploys the new service, and then tells you to close the tab and return
-to the terminal. The terminal remains the authoritative progress log.
+payload, and deploys the new service through the same path as the CLI. After
+you click Deploy, yeet opens a compact read-only terminal in the browser that
+mirrors the local terminal output. Successful deploys tell you to close the tab
+and return to the terminal. Failed deploys keep the form open so you can adjust
+fields and try again.
 
 The web flow is for new services in this release. Redeploy existing services
 with the CLI form of `yeet run`.
