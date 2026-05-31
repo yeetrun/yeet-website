@@ -5,6 +5,11 @@ description: Short notes for yeet + catch releases.
 
 ## May 31, 2026
 
+### v0.4.4
+
+- Web deploy terminals now keep the local output stream alive long enough to show the successful completion state instead of reporting a lost stream.
+- `yeet service set <service> -p ...` now points users to `yeet init` when an older catch install does not yet support published-port changes.
+
 ### v0.4.3
 
 - `yeet service set <service> -p ...` can now update Docker published ports after a service exists, while `--publish-reset` makes intentional replacements explicit.
