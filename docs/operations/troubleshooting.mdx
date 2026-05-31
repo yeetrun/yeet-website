@@ -32,6 +32,26 @@ description: Common failures and how to fix them.
   yeet or restart the service's `yeet-<svc>-ns.service` unit and let catch
   reconcile it on the next start.
 
+## Published port changes are rejected
+
+If `yeet service set <svc> -p 443:443` says the change would remove existing
+mappings, yeet is protecting the current complete publish list. Include every
+mapping you want to keep:
+
+```bash
+yeet service set web -p 80:80 -p 443:443
+```
+
+To replace the list or clear all published ports, acknowledge that with
+`--publish-reset`:
+
+```bash
+yeet service set web --publish-reset -p 443:443
+yeet service set web --publish-reset
+```
+
+Use `yeet info web` to see the live published ports before changing them.
+
 ## `svc` network firewall issues
 
 - New Debian and Ubuntu hosts should prefer native `nft`.

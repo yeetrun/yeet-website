@@ -5,6 +5,12 @@ description: Short notes for yeet + catch releases.
 
 ## May 31, 2026
 
+### v0.4.3
+
+- `yeet service set <service> -p ...` can now update Docker published ports after a service exists, while `--publish-reset` makes intentional replacements explicit.
+- `yeet run -p ...` and `yeet.toml` now use the same persistent published-port model as follow-up service changes.
+- `yeet info` now shows saved published-port mappings for services that use yeet-managed network namespaces.
+
 ### v0.4.2
 
 - The web deploy terminal now clips its header inside the rounded shell, so the deploy output panel corners render cleanly.

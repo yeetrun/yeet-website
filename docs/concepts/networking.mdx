@@ -19,6 +19,26 @@ Modes are comma-separated:
 yeet run <svc> ./compose.yml --net=svc,ts
 ```
 
+## Published Ports
+
+For image, Dockerfile, Python, and TypeScript payloads, publish host ports with
+`yeet run -p HOST:CONTAINER <svc> <payload>`. Yeet stores the desired mappings
+in `yeet.toml` and catch records them with the service.
+
+Use `yeet service set <svc> -p HOST:CONTAINER` to change published ports after
+deployment. The `service set` publish list is complete: include existing
+mappings you want to keep, or pass `--publish-reset` to replace or clear the
+list intentionally.
+
+```bash
+yeet service set web -p 80:80 -p 443:443
+yeet service set web --publish-reset -p 443:443
+yeet service set web --publish-reset
+```
+
+`yeet info <svc>` shows published ports in plain output, and JSON formats expose
+structured `network.ports` data.
+
 ## Tailscale (`ts`)
 
 `--net=ts` adds a Tailscale interface to the service netns, giving the service

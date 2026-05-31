@@ -22,7 +22,9 @@ Yeet detects payload type and installs the service accordingly.
 - Installed as a docker compose service.
 - Use `--pull` on `yeet run` when you want to refresh images; otherwise `run`
   reuses existing images.
-- Configure port mappings in the compose file.
+- Configure initial port mappings in the compose file. After deployment, use
+  `yeet service set <svc> -p HOST:CONTAINER` to replace the yeet-managed
+  published-port list for the primary service.
 
 ```bash
 yeet run <svc> ./compose.yml
@@ -37,18 +39,21 @@ yeet run <svc> ./compose.yml
 - For Dockerfiles, use `yeet run <svc> ./Dockerfile` (builds for the host arch
   and pushes).
 - Use `-p`/`--publish` with `yeet run` to expose ports (e.g. `-p 8000:8000`).
+  Yeet saves the mappings and replays them on future runs.
 
 ## TypeScript
 
 - `.ts` files are run via a Deno container.
 - Installed as a docker compose service (via Deno).
 - Use `-p`/`--publish` with `yeet run` to expose ports (e.g. `-p 8000:8000`).
+  Yeet saves the mappings and replays them on future runs.
 
 ## Python
 
 - `.py` files are run via a `uv` container image.
 - Installed as a docker compose service (via `uv`).
 - Use `-p`/`--publish` with `yeet run` to expose ports (e.g. `-p 8000:8000`).
+  Yeet saves the mappings and replays them on future runs.
 
 ## Zstd
 

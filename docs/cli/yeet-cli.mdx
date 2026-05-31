@@ -75,8 +75,12 @@ yeet run -p 8000:8000 <svc> ./server.py
 ```
 
 `-p`/`--publish` publishes host ports for python/TypeScript/Dockerfile payloads
-and registry image refs (e.g. `-p 8000:8000`). For docker compose payloads,
-define ports in the compose file.
+and registry image refs (e.g. `-p 8000:8000`). Yeet stores those mappings in
+`yeet.toml` and replays them on future runs. If you provide a new publish list
+on a later run, include every existing mapping you want to keep or pass
+`--publish-reset` to acknowledge replacement. For docker compose payloads,
+define ports in the compose file, then use `yeet service set -p` for follow-up
+changes.
 
 When stdout is a terminal, `run` uses the full TTY progress UI (spinners, live
 updates). Pipe output for plain text. Use `--progress=plain` (or
@@ -285,8 +289,9 @@ yeet info <svc> --format=json
 ```
 
 Plain output is grouped by section (host, service, client config, server
-config, network, runtime, images). Use `--format=json` or
-`--format=json-pretty` for machine-readable output.
+config, network, runtime, images) and the Network section includes published
+ports when catch reports them. Use `--format=json` or `--format=json-pretty`
+for machine-readable output with structured port mappings.
 
 ### rollback
 
@@ -316,6 +321,9 @@ yeet service set vaultwarden --service-root=/mnt/fast/vaultwarden --copy
 yeet service set vaultwarden --service-root=tank/apps/vaultwarden --zfs --copy
 yeet service set vaultwarden --service-root=/mnt/fast/vaultwarden --empty
 yeet service set vaultwarden --service-root=tank/apps/vaultwarden --zfs --empty
+yeet service set vaultwarden -p 80:80 -p 443:443
+yeet service set vaultwarden --publish-reset -p 443:443
+yeet service set vaultwarden --publish-reset
 yeet service set vaultwarden --snapshots=off
 yeet service set vaultwarden --snapshots=on --snapshot-keep-last=3 --snapshot-max-age=72h
 yeet service set vaultwarden --snapshots=inherit
@@ -346,11 +354,17 @@ Use `--snapshots=inherit` to clear the whole service snapshot override, or set
 individual fields to `inherit` with flags such as
 `--snapshot-keep-last=inherit`.
 
+`-p`/`--publish` changes the complete desired published-port list for a compose
+service. If the current list contains `80:80`, then
+`yeet service set vaultwarden -p 443:443` fails because it would remove `80:80`.
+Keep existing mappings by including them in the command, or pass
+`--publish-reset` to replace or clear the list intentionally.
+
 ### service sync
 
 Pull catch-owned service settings into an existing local `yeet.toml` entry.
-Syncable settings include `service_root`, `service_root_zfs`, and snapshot
-override fields such as `snapshots`, `snapshot_keep_last`,
+Syncable settings include `service_root`, `service_root_zfs`, `ports`, and
+snapshot override fields such as `snapshots`, `snapshot_keep_last`,
 `snapshot_max_age`, `snapshot_required`, and `snapshot_events`.
 
 ```bash
