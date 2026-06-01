@@ -53,6 +53,7 @@ Install or update a service based on the payload:
   catch host and installed
 - `Dockerfile` -> built locally for the remote platform, pushed to the
   internal registry, then installed
+- `vm://ubuntu/26.04` -> experimental Ubuntu VM service on KVM-capable hosts
 
 Examples:
 
@@ -68,6 +69,7 @@ yeet run --env-file=prod.env <svc> ./compose.yml
 yeet run vaultwarden ./compose.yml --service-root=/srv/apps/vaultwarden
 yeet run vaultwarden ./compose.yml --service-root=tank/apps/vaultwarden --zfs
 yeet run vaultwarden ./compose.yml --snapshots=off
+yeet run <svc> vm://ubuntu/26.04 --net=svc
 yeet run <svc> ./Dockerfile
 yeet run <svc> ./bin/<svc> -- --app-flag value
 yeet run <svc> ghcr.io/org/app:latest
@@ -174,6 +176,10 @@ dataset identity and the resolved filesystem path.
 - `--macvlan-parent=<iface>`: parent interface for `lan`.
 - `--macvlan-vlan=<vlan>`: VLAN id for `lan`.
 - `--macvlan-mac=<mac>`: MAC address for `lan`.
+- `--cpus=<n>`: override the default VM vCPU count for `vm://` payloads.
+- `--memory=<size>`: override the default VM memory size for `vm://` payloads.
+  Sizes accept suffixes such as `m` and `g`.
+- `--disk=<size>`: override the default VM disk size for `vm://` payloads.
 - `--restart=<bool>`: currently unused.
 - `--env-file=<path>`: upload an env file before deploying the payload.
 
@@ -288,10 +294,11 @@ yeet info <svc>@<host>
 yeet info <svc> --format=json
 ```
 
-Plain output is grouped by section (host, service, client config, server
-config, network, runtime, images) and the Network section includes published
-ports when catch reports them. Use `--format=json` or `--format=json-pretty`
-for machine-readable output with structured port mappings.
+Plain output is grouped by section (host, service, VM details when present,
+client config, server config, network, runtime, images) and the Network section
+includes published ports when catch reports them. Use `--format=json` or
+`--format=json-pretty` for machine-readable output with structured port
+mappings.
 
 ### rollback
 
@@ -311,6 +318,8 @@ Flags:
 - `--clean-config`: delete the `yeet.toml` entry for the service. Without this
   flag, yeet prompts to keep or remove the local config after the service is
   removed.
+- `--clean-data`: delete service data, including VM guest disks. Without this
+  flag, yeet preserves `data/`.
 
 ### service set
 
@@ -464,8 +473,9 @@ Notes:
 ### ssh
 
 Open an SSH session to the **catch host** over the tailnet/tsnet address. If
-you pass a service name, the session starts in that service's data directory
-(`<data-dir>/services/<svc>/data`).
+you pass a regular service name, the session starts in that service's data
+directory (`<data-dir>/services/<svc>/data`). If the service is an
+experimental VM, `yeet ssh <svc>` connects to the VM guest instead.
 
 ```bash
 yeet ssh
@@ -479,16 +489,33 @@ Notes:
 - `yeet ssh` targets the **catch host**, not the machine host you used for
   `yeet init`.
 - `yeet ssh <svc>` resolves the host from `<svc>@<host>`, `--host`,
-  `CATCH_HOST`, or `yeet.toml` service entries, then drops into the service data
-  dir.
+  `CATCH_HOST`, or `yeet.toml` service entries. For regular services, it drops
+  into the service data dir. For VM services, it connects to the guest.
 - Because it connects over Tailscale/tsnet, you can firewall port 22 on
   public/LAN interfaces and still reach the host via your tailnet.
-- If catch reports an install user, that user is used for SSH; otherwise your
-  SSH defaults apply.
+- For catch-host SSH and regular services, if catch reports an install user,
+  that user is used for SSH; otherwise your SSH defaults apply. For VM services,
+  yeet uses the VM-reported user or defaults to `ubuntu` unless you pass an SSH
+  user option.
 - SSH options can be passed before the service name (e.g.,
   `yeet ssh -i ~/.ssh/id_ed25519 <svc>`).
-- Use `--` to pass a remote command. If `<svc>` is provided, the command runs
-  from the service directory.
+- Use `--` to pass a remote command. For regular services, the command runs
+  from the service directory. For VM services, the command runs in the guest's
+  default SSH session context.
+- For VM services on `--net=svc`, yeet proxies the SSH connection through the
+  yeet host to reach the guest's private service-network IP.
+
+### vm console
+
+Stream the serial console output for an experimental VM service:
+
+```bash
+yeet vm console <svc>
+```
+
+Use this when the guest is booting, when SSH is not available yet, or when the
+VM has no reported SSH address. Use `yeet ssh <svc>` for an interactive guest
+shell.
 
 ### events
 

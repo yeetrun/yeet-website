@@ -103,6 +103,18 @@ Local image (push it, then run it):
 yeet docker push <svc> <local-image>:<tag> --run
 ```
 
+Experimental VM on a KVM-capable Linux host:
+
+```bash
+yeet run <svc> vm://ubuntu/26.04 --net=svc
+yeet ssh <svc>
+yeet vm console <svc>
+```
+
+`yeet ssh <svc>` opens the interactive guest shell. `yeet vm console <svc>`
+streams serial output for boot diagnostics. Use `yeet rm --clean-data <svc>` to
+delete the guest disk when removing a VM.
+
 ## 5) Observe and iterate
 
 ```bash

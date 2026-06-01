@@ -55,6 +55,26 @@ yeet run <svc> ./compose.yml
 - Use `-p`/`--publish` with `yeet run` to expose ports (e.g. `-p 8000:8000`).
   Yeet saves the mappings and replays them on future runs.
 
+## Experimental VM
+
+- `vm://ubuntu/26.04` creates a long-lived Ubuntu VM service.
+- Requires a Linux catch host with KVM available.
+- Uses the yeet-owned Ubuntu 26.04 image bundle published at
+  `github.com/yeetrun/yeet-vm-images`.
+- Saved config uses `type = "vm"`.
+
+```bash
+yeet run <svc> vm://ubuntu/26.04 --net=svc
+yeet vm console <svc>
+yeet ssh <svc>
+```
+
+Use `--cpus`, `--memory`, and `--disk` to override the host-based defaults.
+Use `yeet ssh <svc>` for an interactive guest shell. `yeet vm console <svc>`
+streams the VM serial output for boot diagnostics. The default `ubuntu` guest
+user has passwordless sudo. Use `yeet rm --clean-data <svc>` when you want to
+delete the guest disk during removal.
+
 ## Zstd
 
 - Zstd-compressed binaries are detected and unpacked.

@@ -83,6 +83,12 @@ sudo iptables-nft -t nat -S YEET_POSTROUTING
 If the host is on legacy compatibility mode, use `iptables-legacy` in place of
 `iptables-nft`.
 
+For experimental VMs, `svc` is the default network mode. The guest gets a
+private IP on the service network. `yeet ssh <svc>` uses that address and
+proxies through the yeet host, so the guest does not need to be directly
+reachable from your laptop. The generated guest network config includes DNS for
+the service network.
+
 ## LAN (`lan`)
 
 `lan` uses macvlan to attach the service to the LAN.
@@ -90,6 +96,12 @@ If the host is on legacy compatibility mode, use `iptables-legacy` in place of
 - Default parent interface is the host default route from the catch host namespace.
 - Override with `--macvlan-parent`.
 - Optional `--macvlan-vlan` and `--macvlan-mac`.
+
+For experimental VMs, `lan` attaches a TAP device to a host bridge so the guest
+can request a LAN address with DHCP. In v0, non-bridge LAN parents are rejected;
+pass a bridge interface with `--macvlan-parent` when the default route
+interface is not itself a bridge. VM networking supports `svc`, `lan`, or both
+in v0; Tailscale mode is not available for VMs yet.
 
 ## Mounts
 
