@@ -78,6 +78,12 @@ Refreshing the cache does not mutate existing VM disks. A missing image is
 downloaded automatically on the first VM create. When creating a VM with a stale
 cached image, interactive runs prompt by default; non-interactive runs require
 `--image-policy=update` or `--image-policy=cached`.
+
+For ZFS-backed VMs, the first VM on a pool and image version prepares a shared
+ZFS image base. Later VMs on that pool clone the shared base, and
+`yeet rm --clean-data devbox` removes the VM clone without deleting the shared
+base.
+
 Use `yeet ssh <svc>` for an interactive guest shell. `yeet vm console <svc>`
 streams the VM serial output for boot diagnostics. The default `ubuntu` guest
 user has passwordless sudo. For yeet-managed VM aliases in

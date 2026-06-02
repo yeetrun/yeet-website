@@ -521,10 +521,14 @@ yeet vm images --format=json
 yeet vm images update
 ```
 
-`yeet vm images` shows the host cache state for `vm://ubuntu/26.04`.
+`yeet vm images` shows the host file-cache state for `vm://ubuntu/26.04`.
 `yeet vm images update` downloads and verifies the latest image bundle used for
 future VM creates. A missing image is downloaded automatically on the first VM
 create. Existing VMs are not rebuilt or modified.
+
+For ZFS-backed VMs, the first create on a pool and image version prepares a
+shared ZFS image base. Later VMs on the same pool clone that base, so normal
+creates skip the base-image write.
 
 ### vm console
 
