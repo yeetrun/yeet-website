@@ -65,15 +65,26 @@ yeet run <svc> ./compose.yml
 
 ```bash
 yeet run <svc> vm://ubuntu/26.04 --net=svc
+yeet vm images
+yeet vm images update
 yeet vm console <svc>
 yeet ssh <svc>
 ```
 
 Use `--cpus`, `--memory`, and `--disk` to override the host-based defaults.
+VM image bundles are cached per host. Use `yeet vm images` to inspect the cache
+and `yeet vm images update` to refresh the image used for future VM creates.
+Refreshing the cache does not mutate existing VM disks. A missing image is
+downloaded automatically on the first VM create. When creating a VM with a stale
+cached image, interactive runs prompt by default; non-interactive runs require
+`--image-policy=update` or `--image-policy=cached`.
 Use `yeet ssh <svc>` for an interactive guest shell. `yeet vm console <svc>`
 streams the VM serial output for boot diagnostics. The default `ubuntu` guest
-user has passwordless sudo. Use `yeet rm --clean-data <svc>` when you want to
-delete the guest disk during removal.
+user has passwordless sudo. For yeet-managed VM aliases in
+`~/.yeet/known_hosts`, `yeet ssh <svc>` repairs a stale host key and retries
+once after a VM is recreated. Yeet does not edit normal `~/.ssh/known_hosts`
+entries. Use `yeet rm --clean-data <svc>` when you want to delete the guest disk
+during removal.
 
 ## Zstd
 

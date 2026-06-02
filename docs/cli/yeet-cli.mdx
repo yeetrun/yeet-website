@@ -180,6 +180,9 @@ dataset identity and the resolved filesystem path.
 - `--memory=<size>`: override the default VM memory size for `vm://` payloads.
   Sizes accept suffixes such as `m` and `g`.
 - `--disk=<size>`: override the default VM disk size for `vm://` payloads.
+- `--image-policy=prompt|update|cached`: choose stale VM image cache behavior
+  for `vm://` payloads. Interactive runs prompt by default. Non-interactive
+  runs fail on stale cache unless you set `update` or `cached`.
 - `--restart=<bool>`: currently unused.
 - `--env-file=<path>`: upload an env file before deploying the payload.
 
@@ -504,6 +507,24 @@ Notes:
   default SSH session context.
 - For VM services on `--net=svc`, yeet proxies the SSH connection through the
   yeet host to reach the guest's private service-network IP.
+- For yeet-managed VM aliases in `~/.yeet/known_hosts`, `yeet ssh <vm>` repairs
+  a stale VM host key and retries once after a VM is recreated. Yeet does not
+  edit normal `~/.ssh/known_hosts` entries.
+
+### vm images
+
+Show or refresh the experimental VM image cache on the selected catch host:
+
+```bash
+yeet vm images
+yeet vm images --format=json
+yeet vm images update
+```
+
+`yeet vm images` shows the host cache state for `vm://ubuntu/26.04`.
+`yeet vm images update` downloads and verifies the latest image bundle used for
+future VM creates. A missing image is downloaded automatically on the first VM
+create. Existing VMs are not rebuilt or modified.
 
 ### vm console
 

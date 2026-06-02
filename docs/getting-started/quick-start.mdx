@@ -107,6 +107,8 @@ Experimental VM on a KVM-capable Linux host:
 
 ```bash
 yeet run <svc> vm://ubuntu/26.04 --net=svc
+yeet vm images
+yeet vm images update
 yeet ssh <svc>
 yeet vm console <svc>
 ```
@@ -114,6 +116,10 @@ yeet vm console <svc>
 `yeet ssh <svc>` opens the interactive guest shell. `yeet vm console <svc>`
 streams serial output for boot diagnostics. Use `yeet rm --clean-data <svc>` to
 delete the guest disk when removing a VM.
+VM image bundles are cached per host. `yeet vm images` shows cache state, and
+`yeet vm images update` refreshes the image used for future VM creates without
+rewriting existing VM disks. A missing image is downloaded automatically on the
+first VM create.
 
 ## 5) Observe and iterate
 
