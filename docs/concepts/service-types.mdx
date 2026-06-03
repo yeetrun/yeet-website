@@ -71,6 +71,10 @@ yeet vm console <svc>
 yeet ssh <svc>
 ```
 
+When `yeet run` starts a VM, it waits for the guest to report readiness and an
+IPv4 address before printing the next `yeet ssh` command. If the guest does not
+report readiness, use `yeet vm console <svc>` for boot diagnostics.
+
 Use `--cpus`, `--memory`, and `--disk` to override the host-based defaults.
 VM image bundles are cached per host. Use `yeet vm images` to inspect the cache
 and `yeet vm images update` to refresh the image used for future VM creates.
