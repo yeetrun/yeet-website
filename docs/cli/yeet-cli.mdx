@@ -186,6 +186,11 @@ dataset identity and the resolved filesystem path.
 - `--restart=<bool>`: currently unused.
 - `--env-file=<path>`: upload an env file before deploying the payload.
 
+The fast Ubuntu VM image uses a yeet-managed kernel and init shim for
+Firecracker direct boot. Snap packages are not supported in this fast image
+profile. Kernel and init updates are delivered by publishing a new yeet VM image
+bundle and updating the host image cache.
+
 When `--env-file` is provided (or `yeet env copy` is used), yeet stores the env
 file path in `yeet.toml` and re-uploads it on future runs.
 

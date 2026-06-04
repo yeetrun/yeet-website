@@ -75,6 +75,10 @@ When `yeet run` starts a VM, it waits for the guest to report readiness and an
 IPv4 address before printing the next `yeet ssh` command. If the guest does not
 report readiness, use `yeet vm console <svc>` for boot diagnostics.
 
+VM services use the fast yeet Ubuntu image by default: direct kernel boot,
+systemd-managed SSH readiness, and no snap support. Use Docker services for
+workloads that need snap-like packaging behavior.
+
 Use `--cpus`, `--memory`, and `--disk` to override the host-based defaults.
 VM image bundles are cached per host. Use `yeet vm images` to inspect the cache
 and `yeet vm images update` to refresh the image used for future VM creates.
@@ -84,8 +88,8 @@ cached image, interactive runs prompt by default; non-interactive runs require
 `--image-policy=update` or `--image-policy=cached`.
 
 The fast Ubuntu VM image uses a yeet-managed Firecracker kernel supplied by the
-image bundle. Guest apt upgrades do not manage the boot kernel, bootloader, or
-initrd, and snap packages are not supported in that fast image profile.
+image bundle. Guest apt upgrades do not manage the boot kernel, bootloader,
+initrd, or init shim; publish a new VM image bundle for those updates.
 
 For ZFS-backed VMs, the first VM on a pool and image version prepares a shared
 ZFS image base. Later VMs on that pool clone the shared base, and
