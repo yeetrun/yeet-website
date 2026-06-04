@@ -83,6 +83,10 @@ downloaded automatically on the first VM create. When creating a VM with a stale
 cached image, interactive runs prompt by default; non-interactive runs require
 `--image-policy=update` or `--image-policy=cached`.
 
+The fast Ubuntu VM image uses a yeet-managed Firecracker kernel supplied by the
+image bundle. Guest apt upgrades do not manage the boot kernel, bootloader, or
+initrd, and snap packages are not supported in that fast image profile.
+
 For ZFS-backed VMs, the first VM on a pool and image version prepares a shared
 ZFS image base. Later VMs on that pool clone the shared base, and
 `yeet rm --clean-data devbox` removes the VM clone without deleting the shared
