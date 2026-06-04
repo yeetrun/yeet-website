@@ -53,7 +53,7 @@ Install or update a service based on the payload:
   catch host and installed
 - `Dockerfile` -> built locally for the remote platform, pushed to the
   internal registry, then installed
-- `vm://ubuntu/26.04` -> experimental Ubuntu VM service on KVM-capable hosts
+- `vm://ubuntu/26.04` -> Ubuntu VM service on KVM-capable hosts
 
 Examples:
 
@@ -190,6 +190,11 @@ The fast Ubuntu VM image uses a yeet-managed kernel and init shim for
 Firecracker direct boot. Snap packages are not supported in this fast image
 profile. Kernel and init updates are delivered by publishing a new yeet VM image
 bundle and updating the host image cache.
+
+During `yeet init`, catch checks the host for KVM, TUN/TAP, and required VM
+tooling. On Debian/Ubuntu hosts with `apt-get`, interactive installs can offer
+to install missing VM packages. ZFS is optional unless you create VMs with
+`--zfs`.
 
 When `--env-file` is provided (or `yeet env copy` is used), yeet stores the env
 file path in `yeet.toml` and re-uploads it on future runs.
@@ -482,8 +487,8 @@ Notes:
 
 Open an SSH session to the **catch host** over the tailnet/tsnet address. If
 you pass a regular service name, the session starts in that service's data
-directory (`<data-dir>/services/<svc>/data`). If the service is an
-experimental VM, `yeet ssh <svc>` connects to the VM guest instead.
+directory (`<data-dir>/services/<svc>/data`). If the service is a VM,
+`yeet ssh <svc>` connects to the VM guest instead.
 
 ```bash
 yeet ssh
@@ -518,7 +523,7 @@ Notes:
 
 ### vm images
 
-Show or refresh the experimental VM image cache on the selected catch host:
+Show or refresh the VM image cache on the selected catch host:
 
 ```bash
 yeet vm images
@@ -537,7 +542,7 @@ creates skip the base-image write.
 
 ### vm console
 
-Stream the serial console output for an experimental VM service:
+Stream the serial console output for a VM service:
 
 ```bash
 yeet vm console <svc>

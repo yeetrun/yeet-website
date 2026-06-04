@@ -9,16 +9,17 @@ on your homelab hosts.
 ## Components
 
 - **yeet**: CLI that packages payloads and issues RPC calls.
-- **catch**: daemon that installs, runs, and monitors services.
+- **catch**: daemon that installs, runs, and monitors services and VMs.
 - **catchrpc**: JSON-RPC + WebSocket layer for exec/events.
 - **internal registry**: Docker registry served by catch for image pushes.
+- **VM image cache**: host-local cache for yeet-owned Firecracker VM bundles.
 
 ## How a deploy works
 
 1) Yeet detects the payload type.
 2) Yeet streams the payload over RPC.
 3) Catch writes artifacts under the service directory.
-4) Catch installs or updates the service (systemd or docker compose).
+4) Catch installs or updates the service (systemd, docker compose, or VM).
 5) Catch publishes events for status/config changes.
 
 ## Generations and staging

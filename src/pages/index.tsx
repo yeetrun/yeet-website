@@ -28,9 +28,10 @@ export default function Home({ docsNavTree }: HomePageProps) {
     <NavFooterLayout
       docsNavTree={docsNavTree}
       meta={{
-        title: "yeet: Homelab Service Manager for Docker, Compose, and systemd",
+        title:
+          "yeet: Homelab Service Manager for Containers, VMs, and Binaries",
         description:
-          "Homelab service manager over Tailscale RPC for shipping services to remote hosts.",
+          "Homelab service manager over Tailscale RPC for shipping containers, VMs, and host services to remote Linux machines.",
         path: "/",
       }}
     >
@@ -39,15 +40,16 @@ export default function Home({ docsNavTree }: HomePageProps) {
           <GridContainer className={s.heroGrid}>
             <div className={s.heroContent}>
               <div className={s.heroBadge}>
-                Homelab-first • Tailscale RPC • Docker + systemd
+                Homelab-first • Tailscale RPC • Containers + VMs
               </div>
               <H1 className={s.heroTitle}>Run services fast with yeet.</H1>
               <P className={s.heroSubtitle} weight="regular">
                 Yeet is a lightweight client + server setup for deploying and
                 managing services on remote Linux hosts. It’s optimized for a
                 personal homelab: fast workflows, minimal ceremony, and a tight
-                CLI that ships binaries, Dockerfiles, compose stacks, and images
-                over your tailnet.
+                CLI that ships compose stacks, Dockerfiles, images, binaries,
+                scripts, cron jobs, and Firecracker-backed Ubuntu VMs over your
+                tailnet.
               </P>
               <div className={s.heroActions}>
                 <ButtonLink
@@ -79,7 +81,11 @@ curl -fsSL https://yeetrun.com/install.sh | sh
 yeet init root@<host>
 
 # deploy a compose stack
-yeet run <svc> ./compose.yml --net=svc,ts`}</code>
+yeet run <svc> ./compose.yml --net=svc,ts
+
+# create an Ubuntu VM
+yeet run <vm> vm://ubuntu/26.04 --net=svc
+yeet ssh <vm>`}</code>
               </CodeBlock>
               <div className={s.panelFooter}>
                 Want the full workflow? Read the{" "}
@@ -163,6 +169,13 @@ yeet run --pull <svc> ./compose.yml`}</code>
               </pre>
             </div>
             <div className={s.workflowCard}>
+              <h3>Ubuntu VM</h3>
+              <pre>
+                <code>{`yeet run <vm> vm://ubuntu/26.04 --net=svc
+yeet ssh <vm>`}</code>
+              </pre>
+            </div>
+            <div className={s.workflowCard}>
               <h3>Binary</h3>
               <pre>
                 <code>{`GOOS=linux GOARCH=amd64 go build -o ./bin/<svc>
@@ -190,11 +203,11 @@ yeet run <svc> ./bin/<svc>`}</code>
               href="/docs/getting-started/installation"
             >
               <h3>Installation</h3>
-              <p>Toolchain setup, install flows, and Docker requirements.</p>
+              <p>Toolchain setup, host bootstrap, and runtime requirements.</p>
             </Link>
-            <Link className={s.docsCard} href="/docs/cli/cli-overview">
-              <h3>CLI Overview</h3>
-              <p>Command model, global flags, and routing behavior.</p>
+            <Link className={s.docsCard} href="/docs/concepts/service-types">
+              <h3>Service Types</h3>
+              <p>Containers, VMs, binaries, scripts, and cron jobs.</p>
             </Link>
             <Link className={s.docsCard} href="/docs/operations/workflows">
               <h3>Workflows</h3>

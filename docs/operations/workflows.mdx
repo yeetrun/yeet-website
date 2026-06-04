@@ -43,6 +43,38 @@ yeet docker update <svc...> # pull + recreate containers (restart)
 yeet docker update --outdated # update compose services that have image updates
 ```
 
+## Create an Ubuntu VM
+
+Use a `vm://` payload when you want a long-lived Ubuntu guest managed by yeet:
+
+```bash
+yeet run <vm> vm://ubuntu/26.04 --net=svc
+yeet ssh <vm>
+```
+
+VM payloads require a Linux catch host with KVM. During `yeet init`, catch
+checks the host for KVM, TUN/TAP, and the required VM tooling (`qemu-img`,
+`zstd`, `e2fsck`, `resize2fs`, `mount`, `umount`, and `ip`). On Debian/Ubuntu
+hosts, missing VM packages can be installed with `apt-get` when the install is
+interactive. ZFS is optional; use `--zfs` only when you want ZFS-backed VM
+disks.
+
+Image bundles are cached per host:
+
+```bash
+yeet vm images
+yeet vm images update
+yeet vm console <vm>
+```
+
+`yeet run` downloads the image automatically on the first VM create and waits
+for the guest readiness marker before returning. `yeet vm console <vm>` streams
+the serial console for boot diagnostics. Remove a VM disk with:
+
+```bash
+yeet rm --clean-data <vm>
+```
+
 ## Set or move a service root
 
 Use `--service-root` to choose where a new service lives on the catch host:

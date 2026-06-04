@@ -102,6 +102,25 @@ Then restart Docker:
 systemctl restart docker
 ```
 
+## VM host requirements
+
+VM payloads (`vm://ubuntu/26.04`) require a Linux catch host with:
+
+- x86_64/amd64 architecture.
+- KVM available at `/dev/kvm`.
+- TUN/TAP available at `/dev/net/tun`.
+- Required tools: `qemu-img`, `zstd`, `e2fsck`, `resize2fs`, `mount`, `umount`,
+  and `ip`.
+
+During `yeet init`, catch checks those requirements and prints warnings for
+missing host capabilities. On Debian/Ubuntu hosts with `apt-get`, an
+interactive install can offer to install the missing VM packages:
+`qemu-utils`, `zstd`, `e2fsprogs`, `util-linux`, and `iproute2`.
+
+ZFS is optional. Install and configure ZFS only if you want to create VMs with
+`--zfs`; raw VM disks work without it. If ZFS is present, `udevadm` is required
+for ZFS-backed VM disk setup.
+
 ## Development toolchain (optional)
 
 If you plan to work on yeet from source, install the toolchain via mise:

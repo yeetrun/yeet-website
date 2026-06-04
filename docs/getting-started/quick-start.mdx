@@ -79,6 +79,18 @@ yeet info <svc>
 yeet ip <svc>
 ```
 
+Ubuntu VM on a KVM-capable Linux host:
+
+```bash
+yeet run <vm> vm://ubuntu/26.04 --net=svc
+yeet ssh <vm>
+yeet vm console <vm>
+```
+
+`yeet ssh <vm>` opens the interactive guest shell. `yeet vm console <vm>`
+streams serial output for boot diagnostics. Use `yeet rm --clean-data <vm>` to
+delete the guest disk when removing a VM.
+
 Dockerfile (built locally for the host’s arch, then pushed):
 
 ```bash
@@ -103,19 +115,6 @@ Local image (push it, then run it):
 yeet docker push <svc> <local-image>:<tag> --run
 ```
 
-Experimental VM on a KVM-capable Linux host:
-
-```bash
-yeet run <svc> vm://ubuntu/26.04 --net=svc
-yeet vm images
-yeet vm images update
-yeet ssh <svc>
-yeet vm console <svc>
-```
-
-`yeet ssh <svc>` opens the interactive guest shell. `yeet vm console <svc>`
-streams serial output for boot diagnostics. Use `yeet rm --clean-data <svc>` to
-delete the guest disk when removing a VM.
 VM image bundles are cached per host. `yeet vm images` shows cache state, and
 `yeet vm images update` refreshes the image used for future VM creates without
 rewriting existing VM disks. A missing image is downloaded automatically on the

@@ -46,7 +46,7 @@ description: A focused user manual for the yeet + catch homelab workflow.
     },
     {
       title: "Service Types",
-      description: "Payload detection and install behavior by type.",
+      description: "Payload detection for containers, VMs, binaries, scripts, and cron jobs.",
       href: "/docs/concepts/service-types",
     },
     {
@@ -90,8 +90,8 @@ description: A focused user manual for the yeet + catch homelab workflow.
 ## How this homelab runs
 
 - Catch runs on each host, and yeet runs from the workstation.
-- Services are deployed over Tailscale RPC with explicit network modes (see
-  [Tailscale](/docs/concepts/tailscale)).
+- Services and VMs are deployed over Tailscale RPC with explicit network modes
+  (see [Tailscale](/docs/concepts/tailscale)).
 - Host targeting and defaults are driven by `CATCH_HOST` and `yeet.toml`.
 
 ## Conventions
