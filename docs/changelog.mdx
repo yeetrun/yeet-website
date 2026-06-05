@@ -5,6 +5,12 @@ description: Short notes for yeet + catch releases.
 
 ## June 5, 2026
 
+### v0.5.2
+
+- Added catch-local VM image imports with `yeet vm images import`, so custom rootfs bundles can be tested as `vm://<name>` before publishing a public image.
+- Improved VM guest shell defaults, including color-friendly bash setup and Ghostty terminal support.
+- Added VM resource updates for CPU, memory, disk growth, and networking through `yeet service set`.
+
 ### v0.5.1
 
 - Fixed a catch CPU spike after Tailscale-backed service updates by stopping the Tailscale monitor once it records the service stable ID.
