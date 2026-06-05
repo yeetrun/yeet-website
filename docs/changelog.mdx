@@ -11,7 +11,7 @@ description: Short notes for yeet + catch releases.
 
 ### v0.5.2
 
-- Added catch-local VM image imports with `yeet vm images import`, so custom rootfs bundles can be tested as `vm://<name>` before publishing a public image.
+- Added custom VM image imports with `yeet vm images import`, so you can run your own rootfs bundles as `vm://<name>`.
 - Improved VM guest shell defaults, including color-friendly bash setup and Ghostty terminal support.
 - Added VM resource updates for CPU, memory, disk growth, and networking through `yeet service set`.
 
@@ -110,8 +110,8 @@ description: Short notes for yeet + catch releases.
 
 ### v0.2.7
 
-- Yeet now ships with broader regression coverage across CLI routing, catch RPC, Docker, registry, TTY, installer, and service flows.
-- The standard local checks now enforce coverage, complexity, lint, and Go vulnerability gates before commits.
+- Improved release reliability with broader automated checks across CLI routing, catch RPC, Docker, registry, TTY, installer, and service flows.
+- Added public development checks for test coverage, complexity, lint, and Go vulnerabilities.
 
 ## May 2, 2026
 
