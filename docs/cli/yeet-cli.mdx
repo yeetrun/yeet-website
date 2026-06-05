@@ -554,9 +554,10 @@ Existing VMs are not rebuilt or modified.
 
 `yeet vm images import <name> <bundle-dir>` uploads a local bundle containing
 `rootfs.ext4` or `rootfs.ext4.zst` and stores it as `vm://<name>` on the catch
-host. Rootfs-only imports use yeet's managed kernel and Firecracker; add
-`--allow-local-kernel` only when the bundle includes `vmlinux`. Remove an
-imported ref with `yeet vm images rm <name> --yes`.
+host. If the bundle includes a yeet VM `manifest.json`, yeet preserves its
+guest boot capability metadata. Rootfs-only imports use yeet's managed kernel
+and Firecracker; add `--allow-local-kernel` only when the bundle includes
+`vmlinux`. Remove an imported ref with `yeet vm images rm <name> --yes`.
 
 For ZFS-backed VMs, the first create on a pool and image version prepares a
 shared ZFS image base. Later VMs on the same pool clone that base, so normal
