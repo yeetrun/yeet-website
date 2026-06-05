@@ -84,7 +84,7 @@ yeet init root@<host>
 yeet run <svc> ./compose.yml --net=svc,ts
 
 # create an Ubuntu VM
-yeet run <vm> vm://ubuntu/26.04 --net=svc
+yeet run <vm> vm://ubuntu/26.04
 yeet ssh <vm>`}</code>
               </CodeBlock>
               <div className={s.panelFooter}>
@@ -171,7 +171,7 @@ yeet run --pull <svc> ./compose.yml`}</code>
             <div className={s.workflowCard}>
               <h3>Ubuntu VM</h3>
               <pre>
-                <code>{`yeet run <vm> vm://ubuntu/26.04 --net=svc
+                <code>{`yeet run <vm> vm://ubuntu/26.04
 yeet ssh <vm>`}</code>
               </pre>
             </div>
@@ -205,9 +205,9 @@ yeet run <svc> ./bin/<svc>`}</code>
               <h3>Installation</h3>
               <p>Toolchain setup, host bootstrap, and runtime requirements.</p>
             </Link>
-            <Link className={s.docsCard} href="/docs/concepts/service-types">
-              <h3>Service Types</h3>
-              <p>Containers, VMs, binaries, scripts, and cron jobs.</p>
+            <Link className={s.docsCard} href="/docs/payloads">
+              <h3>Payloads</h3>
+              <p>Dive into containers, VMs, binaries, scripts, and cron jobs.</p>
             </Link>
             <Link className={s.docsCard} href="/docs/operations/workflows">
               <h3>Workflows</h3>

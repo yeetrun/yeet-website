@@ -1,0 +1,71 @@
+---
+title: Cron Jobs
+description: Install scheduled jobs as systemd timers on the catch host.
+---
+
+Cron payloads install a script or binary as a scheduled job. Catch implements
+them as systemd timer units, while yeet accepts a five-field cron expression.
+
+## Create a job
+
+```bash
+yeet cron <svc> ./job.sh "0 9 * * *"
+yeet cron <svc> ./job.sh "0 9 * * *" -- --job-arg foo
+```
+
+Arguments after `--` are saved as payload args and replayed on future runs.
+Binary payloads uploaded by `cron` are zstd-compressed; catch auto-decompresses
+them on receipt.
+
+## Update a job
+
+Re-run `yeet cron` with the new payload or schedule.
+
+```bash
+yeet cron <svc> ./job.sh "30 2 * * *"
+```
+
+If a `yeet.toml` exists, or after the first successful cron install, you can
+omit the payload and expression to replay the saved job:
+
+```bash
+yeet cron <svc>
+```
+
+## Environment and files
+
+```bash
+yeet env copy <svc> ./job.env
+yeet env set <svc> LOG_LEVEL=debug
+yeet copy ./config.yml <svc>:config/config.yml
+```
+
+Use [Binaries & Scripts](/docs/payloads/binaries) for payload preparation
+details.
+
+## ZFS service roots
+
+Cron jobs can use ZFS-backed service roots too, which is useful for jobs that
+write persistent state or process files under their managed data directory.
+
+```bash
+yeet cron <svc> ./job.sh "0 9 * * *"
+yeet stop <svc>
+yeet service set <svc> --service-root=tank/jobs/<svc> --zfs --copy
+```
+
+Cron installs use `yeet cron`; service-root moves happen afterward through
+`yeet service set`. Stop the job before moving its root. See
+[ZFS](/docs/concepts/zfs) for service-root and snapshot behavior.
+
+## Inspect and clean up
+
+```bash
+yeet status <svc>
+yeet logs -f <svc>
+yeet rm <svc>
+yeet rm --clean-data <svc>
+```
+
+`--clean-data` removes the managed service data root in addition to uninstalling
+the timer and service units.

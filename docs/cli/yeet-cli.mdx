@@ -69,7 +69,8 @@ yeet run --env-file=prod.env <svc> ./compose.yml
 yeet run vaultwarden ./compose.yml --service-root=/srv/apps/vaultwarden
 yeet run vaultwarden ./compose.yml --service-root=tank/apps/vaultwarden --zfs
 yeet run vaultwarden ./compose.yml --snapshots=off
-yeet run <svc> vm://ubuntu/26.04 --net=svc
+yeet run <svc> vm://ubuntu/26.04
+yeet run <svc> vm://ubuntu/26.04 --net=lan
 yeet run <svc> ./Dockerfile
 yeet run <svc> ./bin/<svc> -- --app-flag value
 yeet run <svc> ghcr.io/org/app:latest
@@ -154,6 +155,8 @@ Run flags:
 For ZFS-backed service roots, pass `--zfs` and use the dataset name as
 `--service-root`; catch resolves the dataset mountpoint and stores both the
 dataset identity and the resolved filesystem path.
+See [ZFS](/docs/concepts/zfs) for dataset-backed service roots, snapshots, and
+VM disk clones.
 
 - `--snapshots=on|off|inherit`: override the service snapshot policy saved in
   catch and `yeet.toml`. `inherit` clears the service override and uses the
@@ -539,6 +542,7 @@ create. Existing VMs are not rebuilt or modified.
 For ZFS-backed VMs, the first create on a pool and image version prepares a
 shared ZFS image base. Later VMs on the same pool clone that base, so normal
 creates skip the base-image write.
+See [ZFS](/docs/concepts/zfs) for cleanup and shared-base behavior.
 
 ### vm console
 

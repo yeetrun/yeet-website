@@ -1,0 +1,101 @@
+---
+title: Binaries & Scripts
+description: Deploy local executables and shebang scripts as host systemd services.
+---
+
+Binary and script payloads become systemd services on the catch host. Use this
+path for a single long-running process that does not need a container.
+
+## Binaries
+
+Build for the target host architecture before deploying. For a typical Linux
+amd64 host:
+
+```bash
+GOOS=linux GOARCH=amd64 go build -o ./bin/<svc> ./cmd/<svc>
+yeet run <svc> ./bin/<svc>
+```
+
+Yeet uploads binary payloads compressed with zstd, and catch auto-decompresses
+them on receipt.
+
+## Scripts
+
+Scripts need a shebang and executable-compatible contents for the host.
+
+```bash
+yeet run <svc> ./script.sh
+yeet run <svc> ./script.sh -- --app-flag value
+```
+
+Arguments after `--` are saved as payload args and replayed on future runs.
+
+## Updates
+
+Rebuild or edit the local payload, then re-run `yeet run`. For an existing
+service, a payload-only redeploy reuses saved run options from `yeet.toml`.
+
+```bash
+yeet run <svc> ./bin/<svc>
+yeet run <svc> ./script.sh
+```
+
+Use `--force` when you want to redeploy even if yeet detects no payload or
+configuration changes.
+
+```bash
+yeet run --force <svc> ./bin/<svc>
+```
+
+## ZFS service roots
+
+Binary and script services can use a ZFS dataset as their service root. This is
+useful when the process writes persistent data and you want yeet-managed
+snapshots before redeploys.
+
+```bash
+yeet run <svc> ./bin/<svc> --service-root=tank/apps/<svc> --zfs
+```
+
+With `--zfs`, `--service-root` is a dataset name. See
+[ZFS](/docs/concepts/zfs) for dataset creation, snapshot defaults, and
+service-root moves.
+
+## Environment and config
+
+```bash
+yeet env copy <svc> ./app.env
+yeet env edit <svc>
+yeet env set <svc> LOG_LEVEL=debug
+yeet copy ./config.yml <svc>:config/config.yml
+```
+
+When `--env-file` is provided during `yeet run`, yeet stores the env file path
+in `yeet.toml` and re-uploads it on future runs.
+
+```bash
+yeet run --env-file=prod.env <svc> ./bin/<svc>
+```
+
+## Inspect and control
+
+```bash
+yeet status <svc>
+yeet logs -f <svc>
+yeet restart <svc>
+yeet stop <svc>
+yeet start <svc>
+```
+
+Use [Workflows](/docs/operations/workflows) for common deploy and update flows,
+and [Service Types](/docs/concepts/service-types) for detection details.
+
+## Cleanup
+
+```bash
+yeet rm <svc>
+yeet rm --clean-data <svc>
+```
+
+`--clean-data` removes the managed service data root in addition to uninstalling
+the systemd service.

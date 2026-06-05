@@ -1,0 +1,79 @@
+---
+title: Payloads
+description: What yeet can run and where to start.
+---
+
+A payload is what you pass to `yeet run`, `yeet stage`, or `yeet cron`. Yeet
+detects the payload type, ships what needs to be shipped, and asks catch to
+install it on the target host.
+
+<CardLinks
+  cards={[
+    {
+      title: "Containers",
+      description: "Docker Compose files, Dockerfiles, image refs, and container-backed Python or TypeScript apps.",
+      href: "/docs/payloads/containers",
+    },
+    {
+      title: "Binaries & Scripts",
+      description: "Host systemd services from local Linux binaries or shebang scripts.",
+      href: "/docs/payloads/binaries",
+    },
+    {
+      title: "VMs",
+      description: "Long-lived Ubuntu guests using Firecracker, KVM, and yeet-managed VM images.",
+      href: "/docs/payloads/vms",
+    },
+    {
+      title: "Cron Jobs",
+      description: "Scheduled jobs installed as systemd timer units on the catch host.",
+      href: "/docs/payloads/cron-jobs",
+    },
+  ]}
+/>
+
+## Choose a payload
+
+- Use [Containers](/docs/payloads/containers) for Compose stacks, Dockerfiles,
+  public image refs, local images, Python apps, and TypeScript apps.
+- Use [Binaries & Scripts](/docs/payloads/binaries) for one long-running host
+  process that does not need a container.
+- Use [VMs](/docs/payloads/vms) when the workload needs a full Ubuntu guest or
+  stronger isolation than a container.
+- Use [Cron Jobs](/docs/payloads/cron-jobs) for scheduled host jobs.
+
+## Common flow
+
+```bash
+yeet run <svc> <payload>
+yeet logs -f <svc>
+yeet restart <svc>
+yeet rm <svc>
+```
+
+After the first successful deploy, yeet writes the service configuration to
+`yeet.toml`. For an existing service, a payload-only redeploy reuses saved run
+options such as network mode, tags, service root, snapshots, and payload args.
+
+## ZFS-backed roots
+
+ZFS is optional, but it is useful for services that need named datasets,
+pre-change snapshots, or fast repeated VM creates on the same pool.
+
+```bash
+yeet run <svc> ./compose.yml --service-root=tank/apps/<svc> --zfs
+yeet run <vm> vm://ubuntu/26.04 --service-root=tank/vms/<vm> --zfs
+```
+
+See [ZFS](/docs/concepts/zfs) for the shared model across payload types.
+
+## Related docs
+
+- [Service Types](/docs/concepts/service-types) explains detection rules and
+  high-level install behavior.
+- [ZFS](/docs/concepts/zfs) covers ZFS-backed service roots, snapshots, and VM
+  disk clones.
+- [Workflows](/docs/operations/workflows) shows common deploy and update flows.
+- [Networking](/docs/concepts/networking) covers `svc`, `lan`, and `ts`.
+- [Configuration & Prefs](/docs/concepts/configuration-and-prefs) covers
+  `yeet.toml`, `CATCH_HOST`, and saved preferences.

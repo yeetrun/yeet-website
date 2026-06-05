@@ -1,0 +1,129 @@
+---
+title: Containers
+description: Deploy Docker Compose files, Dockerfiles, image refs, and container-backed source files.
+---
+
+Containers are the most common yeet payload. Catch installs them as Docker
+Compose services on the target host.
+
+## Compose stacks
+
+Yeet detects a YAML file with a top-level `services:` key as Docker Compose.
+
+```bash
+yeet run <svc> ./compose.yml
+yeet run <svc> ./compose.yml --net=lan
+```
+
+Compose files should define their initial port mappings in the compose file.
+After deployment, use `yeet service set <svc> -p HOST:CONTAINER` to replace the
+yeet-managed published-port list for the primary service.
+
+```bash
+yeet service set <svc> -p 80:80 -p 443:443
+yeet service set <svc> --publish-reset -p 443:443
+```
+
+## Docker images
+
+If the payload looks like an OCI image reference, catch pulls it on the host and
+yeet generates the Compose wrapper.
+
+```bash
+yeet run <svc> nginx:latest
+yeet run -p 8000:8000 <svc> ghcr.io/org/app:latest
+```
+
+For local images, push to the internal registry and run in one step:
+
+```bash
+yeet docker push <svc> <local-image>:<tag> --run
+```
+
+## Dockerfiles
+
+Dockerfile payloads are built locally for the host architecture, pushed to the
+internal registry, then installed on the catch host.
+
+```bash
+yeet run <svc> ./Dockerfile
+yeet run -p 8000:8000 <svc> ./Dockerfile
+```
+
+## Python and TypeScript
+
+Python and TypeScript source files are container-backed. Python runs through a
+`uv` container image, and TypeScript runs through a Deno container.
+
+```bash
+yeet run -p 8000:8000 <svc> ./server.py
+yeet run -p 8000:8000 <svc> ./server.ts
+```
+
+## Updates
+
+For Compose services, `yeet run` reuses existing images unless you ask for a
+pull. Use `--pull` for a deploy-time refresh, or use the Docker commands to
+inspect and update image state explicitly.
+
+```bash
+yeet run <svc> ./compose.yml
+yeet run --pull <svc> ./compose.yml
+yeet docker outdated
+yeet docker pull <svc>
+yeet docker update <svc...>
+yeet docker update --outdated
+```
+
+For Dockerfile, image, Python, and TypeScript payloads, re-run `yeet run` with
+the new payload or source file. If the service already exists in `yeet.toml`,
+yeet reuses the saved run options unless you explicitly change the payload
+configuration.
+
+## ZFS service roots
+
+Container services can use ZFS-backed service roots for persistent data and
+yeet-managed snapshots before redeploys or Docker image updates.
+
+```bash
+yeet run <svc> ./compose.yml --service-root=tank/apps/<svc> --zfs
+yeet docker update <svc>
+```
+
+With `--zfs`, `--service-root` is a dataset name, not a filesystem path. Catch
+accepts an existing dataset or creates it, then uses its mountpoint as the
+service root. See [ZFS](/docs/concepts/zfs) for snapshot defaults, retention,
+and service-root moves.
+
+## Networking
+
+Use `--net=lan` when the service should request a LAN address. Use `svc` for
+the private service network and `ts` for Tailscale service netns behavior.
+
+```bash
+yeet run <svc> ./compose.yml --net=lan
+yeet run <svc> ./compose.yml --net=svc,ts
+```
+
+See [Networking](/docs/concepts/networking) for mode details.
+
+## Inspect and clean up
+
+```bash
+yeet info <svc>
+yeet ip <svc>
+yeet logs -f <svc>
+yeet restart <svc>
+yeet rm <svc>
+```
+
+Use `yeet rm --clean-data <svc>` only when you also want to remove service data
+under the managed service root.
+
+## Host requirements
+
+Docker hosts need Docker, Compose support, and the containerd snapshotter so
+pushed images show up locally. See [Installation](/docs/getting-started/installation)
+for host setup, and [Workflows](/docs/operations/workflows) for common update
+flows. ZFS is optional; see [ZFS](/docs/concepts/zfs) if you want dataset-backed
+service roots.

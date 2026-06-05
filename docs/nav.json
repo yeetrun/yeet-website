@@ -12,6 +12,18 @@
     { "type": "break" },
     {
       "type": "folder",
+      "path": "/payloads",
+      "title": "Payloads",
+      "children": [
+        { "type": "link", "path": "/", "title": "Overview" },
+        { "type": "link", "path": "/containers", "title": "Containers" },
+        { "type": "link", "path": "/binaries", "title": "Binaries & Scripts" },
+        { "type": "link", "path": "/vms", "title": "VMs" },
+        { "type": "link", "path": "/cron-jobs", "title": "Cron Jobs" }
+      ]
+    },
+    {
+      "type": "folder",
       "path": "/concepts",
       "title": "Concepts",
       "children": [
@@ -20,6 +32,7 @@
         { "type": "link", "path": "/tailscale", "title": "Tailscale" },
         { "type": "link", "path": "/service-types", "title": "Service Types" },
         { "type": "link", "path": "/data-layout", "title": "Data Layout" },
+        { "type": "link", "path": "/zfs", "title": "ZFS" },
         { "type": "link", "path": "/configuration-and-prefs", "title": "Configuration & Prefs" }
       ]
     },

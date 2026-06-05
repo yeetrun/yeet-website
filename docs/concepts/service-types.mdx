@@ -1,11 +1,36 @@
 ---
 title: Service Types
-description: Payload detection and installation behavior for containers, VMs, and host services.
+description: Payload detection and installation behavior for yeet services.
 ---
 
-Yeet detects payload type and installs the service accordingly. A service can
-be a containerized app, a host systemd service, a cron-style job, or a
-Firecracker-backed VM guest.
+Yeet detects payload type and installs the service accordingly. This page is
+the compact detection reference. For step-by-step usage, start with
+[Payloads](/docs/payloads).
+
+<CardLinks
+  cards={[
+    {
+      title: "Containers",
+      description: "Compose files, Dockerfiles, image refs, Python, and TypeScript.",
+      href: "/docs/payloads/containers",
+    },
+    {
+      title: "Binaries & Scripts",
+      description: "Host systemd services from local executables and shebang scripts.",
+      href: "/docs/payloads/binaries",
+    },
+    {
+      title: "VMs",
+      description: "Firecracker-backed Ubuntu guests with yeet-managed image bundles.",
+      href: "/docs/payloads/vms",
+    },
+    {
+      title: "Cron Jobs",
+      description: "Scheduled jobs installed as systemd timer units.",
+      href: "/docs/payloads/cron-jobs",
+    },
+  ]}
+/>
 
 ## Binary
 
@@ -24,13 +49,7 @@ Firecracker-backed VM guest.
 - Installed as a docker compose service.
 - Use `--pull` on `yeet run` when you want to refresh images; otherwise `run`
   reuses existing images.
-- Configure initial port mappings in the compose file. After deployment, use
-  `yeet service set <svc> -p HOST:CONTAINER` to replace the yeet-managed
-  published-port list for the primary service.
-
-```bash
-yeet run <svc> ./compose.yml
-```
+- See [Containers](/docs/payloads/containers).
 
 ## Docker image
 
@@ -40,22 +59,19 @@ yeet run <svc> ./compose.yml
 - For local images, use `yeet docker push <svc> <image>:<tag> --run`.
 - For Dockerfiles, use `yeet run <svc> ./Dockerfile` (builds for the host arch
   and pushes).
-- Use `-p`/`--publish` with `yeet run` to expose ports (e.g. `-p 8000:8000`).
-  Yeet saves the mappings and replays them on future runs.
+- See [Containers](/docs/payloads/containers).
 
 ## TypeScript
 
 - `.ts` files are run via a Deno container.
 - Installed as a docker compose service (via Deno).
-- Use `-p`/`--publish` with `yeet run` to expose ports (e.g. `-p 8000:8000`).
-  Yeet saves the mappings and replays them on future runs.
+- See [Containers](/docs/payloads/containers).
 
 ## Python
 
 - `.py` files are run via a `uv` container image.
 - Installed as a docker compose service (via `uv`).
-- Use `-p`/`--publish` with `yeet run` to expose ports (e.g. `-p 8000:8000`).
-  Yeet saves the mappings and replays them on future runs.
+- See [Containers](/docs/payloads/containers).
 
 ## VM
 
@@ -64,49 +80,8 @@ yeet run <svc> ./compose.yml
 - Uses the yeet-owned Ubuntu 26.04 image bundle published at
   `github.com/yeetrun/yeet-vm-images`.
 - Saved config uses `type = "vm"`.
-- `yeet init` checks the host for KVM, TUN/TAP, and required VM tooling; ZFS is
-  optional unless you create VMs with `--zfs`.
-
-```bash
-yeet run <svc> vm://ubuntu/26.04 --net=svc
-yeet vm images
-yeet vm images update
-yeet vm console <svc>
-yeet ssh <svc>
-```
-
-When `yeet run` starts a VM, it waits for the guest to report readiness and an
-IPv4 address before printing the next `yeet ssh` command. If the guest does not
-report readiness, use `yeet vm console <svc>` for boot diagnostics.
-
-VM services use the fast yeet Ubuntu image by default: direct kernel boot,
-systemd-managed SSH readiness, and no snap support. Use Docker services for
-workloads that need snap-like packaging behavior.
-
-Use `--cpus`, `--memory`, and `--disk` to override the host-based defaults.
-VM image bundles are cached per host. Use `yeet vm images` to inspect the cache
-and `yeet vm images update` to refresh the image used for future VM creates.
-Refreshing the cache does not mutate existing VM disks. A missing image is
-downloaded automatically on the first VM create. When creating a VM with a stale
-cached image, interactive runs prompt by default; non-interactive runs require
-`--image-policy=update` or `--image-policy=cached`.
-
-The fast Ubuntu VM image uses a yeet-managed Firecracker kernel supplied by the
-image bundle. Guest apt upgrades do not manage the boot kernel, bootloader,
-initrd, or init shim; publish a new VM image bundle for those updates.
-
-For ZFS-backed VMs, the first VM on a pool and image version prepares a shared
-ZFS image base. Later VMs on that pool clone the shared base, and
-`yeet rm --clean-data devbox` removes the VM clone without deleting the shared
-base.
-
-Use `yeet ssh <svc>` for an interactive guest shell. `yeet vm console <svc>`
-streams the VM serial output for boot diagnostics. The default `ubuntu` guest
-user has passwordless sudo. For yeet-managed VM aliases in
-`~/.yeet/known_hosts`, `yeet ssh <svc>` repairs a stale host key and retries
-once after a VM is recreated. Yeet does not edit normal `~/.ssh/known_hosts`
-entries. Use `yeet rm --clean-data <svc>` when you want to delete the guest disk
-during removal.
+- `yeet init` checks the host for KVM, TUN/TAP, and required VM tooling.
+- See [VMs](/docs/payloads/vms).
 
 ## Zstd
 
@@ -115,8 +90,11 @@ during removal.
 ## Cron
 
 - `yeet cron` installs a cron-style job as a timer on the host.
+- See [Cron Jobs](/docs/payloads/cron-jobs).
 
 ## Notes
 
 - File type is detected by extension or content.
 - Architecture must match the target host; mismatches fail early.
+- [ZFS](/docs/concepts/zfs) is storage backing for service roots and VM disks,
+  not a service type.

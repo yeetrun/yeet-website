@@ -1,0 +1,120 @@
+---
+title: ZFS
+description: ZFS-backed service roots, snapshots, and VM disk clones.
+---
+
+ZFS support is optional. Yeet works without it, but ZFS is useful when you want
+service roots on named datasets, pre-change snapshots, or fast VM disk clones
+on a ZFS pool.
+
+## Where ZFS applies
+
+ZFS is a storage choice, not a payload type. It can back:
+
+- Container, binary, script, and cron service roots.
+- VM service roots and VM disks.
+- Yeet-managed snapshots before risky service changes.
+- Shared VM image bases for faster ZFS-backed VM creates.
+
+Use raw filesystem paths when you do not need those behaviors.
+
+## Service roots
+
+Without `--zfs`, `--service-root` is an absolute filesystem path on the catch
+host. With `--zfs`, `--service-root` is a ZFS dataset name.
+
+```bash
+yeet run <svc> ./compose.yml --service-root=/srv/apps/<svc>
+yeet run <svc> ./compose.yml --service-root=tank/apps/<svc> --zfs
+```
+
+Catch accepts an existing dataset or runs plain `zfs create <dataset>`,
+resolves the dataset mountpoint, and uses that path as the service root. Parent
+datasets must already exist. If the dataset already exists or its mountpoint
+already contains files, catch prints a warning and deploys into it.
+
+Catch stores both the mounted filesystem path and the ZFS dataset identity in
+its DB. `yeet.toml` stores the replay intent, including `service_root` and
+`service_root_zfs`. If another checkout changes the live service root, run:
+
+```bash
+yeet service sync <svc>
+```
+
+## Snapshots
+
+ZFS-backed service roots get yeet-managed snapshots before risky changes. The
+built-in default is enabled and required, keeps the newest 5 yeet-created
+snapshots, prunes snapshots older than 7 days, and snapshots before these
+events:
+
+- `run`
+- `docker-update`
+- `service-root-migration`
+
+First deploys are skipped because there is no prior service state to recover.
+Catch prunes only snapshots it created for that service.
+
+```bash
+yeet snapshots defaults show
+yeet snapshots defaults set --enabled=true --keep-last=5 --max-age=7d
+yeet snapshots defaults set --events=run,docker-update --required=false
+```
+
+Override one service with `yeet service set`:
+
+```bash
+yeet service set <svc> --snapshots=off
+yeet service set <svc> --snapshots=on --snapshot-keep-last=3 --snapshot-max-age=72h
+yeet service set <svc> --snapshot-events=run,docker-update
+yeet service set <svc> --snapshots=inherit
+```
+
+Snapshot-only changes do not require the service to be stopped. Service-root
+moves still require the service to be stopped.
+
+## Moving roots
+
+`yeet run` can set the initial root for a new service. To move an existing
+service root, stop the service and use `yeet service set`:
+
+```bash
+yeet stop <svc>
+yeet service set <svc> --service-root=tank/apps/<svc> --zfs --copy
+yeet service set <svc> --service-root=tank/apps/<svc> --zfs --empty
+```
+
+Use `--copy` to copy the old root into the new dataset, or `--empty` to create
+a new empty root. `yeet service set` leaves the old root in place.
+
+## ZFS-backed VMs
+
+For VMs, `--zfs` lets yeet prepare the VM disk on a ZFS-backed service root:
+
+```bash
+yeet run <vm> vm://ubuntu/26.04 --service-root=tank/vms/<vm> --zfs
+```
+
+The first VM created on a pool for an image version prepares a shared ZFS image
+base. Later VMs on the same pool and image version clone that base instead of
+writing the root filesystem again.
+
+`yeet rm --clean-data <vm>` removes the VM service data and VM clone. It does
+not remove the shared image base, so future VMs can keep cloning it.
+
+If ZFS is present for VM disk setup, the host also needs `udevadm`.
+
+## When to use ZFS
+
+Use ZFS when you want named datasets, storage-level recovery points, or faster
+repeat VM creates on the same pool. Skip it for simple services where a normal
+filesystem path is enough.
+
+## Related docs
+
+- [Data Layout](/docs/concepts/data-layout) shows where service files live.
+- [VMs](/docs/payloads/vms) covers VM-specific ZFS behavior.
+- [Containers](/docs/payloads/containers), [Binaries & Scripts](/docs/payloads/binaries),
+  and [Cron Jobs](/docs/payloads/cron-jobs) show payload-specific examples.
+- [yeet CLI](/docs/cli/yeet-cli) lists the `--zfs`, snapshot, and service-root
+  flags.

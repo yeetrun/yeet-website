@@ -7,6 +7,8 @@ These are the core workflows used day-to-day. All examples use placeholders.
 
 ## Deploy a compose stack (most common)
 
+For the full container guide, see [Containers](/docs/payloads/containers).
+
 ```bash
 yeet run <svc> ./compose.yml --net=lan
 ```
@@ -45,10 +47,12 @@ yeet docker update --outdated # update compose services that have image updates
 
 ## Create an Ubuntu VM
 
+For the full VM guide, see [VMs](/docs/payloads/vms).
+
 Use a `vm://` payload when you want a long-lived Ubuntu guest managed by yeet:
 
 ```bash
-yeet run <vm> vm://ubuntu/26.04 --net=svc
+yeet run <vm> vm://ubuntu/26.04
 yeet ssh <vm>
 ```
 
@@ -58,6 +62,12 @@ checks the host for KVM, TUN/TAP, and the required VM tooling (`qemu-img`,
 hosts, missing VM packages can be installed with `apt-get` when the install is
 interactive. ZFS is optional; use `--zfs` only when you want ZFS-backed VM
 disks.
+
+Use `lan` when the VM should get a LAN address through DHCP:
+
+```bash
+yeet run <vm> vm://ubuntu/26.04 --net=lan
+```
 
 Image bundles are cached per host:
 
@@ -91,6 +101,7 @@ Each service root contains `bin`, `run`, `env`, and `data`.
 For ZFS-backed service roots, pass `--zfs` and use the dataset name as
 `--service-root`; catch resolves the dataset mountpoint and stores both the
 dataset identity and the resolved filesystem path.
+See [ZFS](/docs/concepts/zfs) for dataset, snapshot, and VM clone behavior.
 
 If the dataset does not exist, catch runs plain `zfs create <dataset>`. Parent
 datasets must already exist. If the dataset already exists or its mountpoint
@@ -159,6 +170,7 @@ Snapshot-only `yeet service set` commands do not require the service to be
 stopped. Service-root moves still require the service to be stopped. The catch
 DB is the live source of truth; run `yeet service sync <svc>` to mirror
 per-service snapshot overrides back into `yeet.toml`.
+For the complete ZFS model, see [ZFS](/docs/concepts/zfs).
 
 ## Build from a Dockerfile and run
 
@@ -167,6 +179,8 @@ yeet run <svc> ./Dockerfile
 ```
 
 ## Deploy a binary
+
+For host service details, see [Binaries & Scripts](/docs/payloads/binaries).
 
 ```bash
 GOOS=linux GOARCH=amd64 go build -o ./bin/<svc> ./cmd/<svc>
@@ -232,6 +246,8 @@ yeet copy ./configs/ <svc>:config/
 ```
 
 ## Run a cron job
+
+For timer behavior and update flow, see [Cron Jobs](/docs/payloads/cron-jobs).
 
 ```bash
 yeet cron <svc> ./job.sh "0 9 * * *" -- --job-arg foo

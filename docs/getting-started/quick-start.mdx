@@ -52,6 +52,9 @@ Docker Compose (most common):
 yeet run <svc> ./compose.yml --net=lan
 ```
 
+See [Containers](/docs/payloads/containers) for Compose, Dockerfile, image,
+Python, and TypeScript payloads.
+
 To place a new service under a custom root on the catch host, pass an absolute
 host path or, with `--zfs`, a dataset name:
 
@@ -82,7 +85,7 @@ yeet ip <svc>
 Ubuntu VM on a KVM-capable Linux host:
 
 ```bash
-yeet run <vm> vm://ubuntu/26.04 --net=svc
+yeet run <vm> vm://ubuntu/26.04
 yeet ssh <vm>
 yeet vm console <vm>
 ```
@@ -90,6 +93,12 @@ yeet vm console <vm>
 `yeet ssh <vm>` opens the interactive guest shell. `yeet vm console <vm>`
 streams serial output for boot diagnostics. Use `yeet rm --clean-data <vm>` to
 delete the guest disk when removing a VM.
+
+For a VM that should request an address on your LAN, use `lan`:
+
+```bash
+yeet run <vm> vm://ubuntu/26.04 --net=lan
+```
 
 Dockerfile (built locally for the host’s arch, then pushed):
 
@@ -120,6 +129,9 @@ VM image bundles are cached per host. `yeet vm images` shows cache state, and
 rewriting existing VM disks. A missing image is downloaded automatically on the
 first VM create.
 
+See [VMs](/docs/payloads/vms) for VM image cache, networking, ZFS, and cleanup
+details.
+
 ## 5) Observe and iterate
 
 ```bash
@@ -135,3 +147,5 @@ images, add `--pull` (or use
 `yeet docker outdated` to check for image updates and
 `yeet docker update --outdated` to update only compose services with available
 image updates.
+
+For dedicated guides by payload type, see [Payloads](/docs/payloads).

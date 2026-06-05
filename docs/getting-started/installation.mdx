@@ -117,9 +117,10 @@ missing host capabilities. On Debian/Ubuntu hosts with `apt-get`, an
 interactive install can offer to install the missing VM packages:
 `qemu-utils`, `zstd`, `e2fsprogs`, `util-linux`, and `iproute2`.
 
-ZFS is optional. Install and configure ZFS only if you want to create VMs with
-`--zfs`; raw VM disks work without it. If ZFS is present, `udevadm` is required
-for ZFS-backed VM disk setup.
+ZFS is optional. Install and configure ZFS only if you want dataset-backed
+service roots, ZFS snapshots, or VMs with `--zfs`; raw VM disks work without
+it. If ZFS is present, `udevadm` is required for ZFS-backed VM disk setup. See
+[ZFS](/docs/concepts/zfs) for how yeet uses datasets and snapshots.
 
 ## Development toolchain (optional)
 

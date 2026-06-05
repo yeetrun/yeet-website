@@ -48,6 +48,7 @@ For ZFS-backed service roots, catch can create yeet-managed snapshots before
 risky changes. The built-in default is enabled and required: catch snapshots
 before redeploys, Docker image updates, and ZFS-backed service-root migrations.
 First deploys are skipped because there is no prior service state to recover.
+See [ZFS](/docs/concepts/zfs) for the full ZFS model, including VM disk clones.
 
 Catch prunes only snapshots it created for that service. Yeet-created
 snapshots are named with a `yeet-` prefix and tagged with ZFS properties such

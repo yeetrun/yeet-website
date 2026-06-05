@@ -1,0 +1,110 @@
+---
+title: VMs
+description: Create and manage Firecracker-backed Ubuntu VM services.
+---
+
+VM payloads create long-lived Ubuntu guests managed by yeet. They are useful
+when a workload needs a full guest OS or stronger isolation than a container.
+
+## Create a VM
+
+`svc` networking is the default for VM payloads:
+
+```bash
+yeet run <vm> vm://ubuntu/26.04
+yeet ssh <vm>
+```
+
+Use `lan` when the VM should request an address on your LAN through DHCP:
+
+```bash
+yeet run <vm> vm://ubuntu/26.04 --net=lan
+```
+
+Override the default shape when needed:
+
+```bash
+yeet run <vm> vm://ubuntu/26.04 --cpus=4 --memory=4g --disk=128g
+```
+
+## Host requirements
+
+VM payloads require a Linux catch host with KVM available. During `yeet init`,
+catch checks for KVM, TUN/TAP, and required VM tooling such as `qemu-img`,
+`zstd`, `e2fsck`, `resize2fs`, `mount`, `umount`, and `ip`. On Debian/Ubuntu
+hosts, interactive installs can offer to install missing VM packages.
+
+ZFS is optional unless you create VMs with `--zfs`. See
+[ZFS](/docs/concepts/zfs) for the shared dataset and snapshot model.
+
+## ZFS-backed VM disks
+
+```bash
+yeet run <vm> vm://ubuntu/26.04 --service-root=tank/vms/<vm> --zfs
+```
+
+For ZFS-backed VMs, the first VM created on a pool for an image version prepares
+a shared image base on that pool. Later VMs on the same pool and image version
+clone that shared base instead of writing the root filesystem again.
+
+Use ZFS-backed VMs when you want fast repeated VM creates on the same pool or
+storage-level VM disk management. Raw VM disks still work without ZFS.
+
+## Image cache
+
+VM image bundles are cached per catch host.
+
+```bash
+yeet vm images
+yeet vm images update
+```
+
+A missing image is downloaded automatically on the first VM create. Refreshing
+the cache updates the image used for future VM creates and does not rewrite
+existing VM disks. When creating a VM with a stale cached image, interactive
+runs prompt by default; non-interactive runs require `--image-policy=update` or
+`--image-policy=cached`.
+
+## Boot and readiness
+
+When `yeet run` starts a VM, it waits for the guest to report SSH readiness and
+an IPv4 address before printing the next `yeet ssh` command.
+
+```bash
+yeet ssh <vm>
+yeet vm console <vm>
+```
+
+Use `yeet ssh <vm>` for an interactive guest shell. Use `yeet vm console <vm>`
+for serial output and boot diagnostics. For yeet-managed VM aliases in
+`~/.yeet/known_hosts`, `yeet ssh <vm>` repairs a stale host key and retries
+once after a VM is recreated. Yeet does not edit normal `~/.ssh/known_hosts`
+entries.
+
+## Kernel and init
+
+The fast Ubuntu VM image uses a yeet-managed Firecracker kernel and init shim.
+Guest apt upgrades do not manage the boot kernel, bootloader, initrd, or init
+shim. Publish a new yeet VM image bundle to update that boot path.
+
+The fast VM image does not support snap packages. Use container payloads for
+workloads that need snap-like packaging behavior.
+
+## Cleanup
+
+```bash
+yeet rm <vm>
+yeet rm --clean-data <vm>
+```
+
+Use `--clean-data` when you want to delete the guest disk too. For ZFS-backed
+VMs, cleanup removes the VM clone and service data, not the shared image base.
+
+## Related docs
+
+- [Installation](/docs/getting-started/installation) covers host bootstrap.
+- [ZFS](/docs/concepts/zfs) covers dataset-backed roots, snapshots, and VM
+  disk clones.
+- [Networking](/docs/concepts/networking) covers `svc`, `lan`, and `ts`.
+- [Workflows](/docs/operations/workflows) has a compact VM workflow.
+- [yeet CLI](/docs/cli/yeet-cli) lists VM flags and commands.
