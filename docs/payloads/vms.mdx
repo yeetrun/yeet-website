@@ -27,6 +27,28 @@ Override the default shape when needed:
 yeet run <vm> vm://ubuntu/26.04 --cpus=4 --memory=4g --disk=128g
 ```
 
+## Change an existing VM
+
+Stop a VM before changing CPU, memory, disk size, or networking:
+
+```bash
+yeet stop <vm>
+yeet service set <vm> --cpus=6 --memory=6g
+yeet service set <vm> --disk=128g
+yeet service set <vm> --net=lan
+yeet start <vm>
+```
+
+CPU and memory changes update the Firecracker config used on the next start.
+Disk changes are grow-only: yeet expands the raw disk file or ZFS ZVOL, runs an
+ext4 check, and grows the root filesystem. Shrinking disks and live resize are
+not supported.
+
+Network changes replace the VM's network interfaces while the VM is stopped.
+Use `--net=svc`, `--net=lan`, or a comma-separated list such as
+`--net=svc,lan`. For LAN networking, `--macvlan-parent`, `--macvlan-vlan`, and
+`--macvlan-mac` follow the same rules as VM creation.
+
 ## Host requirements
 
 VM payloads require a Linux catch host with KVM available. During `yeet init`,
@@ -49,6 +71,10 @@ clone that shared base instead of writing the root filesystem again.
 
 Use ZFS-backed VMs when you want fast repeated VM creates on the same pool or
 storage-level VM disk management. Raw VM disks still work without ZFS.
+
+Growing a ZFS-backed VM disk grows the VM ZVOL and then the guest ext4
+filesystem. `yeet service set <vm> --disk=<size>` still requires the VM to be
+stopped and still refuses shrink requests.
 
 ## Image cache
 
@@ -80,6 +106,11 @@ for serial output and boot diagnostics. For yeet-managed VM aliases in
 `~/.yeet/known_hosts`, `yeet ssh <vm>` repairs a stale host key and retries
 once after a VM is recreated. Yeet does not edit normal `~/.ssh/known_hosts`
 entries.
+
+The default `ubuntu` user has passwordless sudo. Metadata injection also writes
+yeet-managed `.profile` and `.bashrc` blocks for that user, including
+`~/.local/bin` on `PATH`, `XDG_RUNTIME_DIR` when systemd creates it, and a short
+login hint. User content outside the managed blocks is preserved.
 
 ## Kernel and init
 

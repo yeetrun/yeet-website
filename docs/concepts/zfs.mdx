@@ -99,6 +99,18 @@ The first VM created on a pool for an image version prepares a shared ZFS image
 base. Later VMs on the same pool and image version clone that base instead of
 writing the root filesystem again.
 
+Grow an existing ZFS-backed VM disk while the VM is stopped:
+
+```bash
+yeet stop <vm>
+yeet service set <vm> --disk=128g
+yeet start <vm>
+```
+
+Yeet grows the VM ZVOL, waits for the block device to settle, checks the ext4
+filesystem, and then grows the guest root filesystem. Disk shrink and live
+resize are not supported.
+
 `yeet rm --clean-data <vm>` removes the VM service data and VM clone. It does
 not remove the shared image base, so future VMs can keep cloning it.
 

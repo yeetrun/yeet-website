@@ -352,6 +352,8 @@ yeet service set vaultwarden --publish-reset
 yeet service set vaultwarden --snapshots=off
 yeet service set vaultwarden --snapshots=on --snapshot-keep-last=3 --snapshot-max-age=72h
 yeet service set vaultwarden --snapshots=inherit
+yeet service set devbox --cpus=6 --memory=6g --disk=128g
+yeet service set devbox --net=lan
 ```
 
 Without `--zfs`, `--service-root` is an absolute filesystem path on the catch
@@ -384,6 +386,12 @@ service. If the current list contains `80:80`, then
 `yeet service set vaultwarden -p 443:443` fails because it would remove `80:80`.
 Keep existing mappings by including them in the command, or pass
 `--publish-reset` to replace or clear the list intentionally.
+
+For VM services, `yeet service set` can change CPU count, memory, grow the root
+disk, and replace VM networking while the VM is stopped. Disk changes are
+grow-only and update the raw disk file or ZFS ZVOL before growing the guest
+ext4 filesystem. Network changes use the same `--net` and `--macvlan-*` flags
+as `yeet run vm://...`.
 
 ### service sync
 

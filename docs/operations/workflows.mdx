@@ -85,6 +85,18 @@ the serial console for boot diagnostics. Remove a VM disk with:
 yeet rm --clean-data <vm>
 ```
 
+Change VM resources after creation by stopping the VM first:
+
+```bash
+yeet stop <vm>
+yeet service set <vm> --cpus=6 --memory=6g --disk=128g
+yeet service set <vm> --net=lan
+yeet start <vm>
+```
+
+Disk changes are grow-only. ZFS-backed VMs grow the VM ZVOL and then the guest
+ext4 filesystem.
+
 ## Set or move a service root
 
 Use `--service-root` to choose where a new service lives on the catch host:
