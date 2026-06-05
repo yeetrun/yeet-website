@@ -538,14 +538,25 @@ Show or refresh the VM image cache on the selected catch host:
 
 ```bash
 yeet vm images
+yeet vm images ls
 yeet vm images --format=json
 yeet vm images update
+yeet vm images import <name> <bundle-dir>
+yeet vm images import <name> <bundle-dir> --allow-local-kernel
+yeet vm images rm <name> --yes
 ```
 
-`yeet vm images` shows the host file-cache state for `vm://ubuntu/26.04`.
-`yeet vm images update` downloads and verifies the latest image bundle used for
-future VM creates. A missing image is downloaded automatically on the first VM
-create. Existing VMs are not rebuilt or modified.
+`yeet vm images` and `yeet vm images ls` show the host file-cache state for
+`vm://ubuntu/26.04` plus any imported local image refs. `yeet vm images update`
+downloads and verifies the latest Ubuntu image bundle used for future VM
+creates. A missing image is downloaded automatically on the first VM create.
+Existing VMs are not rebuilt or modified.
+
+`yeet vm images import <name> <bundle-dir>` uploads a local bundle containing
+`rootfs.ext4` or `rootfs.ext4.zst` and stores it as `vm://<name>` on the catch
+host. Rootfs-only imports use yeet's managed kernel and Firecracker; add
+`--allow-local-kernel` only when the bundle includes `vmlinux`. Remove an
+imported ref with `yeet vm images rm <name> --yes`.
 
 For ZFS-backed VMs, the first create on a pool and image version prepares a
 shared ZFS image base. Later VMs on the same pool clone that base, so normal
