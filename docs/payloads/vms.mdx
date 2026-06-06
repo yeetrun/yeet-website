@@ -49,6 +49,10 @@ Use `--net=svc`, `--net=lan`, or a comma-separated list such as
 `--net=svc,lan`. For LAN networking, `--macvlan-parent`, `--macvlan-vlan`, and
 `--macvlan-mac` follow the same rules as VM creation.
 
+For VLAN-tagged LAN networking, pass `--net=lan --macvlan-vlan=<id>`. yeet uses
+standard Linux VLAN and bridge devices: it creates its own VLAN path when it can,
+or uses an existing Linux bridge for that VLAN if the host already has one.
+
 ## Host requirements
 
 VM payloads require a Linux catch host with KVM available. During `yeet init`,

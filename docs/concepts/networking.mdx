@@ -97,11 +97,13 @@ network.
 - Override with `--macvlan-parent`.
 - Optional `--macvlan-vlan` and `--macvlan-mac`.
 
-For VMs, `lan` attaches a TAP device to a host bridge so the guest can request
-a LAN address with DHCP. In this release, non-bridge LAN parents are rejected;
-pass a bridge interface with `--macvlan-parent` when the default route
-interface is not itself a bridge. VM networking supports `svc`, `lan`, or both;
-Tailscale mode is not available for VMs yet.
+For VMs, untagged `lan` attaches a TAP device to a host bridge so the guest can
+request a LAN address with DHCP. When `--macvlan-vlan=<id>` is set, yeet uses
+standard Linux VLAN and bridge devices: it creates yeet-owned VLAN plumbing when
+the lower interface is free, or attaches the VM TAP to an existing Linux bridge
+for that lower interface and VLAN when the host already owns it. The host
+interface still needs to carry the requested VLAN tag. VM networking supports
+`svc`, `lan`, or both; Tailscale mode is not available for VMs yet.
 
 ## Mounts
 
