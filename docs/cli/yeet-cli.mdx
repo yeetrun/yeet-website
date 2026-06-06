@@ -534,23 +534,29 @@ Notes:
 
 ### vm images
 
-Show or refresh the VM image cache on the selected catch host:
+Show, refresh, import, or prune the VM image cache on the selected catch host:
 
 ```bash
 yeet vm images
 yeet vm images ls
 yeet vm images --format=json
 yeet vm images update
+yeet vm images prune --dry-run
+yeet vm images prune
 yeet vm images import <name> <bundle-dir>
 yeet vm images import <name> <bundle-dir> --allow-local-kernel
 yeet vm images rm <name> --yes
 ```
 
 `yeet vm images` and `yeet vm images ls` show the host file-cache state for
-`vm://ubuntu/26.04` plus any imported local image refs. `yeet vm images update`
-downloads and verifies the latest Ubuntu image bundle used for future VM
-creates. A missing image is downloaded automatically on the first VM create.
-Existing VMs are not rebuilt or modified.
+`vm://ubuntu/26.04`, old cache entries that are still in use or prunable, and
+any imported local image refs. `yeet vm images update` downloads and verifies
+the latest Ubuntu image bundle used for future VM creates, then removes old
+unreferenced cache entries when it is safe. A missing image is downloaded
+automatically on the first VM create. Existing VMs are not rebuilt or modified.
+
+`yeet vm images prune --dry-run` previews cleanup. `yeet vm images prune` asks
+for confirmation before removing prunable entries; `--yes` skips that prompt.
 
 `yeet vm images import <name> <bundle-dir>` uploads a local bundle containing
 `rootfs.ext4` or `rootfs.ext4.zst` and stores it as `vm://<name>` on the catch

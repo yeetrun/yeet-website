@@ -99,6 +99,10 @@ The first VM created on a pool for an image version prepares a shared ZFS image
 base. Later VMs on the same pool and image version clone that base instead of
 writing the root filesystem again.
 
+When a newer VM image is cached, yeet keeps ZFS image bases that are still
+referenced by VM clones and prunes only old unreferenced bases. Use `yeet vm
+images prune --dry-run` to inspect cleanup before removing anything.
+
 Grow an existing ZFS-backed VM disk while the VM is stopped:
 
 ```bash

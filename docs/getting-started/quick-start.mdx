@@ -124,10 +124,11 @@ Local image (push it, then run it):
 yeet docker push <svc> <local-image>:<tag> --run
 ```
 
-VM image bundles are cached per host. `yeet vm images` shows cache state, and
-`yeet vm images update` refreshes the image used for future VM creates without
-rewriting existing VM disks. A missing image is downloaded automatically on the
-first VM create.
+VM image bundles are cached per host. `yeet vm images` shows cache state,
+including old entries that are still in use or prunable. `yeet vm images
+update` refreshes the image used for future VM creates without rewriting
+existing VM disks and removes old unreferenced versions when it is safe. A
+missing image is downloaded automatically on the first VM create.
 
 See [VMs](/docs/payloads/vms) for VM image cache, networking, ZFS, and cleanup
 details.

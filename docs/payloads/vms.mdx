@@ -83,13 +83,19 @@ VM image bundles are cached per catch host.
 ```bash
 yeet vm images
 yeet vm images update
+yeet vm images prune --dry-run
 ```
 
 A missing image is downloaded automatically on the first VM create. Refreshing
-the cache updates the image used for future VM creates and does not rewrite
-existing VM disks. When creating a VM with a stale cached image, interactive
-runs prompt by default; non-interactive runs require `--image-policy=update` or
+the cache updates the image used for future VM creates, does not rewrite
+existing VM disks, and automatically removes old unreferenced image versions
+when it is safe. When creating a VM with a stale cached image, interactive runs
+prompt by default; non-interactive runs require `--image-policy=update` or
 `--image-policy=cached`.
+
+`yeet vm images prune --dry-run` shows what cleanup would remove. Run
+`yeet vm images prune` to review the same plan and confirm removal, or add
+`--yes` to skip the prompt.
 
 ## Local VM images
 

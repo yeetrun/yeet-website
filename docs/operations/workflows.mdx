@@ -74,12 +74,15 @@ Image bundles are cached per host:
 ```bash
 yeet vm images
 yeet vm images update
+yeet vm images prune --dry-run
 yeet vm console <vm>
 ```
 
 `yeet run` downloads the image automatically on the first VM create and waits
 for the guest readiness marker before returning. `yeet vm console <vm>` streams
-the serial console for boot diagnostics. Remove a VM disk with:
+the serial console for boot diagnostics. `yeet vm images update` removes old
+unreferenced image versions when it is safe; use `yeet vm images prune
+--dry-run` to preview manual cleanup. Remove a VM disk with:
 
 ```bash
 yeet rm --clean-data <vm>
