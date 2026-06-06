@@ -154,10 +154,10 @@ The fast Ubuntu VM image uses a yeet-managed Firecracker kernel and init shim.
 Guest apt upgrades do not manage the boot kernel, bootloader, initrd, or init
 shim. Publish a new yeet VM image bundle to update that boot path.
 
-The official image includes built-in TUN, nftables, conntrack, conntrack marks,
-and IPv4 NAT support, plus `iptables` and `nftables` userspace tools, so
-guest-installed router and VPN services can manage their own firewall and
-routing state. Tailscale is not preinstalled.
+The official image includes built-in TUN, IPv6, nftables, conntrack, conntrack
+marks, and NAT/masquerade support, plus `iptables` and `nftables` userspace
+tools, so guest-installed router and VPN services can manage their own firewall
+and routing state. Tailscale is not preinstalled.
 
 The fast VM image does not support snap packages. Use container payloads for
 workloads that need snap-like packaging behavior.
