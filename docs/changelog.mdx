@@ -5,6 +5,11 @@ description: Short notes for yeet + catch releases.
 
 ## June 6, 2026
 
+### v0.5.6
+
+- Added `yeet vm images prune` with dry-run and confirmation support, plus automatic safe cleanup of old unreferenced VM image versions after image refreshes.
+- Git hooks now run through the repo's mise toolchain so normal commits use the pinned Go and quality-tool versions.
+
 ### v0.5.5
 
 - `yeet rm --clean-data` now removes the empty service root after deleting service data, including VM roots.
