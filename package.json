@@ -13,6 +13,7 @@
     "deploy:cloudflare": "npm run build:cloudflare && npx -y wrangler@latest deploy",
     "lint": "next lint && prettier 'src/**/*.ts' --write",
     "test:indexing": "./scripts/test-indexing-hosts.sh",
+    "test:public-docs": "./scripts/test-public-docs.sh",
     "test:search-assets": "./scripts/test-search-assets.sh",
     "test:404-branding": "./scripts/test-404-branding.sh"
   },
