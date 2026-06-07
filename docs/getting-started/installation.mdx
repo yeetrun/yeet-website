@@ -14,7 +14,7 @@ This is an opinionated homelab setup. The install flow assumes:
 ## Host terminology
 
 - **machine host (SSH)**: the host you connect to for
-  `yeet init --install-docker root@<machine-host>`.
+  `yeet init root@<machine-host>`.
 - **catch host (Tailscale/tsnet)**: the hostname that `yeet` targets for RPC
   (`CATCH_HOST`, `--host`, `@<host>`). After install, this is the tsnet name
   advertised by catch (default `catch` or `--tsnet-host`). See
@@ -115,23 +115,21 @@ Use `--nightly` to install the nightly build instead of the latest stable
 release.
 
 ```bash
-yeet init --install-docker root@<machine-host>
+yeet init root@<machine-host>
 ```
 
-If this host has KVM and should run VM payloads, install the VM host tools in
-the same pass:
+If Docker is missing on a Debian/Ubuntu-style host, interactive `yeet init`
+can ask to install it. If Tailscale enrollment is needed, `yeet init` prompts
+for a Tailscale OAuth client secret.
+
+For repeatable or non-interactive setup, pass the install choices directly:
 
 ```bash
+yeet init --install-docker root@<machine-host>
 yeet init --install-docker --install-vm-tools root@<machine-host>
 ```
 
-If Docker is already installed, or you only plan to run non-container payloads,
-the bare init path is fine. If Tailscale enrollment is needed, `yeet init`
-prompts for a Tailscale OAuth client secret:
-
-```bash
-yeet init root@<machine-host>
-```
+Use `--install-vm-tools` on KVM-capable hosts that should run VM payloads.
 
 Catch uses an embedded Tailscale node for RPC, and that node must be tagged.
 Before first setup, make sure your Tailscale policy allows the catch tag you
@@ -173,9 +171,10 @@ Notes:
   so pushed images are visible to the host Docker daemon.
 - `--install-vm-tools` installs VM filesystem tooling on Debian/Ubuntu hosts
   that expose KVM and TUN/TAP.
-- If this is your first host, prefer `--install-docker`; the bare
-  `yeet init root@<machine-host>` path is best when Docker is already
-  installed or you only plan to run non-container payloads.
+- For a first interactive setup, start with bare `yeet init
+  root@<machine-host>` and answer the prompts. Use `--install-docker`,
+  `--install-vm-tools`, or `--ts-client-secret` when you want unattended or
+  repeatable bootstrap.
 
 After bootstrap, use [First-Run Validation](/docs/getting-started/first-run-validation)
 to prove the host can run the payload types you care about.

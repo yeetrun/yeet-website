@@ -8,6 +8,19 @@ with systemd and SSH access. You do not need Tailscale installed on either
 machine; yeet uses an embedded tsnet client for RPC. See
 [Tailscale](/docs/concepts/tailscale) for details.
 
+## Before you start
+
+- A Linux/systemd host you can SSH into from your workstation.
+- Tailscale admin access for first-time tailnet setup: catch must join with a
+  tag such as `tag:catch`, and the OAuth client secret must be allowed by
+  `tagOwners`. Follow
+  [Tailscale First-Time Host Setup](/docs/concepts/tailscale#first-time-host-setup)
+  once per tailnet.
+- Docker does not have to be preinstalled on Debian/Ubuntu-style hosts;
+  interactive `yeet init` can ask to install it.
+- VM payloads require KVM. Skip VMs until after your first container deploy if
+  you are unsure whether the host supports them.
+
 ## 1) Install yeet locally
 
 Release install (recommended):
@@ -24,49 +37,25 @@ curl -fsSL https://yeetrun.com/install.sh | sh -s -- --nightly
 
 ## 2) Bootstrap catch on a host
 
-Use SSH to install the catch service on a remote host. For a fresh
-Debian/Ubuntu-style host, let yeet install Docker too:
-
-```bash
-yeet init --install-docker root@<machine-host>
-```
-
-For a KVM-capable host that should run VM payloads, include the VM tooling
-installer:
-
-```bash
-yeet init --install-docker --install-vm-tools root@<machine-host>
-```
-
-If you use a non-root user, yeet will invoke sudo on the remote. Add `--nightly`
-for nightly.
-
-If Docker is already installed, or you only plan to run non-container payloads,
-the bare init path is fine:
+Use SSH to install the catch service on a remote host:
 
 ```bash
 yeet init root@<machine-host>
 ```
 
-If the catch tsnet node needs first login, `yeet init` prompts for a Tailscale
-OAuth client secret so it can enroll catch with a tag such as `tag:catch`. For
-first-time tailnets, create that OAuth client from the Tailscale guide so the
-same secret can also support future `--net=ts` services. For non-interactive
-setup, pass that secret directly:
+If Docker is missing on a Debian/Ubuntu-style host, interactive `yeet init`
+can ask to install it. If the catch tsnet node needs first login, `yeet init`
+prompts for a Tailscale OAuth client secret so it can enroll catch with a tag
+such as `tag:catch`.
 
-```bash
-yeet init --install-docker --install-vm-tools --ts-client-secret=<secret> root@<machine-host>
-```
-
-Advanced users can pass a direct Tailscale auth key for the catch node:
-
-```bash
-yeet init --install-docker --install-vm-tools --ts-auth-key=<key> root@<machine-host>
-```
+If you use a non-root user, yeet will invoke sudo on the remote.
 
 After install, `yeet run <svc>@<catch-host>` uses the **catch host**
 (Tailscale/tsnet hostname), not the SSH machine host. See
 [Tailscale](/docs/concepts/tailscale).
+
+For unattended installs, VM host tooling, or direct auth-key setup, see
+[Installation](/docs/getting-started/installation).
 
 ## 3) Sanity check
 
@@ -81,114 +70,39 @@ VM capability, and optional LAN/ZFS support, see
 
 ## 4) Deploy something
 
-Docker Compose (most common):
+Start with a disposable container:
 
 ```bash
-yeet run <svc> ./compose.yml
+yeet run -p 18080:80 hello nginx:alpine
+yeet status hello
+yeet logs hello
 ```
 
-See [Containers](/docs/payloads/containers) for Compose, Dockerfile, image,
-Python, and TypeScript payloads.
-
-If the service should request a LAN address through macvlan and your host
-network supports it, add `--net=lan`:
+If the host is reachable from your browser, open `http://<machine-host>:18080`.
+Or check from the host itself:
 
 ```bash
-yeet run <svc> ./compose.yml --net=lan
+yeet ssh -- curl -fsS http://127.0.0.1:18080/ >/dev/null
 ```
-
-To place a new service under a custom root on the catch host, pass an absolute
-host path or, with `--zfs`, a dataset name:
-
-```bash
-yeet run vaultwarden ./compose.yml --service-root=/srv/apps/vaultwarden
-yeet run vaultwarden ./compose.yml --service-root=tank/apps/vaultwarden --zfs
-```
-
-For ZFS-backed service roots, pass `--zfs` and use the dataset name as
-`--service-root`; catch resolves the dataset mountpoint and stores both the
-dataset identity and the resolved filesystem path.
-
-If the dataset does not exist, catch runs plain `zfs create <dataset>`. Parent
-datasets must already exist. If the dataset already exists or its mountpoint
-already contains files, catch prints a warning and deploys into it.
-
-ZFS-backed services also get yeet-managed snapshots before redeploys, Docker
-image updates, and ZFS-backed service-root migrations. The default policy is
-enabled, required, keeps 5 snapshots, and prunes snapshots older than 7 days.
-
-Inspect the service:
-
-```bash
-yeet info <svc>
-yeet ip <svc>
-```
-
-Ubuntu VM on a KVM-capable Linux host:
-
-```bash
-yeet run <vm> vm://ubuntu/26.04
-yeet ssh <vm>
-yeet vm console <vm>
-```
-
-`yeet ssh <vm>` opens the interactive guest shell. `yeet vm console <vm>`
-streams serial output for boot diagnostics. Use `yeet rm --clean-data <vm>` to
-delete the guest disk when removing a VM.
-
-For a VM that should request an address on your LAN, use `lan`:
-
-```bash
-yeet run <vm> vm://ubuntu/26.04 --net=lan
-```
-
-Dockerfile (built locally for the host’s arch, then pushed):
-
-```bash
-yeet run <svc> ./Dockerfile
-```
-
-Binary:
-
-```bash
-yeet run <svc> ./bin/<svc>
-```
-
-Docker image (pulled on the host):
-
-```bash
-yeet run <svc> nginx:latest
-```
-
-Local image (push it, then run it):
-
-```bash
-yeet docker push <svc> <local-image>:<tag> --run
-```
-
-VM image bundles are cached per host. `yeet vm images` shows cache state,
-including old entries that are still in use or prunable. `yeet vm images
-update` refreshes the image used for future VM creates without rewriting
-existing VM disks and removes old unreferenced versions when it is safe. A
-missing image is downloaded automatically on the first VM create.
-
-See [VMs](/docs/payloads/vms) for VM image cache, networking, ZFS, and cleanup
-details.
 
 ## 5) Observe and iterate
 
 ```bash
-yeet logs -f <svc>
-yeet restart <svc>
+yeet logs -f hello
+yeet restart hello
 ```
 
-If you change the binary or compose file, re-run the same `yeet run` command to
-roll a new generation. For an existing service, a payload-only redeploy reuses
-the saved run options from `yeet.toml` and changes only the payload. For compose
-images, add `--pull` (or use
-`yeet docker update <svc...>`) when you want to refresh selected services. Use
-`yeet docker outdated` to check for image updates and
-`yeet docker update --outdated` to update only compose services with available
-image updates.
+Re-run the same `yeet run` command to roll a new generation. For an existing
+service, a payload-only redeploy reuses the saved run options from `yeet.toml`
+and changes only the payload.
 
-For dedicated guides by payload type, see [Payloads](/docs/payloads).
+When you are done with the disposable service, remove it:
+
+```bash
+yeet rm --clean-data hello
+```
+
+Next, pick the payload guide that matches what you want to run:
+[Containers](/docs/payloads/containers), [VMs](/docs/payloads/vms),
+[Binaries and Scripts](/docs/payloads/binaries), [Cron Jobs](/docs/payloads/cron-jobs),
+or [ZFS](/docs/concepts/zfs).
