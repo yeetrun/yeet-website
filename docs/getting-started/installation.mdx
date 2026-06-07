@@ -71,6 +71,13 @@ release.
 yeet init --install-docker root@<machine-host>
 ```
 
+If this host has KVM and should run VM payloads, install the VM host tools in
+the same pass:
+
+```bash
+yeet init --install-docker --install-vm-tools root@<machine-host>
+```
+
 If Docker is already installed, or you only plan to run non-container payloads,
 the bare init path is fine:
 
@@ -83,7 +90,7 @@ login URL while the remote install runs. For unattended setup, create a
 Tailscale auth key for the catch node and pass it with:
 
 ```bash
-yeet init --install-docker --ts-auth-key=<key> root@<machine-host>
+yeet init --install-docker --install-vm-tools --ts-auth-key=<key> root@<machine-host>
 ```
 
 Or use the mise task:
@@ -99,6 +106,8 @@ Notes:
 - The catch service runs as root.
 - `yeet init` configures Docker's containerd snapshotter during catch install
   so pushed images are visible to the host Docker daemon.
+- `--install-vm-tools` installs VM filesystem tooling on Debian/Ubuntu hosts
+  that expose KVM and TUN/TAP.
 - If this is your first host, prefer `--install-docker`; the bare
   `yeet init root@<machine-host>` path is best when Docker is already
   installed or you only plan to run non-container payloads.
@@ -139,8 +148,9 @@ VM payloads (`vm://ubuntu/26.04`) require a Linux catch host with:
 
 During `yeet init`, catch checks those requirements and prints warnings for
 missing host capabilities. On Debian/Ubuntu hosts with the required VM devices
-available, an interactive install can offer to install the missing VM packages:
-`qemu-utils`, `zstd`, `e2fsprogs`, `util-linux`, and `iproute2`.
+available, pass `--install-vm-tools` to install the missing VM packages:
+`qemu-utils`, `zstd`, `e2fsprogs`, `util-linux`, `iproute2`, and
+`ncurses-bin`.
 
 ZFS is optional. Install and configure ZFS only if you want dataset-backed
 service roots, ZFS snapshots, or VMs with `--zfs`; raw VM disks work without

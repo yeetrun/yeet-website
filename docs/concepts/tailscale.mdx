@@ -19,6 +19,17 @@ node needs first login, `yeet init` prints the Tailscale login URL. For
 unattended host bootstrap, pass an auth key for the catch node with
 `yeet init --install-docker --ts-auth-key=<key> root@<machine-host>`.
 
+If another tailnet device already owns the requested catch hostname, Tailscale
+may assign a suffixed name such as `catch-1`. Yeet prints a warning during
+`init`; target that assigned catch host with `--host=catch-1`, set
+`CATCH_HOST=catch-1`, or remove the stale/conflicting Tailscale device and rerun
+`yeet init`.
+
+If your tailnet ACLs grant server access through tags, make sure unattended
+auth keys assign those tags. A catch node can authenticate successfully but
+still be unreachable from your laptop if it joins as a user-owned device and
+your ACLs only permit tagged server devices.
+
 ## Get started (OAuth setup)
 
 Before using `--net=ts`, configure the catch host with a Tailscale OAuth client

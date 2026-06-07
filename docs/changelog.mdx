@@ -5,6 +5,12 @@ description: Short notes for yeet + catch releases.
 
 ## June 7, 2026
 
+### v0.5.13
+
+- `yeet init --install-vm-tools` can install VM host packages during Debian/Ubuntu host bootstrap.
+- `vm://ubuntu/26.04` now defaults to the v13 image, with root filesystem features normalized for common LTS host tooling.
+- Fresh-host VM access is more reliable: `yeet ssh <vm>` uses catch as the stable proxy hop, and catch warns when Tailscale assigns a different MagicDNS name such as `catch-1`.
+
 ### v0.5.12
 
 - `yeet init` can bootstrap fresh Docker hosts with `--install-docker` and now configures Docker's containerd snapshotter before catch starts.

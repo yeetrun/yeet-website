@@ -21,6 +21,14 @@ Use `lan` when the VM should request an address on your LAN through DHCP:
 yeet run <vm> vm://ubuntu/26.04 --net=lan
 ```
 
+`lan` is the catch host's LAN, not necessarily your workstation's LAN. When
+you want a VM to appear on the host LAN but still keep yeet-managed SSH
+reachable through catch, use both networks:
+
+```bash
+yeet run <vm> vm://ubuntu/26.04 --net=svc,lan
+```
+
 Override the default shape when needed:
 
 ```bash
@@ -58,8 +66,9 @@ or uses an existing Linux bridge for that VLAN if the host already has one.
 VM payloads require a Linux catch host with KVM available. During `yeet init`,
 catch checks for KVM, TUN/TAP, and required VM tooling such as `qemu-img`,
 `zstd`, `e2fsck`, `resize2fs`, `mount`, `umount`, and `ip`. On Debian/Ubuntu
-hosts with the required VM devices available, interactive installs can offer to
-install missing VM packages.
+hosts with the required VM devices available, use
+`yeet init --install-vm-tools root@<machine-host>` to install missing VM
+packages.
 
 ZFS is optional unless you create VMs with `--zfs`. See
 [ZFS](/docs/concepts/zfs) for the shared dataset and snapshot model.

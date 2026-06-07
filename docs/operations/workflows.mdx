@@ -66,14 +66,21 @@ yeet ssh <vm>
 VM payloads require a Linux catch host with KVM. During `yeet init`, catch
 checks the host for KVM, TUN/TAP, and the required VM tooling (`qemu-img`,
 `zstd`, `e2fsck`, `resize2fs`, `mount`, `umount`, and `ip`). On Debian/Ubuntu
-hosts with the required VM devices available, missing VM packages can be
-installed with `apt-get` when the install is interactive. ZFS is optional; use
-`--zfs` only when you want ZFS-backed VM disks.
+hosts with the required VM devices available, pass `--install-vm-tools` to
+install missing VM packages with `apt-get`. ZFS is optional; use `--zfs` only
+when you want ZFS-backed VM disks.
 
 Use `lan` when the VM should get a LAN address through DHCP:
 
 ```bash
 yeet run <vm> vm://ubuntu/26.04 --net=lan
+```
+
+Use `svc,lan` when the VM should be on the catch host's LAN and still have a
+private yeet management path for SSH:
+
+```bash
+yeet run <vm> vm://ubuntu/26.04 --net=svc,lan
 ```
 
 Image bundles are cached per host:

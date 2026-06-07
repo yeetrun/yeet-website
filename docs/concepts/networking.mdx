@@ -83,11 +83,9 @@ sudo iptables-nft -t nat -S YEET_POSTROUTING
 If the host is on legacy compatibility mode, use `iptables-legacy` in place of
 `iptables-nft`.
 
-For VMs, `svc` is the default network mode. The guest gets a private IP on the
-service network. `yeet ssh <svc>` uses that address and proxies through the
-yeet host, so the guest does not need to be directly reachable from your
-laptop. The generated guest network config includes DNS for the service
-network.
+For VMs, `svc` is the default network mode. The guest gets a private management
+IP reachable from the catch host, and `yeet ssh <vm>` proxies through catch to
+reach it. The VM does not need to be directly reachable from your laptop.
 
 ## LAN (`lan`)
 
@@ -104,6 +102,11 @@ the lower interface is free, or attaches the VM TAP to an existing Linux bridge
 for that lower interface and VLAN when the host already owns it. The host
 interface still needs to carry the requested VLAN tag. VM networking supports
 `svc`, `lan`, or both; Tailscale mode is not available for VMs yet.
+
+For VM SSH, `lan` should be read as the catch host's LAN. If your workstation
+only reaches catch over the tailnet, a LAN-only VM might not be directly
+reachable from your workstation even though catch can reach it. Use
+`--net=svc,lan` when you want LAN presence and a stable yeet management path.
 
 ## Mounts
 

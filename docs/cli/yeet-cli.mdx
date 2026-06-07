@@ -529,8 +529,10 @@ Notes:
 - Use `--` to pass a remote command. For regular services, the command runs
   from the service directory. For VM services, the command runs in the guest's
   default SSH session context.
-- For VM services on `--net=svc`, yeet proxies the SSH connection through the
-  yeet host to reach the guest's private service-network IP.
+- For VM services, yeet proxies the SSH connection through the catch host to
+  reach the guest address reported by catch. This keeps `yeet ssh <vm>` useful
+  even when the VM is on the catch host's LAN rather than your workstation's
+  LAN.
 - For yeet-managed VM aliases in `~/.yeet/known_hosts`, `yeet ssh <vm>` repairs
   a stale VM host key and retries once after a VM is recreated. Yeet does not
   edit normal `~/.ssh/known_hosts` entries.
@@ -698,6 +700,12 @@ Install or update catch on a remote host via SSH.
 yeet init --install-docker root@<machine-host>
 ```
 
+For VM-capable hosts, add VM tooling installation:
+
+```bash
+yeet init --install-docker --install-vm-tools root@<machine-host>
+```
+
 If omitted, `init` uses the current `CATCH_HOST` value.
 
 Note: the `root@<machine-host>` here is the **machine host** you can reach over
@@ -719,6 +727,9 @@ fresh Debian/Ubuntu-style host, prefer `--install-docker`; use bare
 plan to run non-container payloads. During catch install, yeet also configures
 Docker's containerd snapshotter so pushed images are visible to the host Docker
 daemon.
+
+On hosts that expose KVM and TUN/TAP, `--install-vm-tools` installs the
+Debian/Ubuntu packages required for VM payloads.
 
 If the catch tsnet node needs first login, `init` prints the Tailscale login URL
 while the remote install runs. For unattended setup, pass a Tailscale auth key

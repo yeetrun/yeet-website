@@ -31,6 +31,13 @@ Debian/Ubuntu-style host, let yeet install Docker too:
 yeet init --install-docker root@<machine-host>
 ```
 
+For a KVM-capable host that should run VM payloads, include the VM tooling
+installer:
+
+```bash
+yeet init --install-docker --install-vm-tools root@<machine-host>
+```
+
 If you use a non-root user, yeet will invoke sudo on the remote. Add `--nightly`
 for nightly.
 
@@ -45,7 +52,7 @@ If the catch tsnet node needs first login, `yeet init` prints the Tailscale
 login URL. For unattended setup, pass a Tailscale auth key for the catch node:
 
 ```bash
-yeet init --install-docker --ts-auth-key=<key> root@<machine-host>
+yeet init --install-docker --install-vm-tools --ts-auth-key=<key> root@<machine-host>
 ```
 
 After install, `yeet run <svc>@<catch-host>` uses the **catch host**

@@ -93,9 +93,13 @@ export default function InstallPage({ docsNavTree }: InstallPageProps) {
               <CodeBlock>
                 <code>{`yeet init --install-docker root@<machine-host>`}</code>
               </CodeBlock>
+              <P className={s.note}>KVM-capable VM host:</P>
+              <CodeBlock>
+                <code>{`yeet init --install-docker --install-vm-tools root@<machine-host>`}</code>
+              </CodeBlock>
               <P className={s.note}>Unattended setup:</P>
               <CodeBlock>
-                <code>{`yeet init --install-docker --ts-auth-key=<key> root@<machine-host>`}</code>
+                <code>{`yeet init --install-docker --install-vm-tools --ts-auth-key=<key> root@<machine-host>`}</code>
               </CodeBlock>
               <P className={s.note}>
                 The SSH target is the <strong>machine host</strong>. After

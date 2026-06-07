@@ -136,6 +136,29 @@ done
 If KVM is missing, use container, binary, or cron payloads on that host and run
 VM payloads on a KVM-capable machine.
 
+If KVM and TUN/TAP are present but VM tools are missing on a Debian/Ubuntu host,
+rerun init with `--install-vm-tools`:
+
+```bash
+yeet init --install-vm-tools root@<machine-host>
+```
+
+## `yeet init` says Tailscale assigned a different catch hostname
+
+This means another tailnet device already owns the requested catch hostname, so
+Tailscale assigned a suffix such as `catch-1`.
+
+- Use the assigned catch host with `--host=catch-1` or `CATCH_HOST=catch-1`.
+- Or remove the stale/conflicting Tailscale device and rerun `yeet init`.
+
+## catch joined Tailscale but `yeet status` times out
+
+If you used `--ts-auth-key`, confirm the key assigns any tags required by your
+tailnet ACLs. In tagged-server tailnets, a user-owned catch node may authenticate
+and appear in Tailscale status, but RPC traffic can still be blocked by ACLs.
+Create a preauthorized auth key with the required server tags, or apply the
+tags to the catch device and retry.
+
 ## `edit` fails without TTY
 
 - `yeet edit` needs a TTY to launch `$EDITOR`.
