@@ -507,6 +507,7 @@ directory (`<data-dir>/services/<svc>/data`). If the service is a VM,
 ```bash
 yeet ssh
 yeet ssh <svc>
+yeet ssh --force-proxy <vm>
 yeet ssh -- uname -a
 yeet ssh <svc> -- ls -la
 ```
@@ -529,10 +530,11 @@ Notes:
 - Use `--` to pass a remote command. For regular services, the command runs
   from the service directory. For VM services, the command runs in the guest's
   default SSH session context.
-- For VM services, yeet proxies the SSH connection through the catch host to
-  reach the guest address reported by catch. This keeps `yeet ssh <vm>` useful
-  even when the VM is on the catch host's LAN rather than your workstation's
-  LAN.
+- For VM services with `svc` or `svc,lan`, yeet proxies SSH through the catch
+  host to the VM's private management IP. For LAN-only VMs, yeet connects
+  directly to the guest LAN IP. It prints the selected path to stderr before
+  starting SSH.
+- Use `--force-proxy` to force the catch-host proxy path for a VM.
 - For yeet-managed VM aliases in `~/.yeet/known_hosts`, `yeet ssh <vm>` repairs
   a stale VM host key and retries once after a VM is recreated. Yeet does not
   edit normal `~/.ssh/known_hosts` entries.

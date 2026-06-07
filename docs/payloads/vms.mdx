@@ -19,15 +19,22 @@ Use `lan` when the VM should request an address on your LAN through DHCP:
 
 ```bash
 yeet run <vm> vm://ubuntu/26.04 --net=lan
+yeet ssh <vm>
 ```
 
+For LAN-only VMs, `yeet ssh <vm>` connects directly to the guest's LAN IP.
 `lan` is the catch host's LAN, not necessarily your workstation's LAN. When
-you want a VM to appear on the host LAN but still keep yeet-managed SSH
-reachable through catch, use both networks:
+you want a VM to appear on the host LAN but still keep SSH reachable through
+catch, use both networks:
 
 ```bash
 yeet run <vm> vm://ubuntu/26.04 --net=svc,lan
+yeet ssh <vm>
 ```
+
+With `svc` or `svc,lan`, `yeet ssh <vm>` proxies through catch to the VM's
+private management IP. Use `yeet ssh --force-proxy <vm>` to force that proxy
+path for a VM that otherwise would be reached directly.
 
 Override the default shape when needed:
 
@@ -151,6 +158,9 @@ for serial output and boot diagnostics. For yeet-managed VM aliases in
 `~/.yeet/known_hosts`, `yeet ssh <vm>` repairs a stale host key and retries
 once after a VM is recreated. Yeet does not edit normal `~/.ssh/known_hosts`
 entries.
+
+Before opening a VM SSH session, yeet prints the selected path to stderr, such
+as proxying through the catch host or connecting directly to the guest LAN IP.
 
 The default `ubuntu` user has passwordless sudo. Metadata injection also writes
 yeet-managed `.profile` and `.bashrc` blocks for that user, including
