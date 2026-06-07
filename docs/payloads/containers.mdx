@@ -123,7 +123,9 @@ under the managed service root.
 ## Host requirements
 
 Docker hosts need Docker, Compose support, and the containerd snapshotter so
-pushed images show up locally. See [Installation](/docs/getting-started/installation)
-for host setup, and [Workflows](/docs/operations/workflows) for common update
-flows. ZFS is optional; see [ZFS](/docs/concepts/zfs) if you want dataset-backed
-service roots.
+pushed images show up locally. `yeet init` can install Docker on fresh
+Debian/Ubuntu hosts and configures the snapshotter during catch install. See
+[Installation](/docs/getting-started/installation) for host setup, and
+[Workflows](/docs/operations/workflows) for common update flows. ZFS is
+optional; see [ZFS](/docs/concepts/zfs) if you want dataset-backed service
+roots.

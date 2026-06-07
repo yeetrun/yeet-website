@@ -18,6 +18,12 @@ catch [flags] [install|version|is-catch]
 - `version`: prints the catch build version.
 - `is-catch`: prints `yes` (used for detection).
 
+During `catch install`, catch requires Docker and configures Docker's
+containerd snapshotter. If Docker is missing, interactive installs prompt to
+install it. For non-interactive manual installs on Debian/Ubuntu hosts, set
+`CATCH_INSTALL_DOCKER=1` to let catch install Docker before writing the systemd
+service.
+
 ## Flags
 
 - `--data-dir`: base directory for data (default `./data`).

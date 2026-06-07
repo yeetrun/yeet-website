@@ -70,6 +70,21 @@ release.
 yeet init root@<host>
 ```
 
+On a fresh host without Docker, interactive `yeet init` prompts to install it.
+For non-interactive or scripted setup, pass:
+
+```bash
+yeet init --install-docker root@<host>
+```
+
+If the catch tsnet node needs first login, `yeet init` prints the Tailscale
+login URL while the remote install runs. For unattended setup, create a
+Tailscale auth key for the catch node and pass it with:
+
+```bash
+yeet init --install-docker --ts-auth-key=<key> root@<host>
+```
+
 Or use the mise task:
 
 ```bash
@@ -81,12 +96,15 @@ Notes:
 - If you pass a non-root user, yeet will run the install with sudo on the
   remote.
 - The catch service runs as root.
+- `yeet init` configures Docker's containerd snapshotter during catch install
+  so pushed images are visible to the host Docker daemon.
 
 ## Docker requirements (internal registry)
 
 Yeet’s internal registry expects Docker to use the containerd snapshotter so
-pushed images show up locally (no pull needed). Ensure the host has this in
-`/etc/docker/daemon.json`:
+pushed images show up locally (no pull needed). `yeet init` configures this
+automatically during catch install. For manual catch installs or
+troubleshooting, ensure the host has this in `/etc/docker/daemon.json`:
 
 ```json
 {
@@ -113,8 +131,8 @@ VM payloads (`vm://ubuntu/26.04`) require a Linux catch host with:
   and `ip`.
 
 During `yeet init`, catch checks those requirements and prints warnings for
-missing host capabilities. On Debian/Ubuntu hosts with `apt-get`, an
-interactive install can offer to install the missing VM packages:
+missing host capabilities. On Debian/Ubuntu hosts with the required VM devices
+available, an interactive install can offer to install the missing VM packages:
 `qemu-utils`, `zstd`, `e2fsprogs`, `util-linux`, and `iproute2`.
 
 ZFS is optional. Install and configure ZFS only if you want dataset-backed

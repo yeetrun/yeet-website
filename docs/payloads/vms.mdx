@@ -58,7 +58,8 @@ or uses an existing Linux bridge for that VLAN if the host already has one.
 VM payloads require a Linux catch host with KVM available. During `yeet init`,
 catch checks for KVM, TUN/TAP, and required VM tooling such as `qemu-img`,
 `zstd`, `e2fsck`, `resize2fs`, `mount`, `umount`, and `ip`. On Debian/Ubuntu
-hosts, interactive installs can offer to install missing VM packages.
+hosts with the required VM devices available, interactive installs can offer to
+install missing VM packages.
 
 ZFS is optional unless you create VMs with `--zfs`. See
 [ZFS](/docs/concepts/zfs) for the shared dataset and snapshot model.

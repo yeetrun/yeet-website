@@ -14,6 +14,11 @@ and IPs.
 - **Per-service networking**: `--net=ts` gives a service its own Tailscale
   interface and IP address.
 
+During `yeet init`, catch starts its own embedded tsnet node for RPC. If that
+node needs first login, `yeet init` prints the Tailscale login URL. For
+unattended host bootstrap, pass an auth key for the catch node with
+`yeet init --ts-auth-key=<key> root@<host>`.
+
 ## Get started (OAuth setup)
 
 Before using `--net=ts`, configure the catch host with a Tailscale OAuth client

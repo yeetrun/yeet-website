@@ -195,9 +195,9 @@ profile. Kernel and init updates are delivered by publishing a new yeet VM image
 bundle and updating the host image cache.
 
 During `yeet init`, catch checks the host for KVM, TUN/TAP, and required VM
-tooling. On Debian/Ubuntu hosts with `apt-get`, interactive installs can offer
-to install missing VM packages. ZFS is optional unless you create VMs with
-`--zfs`.
+tooling. On Debian/Ubuntu hosts with the required VM devices available,
+interactive installs can offer to install missing VM packages. ZFS is optional
+unless you create VMs with `--zfs`.
 
 When `--env-file` is provided (or `yeet env copy` is used), yeet stores the env
 file path in `yeet.toml` and re-uploads it on future runs.
@@ -409,7 +409,8 @@ yeet service sync --all --config ~/yeet-services/yeet.toml
 Use this after a live service is changed from another directory or another
 machine. The catch DB is the source of truth for live state; `yeet.toml` is the
 TOML replay recipe. Sync updates matching existing entries only and does not
-import every service from catch.
+import every service from catch. The file passed with `--config` must already
+exist and contain the service entries you want to update.
 
 ### snapshots defaults
 
@@ -709,6 +710,15 @@ If catch reports an install host, `init` will prefer that host for SSH.
 
 In interactive terminals, `init` will prompt to accept the SSH host key if
 needed. For non-interactive runs, pre-populate `~/.ssh/known_hosts`.
+
+On hosts without Docker, interactive `init` prompts to install Docker. For
+scripted setup, pass `--install-docker`. During catch install, yeet also
+configures Docker's containerd snapshotter so pushed images are visible to the
+host Docker daemon.
+
+If the catch tsnet node needs first login, `init` prints the Tailscale login URL
+while the remote install runs. For unattended setup, pass a Tailscale auth key
+for the catch node with `--ts-auth-key=<key>`.
 
 When stdout is a terminal, `init` uses the full TTY progress UI (spinners, live
 updates). Pipe output for plain text. Use `--progress=plain` (or

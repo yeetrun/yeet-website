@@ -33,6 +33,20 @@ yeet init root@<host>
 If you use a non-root user, yeet will invoke sudo on the remote. Add `--nightly`
 for nightly.
 
+On a fresh host without Docker, interactive `yeet init` prompts to install it.
+For scripted setup, pass `--install-docker`:
+
+```bash
+yeet init --install-docker root@<host>
+```
+
+If the catch tsnet node needs first login, `yeet init` prints the Tailscale
+login URL. For unattended setup, pass a Tailscale auth key for the catch node:
+
+```bash
+yeet init --install-docker --ts-auth-key=<key> root@<host>
+```
+
 Note: this `<host>` is the **machine host** you SSH into. After install,
 `yeet run <svc>@<host>` uses the **catch host** (Tailscale/tsnet hostname). See
 [Tailscale](/docs/concepts/tailscale).

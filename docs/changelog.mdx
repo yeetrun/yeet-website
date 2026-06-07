@@ -3,6 +3,14 @@ title: Changelog
 description: Short notes for yeet + catch releases.
 ---
 
+## June 7, 2026
+
+### v0.5.12
+
+- `yeet init` can bootstrap fresh Docker hosts with `--install-docker` and now configures Docker's containerd snapshotter before catch starts.
+- Remote catch installs now surface Tailscale login progress and support `--ts-auth-key` for unattended catch tsnet setup.
+- VM host readiness checks no longer prompt to install VM packages on hosts that cannot run VMs because KVM, TUN/TAP, or host architecture support is missing.
+
 ## June 6, 2026
 
 ### v0.5.11

@@ -59,9 +59,9 @@ yeet ssh <vm>
 VM payloads require a Linux catch host with KVM. During `yeet init`, catch
 checks the host for KVM, TUN/TAP, and the required VM tooling (`qemu-img`,
 `zstd`, `e2fsck`, `resize2fs`, `mount`, `umount`, and `ip`). On Debian/Ubuntu
-hosts, missing VM packages can be installed with `apt-get` when the install is
-interactive. ZFS is optional; use `--zfs` only when you want ZFS-backed VM
-disks.
+hosts with the required VM devices available, missing VM packages can be
+installed with `apt-get` when the install is interactive. ZFS is optional; use
+`--zfs` only when you want ZFS-backed VM disks.
 
 Use `lan` when the VM should get a LAN address through DHCP:
 
@@ -149,6 +149,9 @@ service's `yeet.toml`, update the local replay config afterward:
 ```bash
 yeet service sync vaultwarden --config ~/yeet-services/yeet.toml
 ```
+
+The file passed with `--config` must already exist and contain the service
+entries you want to update.
 
 For a config file with several services on the selected host:
 
