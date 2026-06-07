@@ -12,7 +12,10 @@ and catch currently manages services as root.
 
 ## Does yeet require Tailscale?
 
-Yes. Yeet communicates with catch over Tailscale RPC. See
+Yes, but you do not need the Tailscale client installed locally for normal yeet
+commands. Catch runs an embedded tsnet node for RPC, and the yeet CLI talks to
+that node over tsnet. A local Tailscale client is only needed for local
+tailnet discovery commands such as `yeet list-hosts`. See
 [Tailscale](/docs/concepts/tailscale).
 
 ## Do services run as root?
