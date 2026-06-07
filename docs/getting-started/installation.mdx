@@ -68,6 +68,20 @@ yeet upgrade check --all
 yeet upgrade --all
 ```
 
+To reinstall the latest public release even when a component is already current,
+newer, or currently a source/dev build:
+
+```bash
+yeet upgrade --all --force
+```
+
+To install a specific public release instead of latest, select the tag
+explicitly. Use `--force` when that would reinstall or downgrade a component:
+
+```bash
+yeet upgrade --all --version v0.6.1 --force
+```
+
 Interactive commands may show a short update notice when a newer public release
 is available. The notice is advisory: normal commands do not depend on GitHub
 being reachable.
@@ -75,9 +89,9 @@ being reachable.
 `yeet upgrade check --all` scans hosts from the current project and default
 host. It does not scan the entire tailnet.
 
-Source builds are not self-updated as release binaries. If you build yeet from
-source, update with your normal source workflow, such as `git pull` followed by
-`go build ./cmd/yeet`.
+Source builds are not self-updated by default. Use `yeet upgrade --force` to
+replace them with the selected public release, or update with your normal source
+workflow, such as `git pull` followed by `go build ./cmd/yeet`.
 
 ### Agent skill (optional)
 

@@ -711,10 +711,16 @@ yeet upgrade
 yeet upgrade --all
 yeet upgrade --host catch-a
 yeet upgrade --yes
+yeet upgrade --all --force
+yeet upgrade --all --version v0.6.1 --force
 ```
 
 `--all` uses the current project's `yeet.toml` plus the default host. It does
 not scan the entire tailnet.
+
+`--version <tag>` selects a public GitHub release instead of latest. `--force`
+reinstalls the selected release even when the current component is already at
+that version, newer than that version, or a source/dev build.
 
 ## Host setup and discovery
 
