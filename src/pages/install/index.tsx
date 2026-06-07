@@ -56,6 +56,12 @@ export default function InstallPage({ docsNavTree }: InstallPageProps) {
                 size="large"
                 theme="neutral"
               />
+              <ButtonLink
+                href="/docs/getting-started/first-run-validation"
+                text="Validate a Fresh Host"
+                size="large"
+                theme="neutral"
+              />
             </div>
           </header>
         </SectionWrapper>
@@ -80,14 +86,28 @@ export default function InstallPage({ docsNavTree }: InstallPageProps) {
 
             <section className={s.card}>
               <H2>Bootstrap a host</H2>
-              <P>Install catch on a remote Linux host via SSH.</P>
+              <P>
+                Install catch on a remote Linux host via SSH. On fresh
+                Debian/Ubuntu-style hosts, let yeet install Docker too.
+              </P>
               <CodeBlock>
-                <code>{`yeet init root@<host>`}</code>
+                <code>{`yeet init --install-docker root@<machine-host>`}</code>
+              </CodeBlock>
+              <P className={s.note}>Unattended setup:</P>
+              <CodeBlock>
+                <code>{`yeet init --install-docker --ts-auth-key=<key> root@<machine-host>`}</code>
               </CodeBlock>
               <P className={s.note}>
                 The SSH target is the <strong>machine host</strong>. After
                 install, yeet talks to the <strong>catch host</strong> (tsnet
                 hostname).
+              </P>
+              <P className={s.note}>
+                Next, run the{" "}
+                <Link href="/docs/getting-started/first-run-validation">
+                  first-run validation playbook
+                </Link>{" "}
+                to smoke-test the payload types your host supports.
               </P>
             </section>
           </div>

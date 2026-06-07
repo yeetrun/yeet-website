@@ -3,7 +3,7 @@ title: Installation
 description: Install yeet locally and bootstrap catch on a remote host.
 ---
 
-This is a personal homelab setup. The install flow assumes:
+This is an opinionated homelab setup. The install flow assumes:
 
 - A Linux host with systemd.
 - SSH access to that host.
@@ -98,6 +98,9 @@ Notes:
 - The catch service runs as root.
 - `yeet init` configures Docker's containerd snapshotter during catch install
   so pushed images are visible to the host Docker daemon.
+- If this is your first host, prefer `--install-docker`; the bare
+  `yeet init root@<host>` path is best when Docker is already installed or you
+  only plan to run non-container payloads.
 
 After bootstrap, use [First-Run Validation](/docs/getting-started/first-run-validation)
 to prove the host can run the payload types you care about.
