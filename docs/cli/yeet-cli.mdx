@@ -690,6 +690,30 @@ Push a local image into the internal registry.
 - `--run`: tag image as `run`.
 - `--all-local`: push all local images for the service matching remote OS/arch.
 
+## Upgrade yeet and catch
+
+### `yeet upgrade`
+
+Check for updates:
+
+```bash
+yeet upgrade check
+yeet upgrade check --all
+yeet upgrade check --json
+```
+
+Upgrade:
+
+```bash
+yeet upgrade
+yeet upgrade --all
+yeet upgrade --host catch-a
+yeet upgrade --yes
+```
+
+`--all` uses the current project's `yeet.toml` plus the default host. It does
+not scan the entire tailnet.
+
 ## Host setup and discovery
 
 ### init

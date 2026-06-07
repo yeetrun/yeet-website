@@ -46,6 +46,39 @@ Or install globally:
 go install ./cmd/yeet
 ```
 
+## Upgrade yeet and catch
+
+Check the local CLI and the selected catch host:
+
+```bash
+yeet upgrade check
+```
+
+Upgrade both from verified GitHub release assets:
+
+```bash
+yeet upgrade
+```
+
+In a project with multiple catch hosts in `yeet.toml`, scan and upgrade all of
+them explicitly:
+
+```bash
+yeet upgrade check --all
+yeet upgrade --all
+```
+
+Interactive commands may show a short update notice when a newer public release
+is available. The notice is advisory: normal commands do not depend on GitHub
+being reachable.
+
+`yeet upgrade check --all` scans hosts from the current project and default
+host. It does not scan the entire tailnet.
+
+Source builds are not self-updated as release binaries. If you build yeet from
+source, update with your normal source workflow, such as `git pull` followed by
+`go build ./cmd/yeet`.
+
 ### Agent skill (optional)
 
 If you use an AI coding tool that supports `npx skills`, you can install
