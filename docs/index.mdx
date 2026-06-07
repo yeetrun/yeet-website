@@ -4,8 +4,10 @@ description: A focused user manual for the yeet + catch homelab workflow.
 ---
 
 > [!NOTE]
-> Yeet is personal infrastructure tooling tuned for a specific homelab. Use it
-> as a reference or starting point, not a general-purpose platform.
+> Yeet is opinionated homelab infrastructure tooling. It expects Linux/systemd
+> hosts, Tailscale/tsnet RPC, and root-managed host services; within that model,
+> the release path is intended to be installable on a fresh Ubuntu/Debian-style
+> host with SSH access.
 
 ## Start here
 
@@ -97,9 +99,9 @@ description: A focused user manual for the yeet + catch homelab workflow.
   ]}
 />
 
-## How this homelab runs
+## How yeet runs
 
-- Catch runs on each host, and yeet runs from the workstation.
+- Catch runs on each host, and yeet runs from your workstation.
 - Services and VMs are deployed over Tailscale RPC with explicit network modes
   (see [Tailscale](/docs/concepts/tailscale)).
 - Host targeting and defaults are driven by `CATCH_HOST` and `yeet.toml`.

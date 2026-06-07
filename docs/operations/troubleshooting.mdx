@@ -10,6 +10,23 @@ description: Common failures and how to fix them.
 - Override host: `CATCH_HOST=<host> yeet status`.
 - See [Tailscale](/docs/concepts/tailscale) for tailnet setup details.
 
+## `yeet init` needs Tailscale login
+
+Catch uses an embedded tsnet node for RPC. If the node is not already
+authenticated, `yeet init` prints a Tailscale login URL while the remote install
+runs. Open that URL, approve the node, then rerun `yeet status`.
+
+For unattended setup, create a Tailscale auth key for the catch node and pass it
+to init:
+
+```bash
+yeet init --install-docker --ts-auth-key=<key> root@<host>
+```
+
+If your tailnet ACL only allows tagged catch nodes, make sure the new node is
+tagged appropriately after enrollment or use an auth key that applies the
+required tags.
+
 ## Architecture mismatch
 
 - `yeet run` will fail if the binary arch does not match the host.
@@ -17,8 +34,21 @@ description: Common failures and how to fix them.
 
 ## Docker errors
 
-- Docker compose services require docker on the host.
-- `catch install` can prompt to install docker if missing.
+- Docker compose services require Docker on the host.
+- On Debian/Ubuntu-style hosts, `yeet init --install-docker root@<host>` can
+  install Docker during bootstrap.
+- `yeet init` configures Docker's containerd snapshotter during catch install
+  so pushed local images are visible to the host Docker daemon. For manual catch
+  installs, confirm `/etc/docker/daemon.json` contains:
+
+```json
+{
+  "features": {
+    "containerd-snapshotter": true
+  }
+}
+```
+
 - If a netns-backed compose service becomes unreachable after networking
   changes, catch will now reconcile that service at startup by recreating the
   compose project when it detects stale docker endpoint wiring for the current
@@ -82,6 +112,23 @@ sudo systemctl restart yeet-ns.service
   `yeet status` should return promptly after `catch` restarts. If `catch`
   shutdown or restart appears hung, inspect `journalctl -u catch` for the
   underlying docker or netns command that failed to exit.
+
+## VM payloads do not start
+
+VMs require a Linux catch host with KVM available at `/dev/kvm` and TUN/TAP at
+`/dev/net/tun`. Many VPS providers do not expose nested virtualization, so
+`yeet init` may warn that VM payloads are unavailable even though containers
+work.
+
+Check host capability:
+
+```bash
+test -e /dev/kvm && echo kvm=yes || echo kvm=no
+test -e /dev/net/tun && echo tun=yes || echo tun=no
+```
+
+If KVM is missing, use container, binary, or cron payloads on that host and run
+VM payloads on a KVM-capable machine.
 
 ## `edit` fails without TTY
 

@@ -5,8 +5,10 @@ description: Short answers to common yeet questions.
 
 ## Is this intended for general use?
 
-No. This is a personal homelab toolchain. The defaults and workflow are tuned
-for a specific environment.
+Yeet is intended for homelab-style use by people comfortable operating Linux
+hosts over SSH. It is not a general-purpose platform or a multi-tenant
+orchestrator: hosts are expected to run Linux/systemd, RPC uses Tailscale/tsnet,
+and catch currently manages services as root.
 
 ## Does yeet require Tailscale?
 
@@ -15,8 +17,8 @@ Yes. Yeet communicates with catch over Tailscale RPC. See
 
 ## Do services run as root?
 
-Yes. This is acceptable for this lab but not recommended for shared
-environments.
+Yes. This is acceptable for a single-operator homelab, but not recommended for
+shared or multi-tenant environments.
 
 ## Can I use docker compose?
 
