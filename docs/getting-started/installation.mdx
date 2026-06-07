@@ -113,7 +113,7 @@ yeet init --install-docker --install-vm-tools root@<machine-host>
 
 If Docker is already installed, or you only plan to run non-container payloads,
 the bare init path is fine. If Tailscale enrollment is needed, `yeet init`
-prints the login URL and waits:
+prompts for a Tailscale OAuth client secret:
 
 ```bash
 yeet init root@<machine-host>
@@ -121,20 +121,28 @@ yeet init root@<machine-host>
 
 Catch uses an embedded Tailscale node for RPC, and that node must be tagged.
 Before first setup, make sure your Tailscale policy allows the catch tag you
-plan to use, such as `tag:catch`. For unattended installs, create a
-preauthorized Tailscale auth key that assigns that catch server tag and pass it
-with:
+plan to use, such as `tag:catch`. The OAuth client secret should have the
+`auth_keys` scope and be allowed by `tagOwners` to assign `tag:catch`, either
+directly or through an owner tag such as `tag:yeet`. The Tailscale guide shows
+the first-time policy snippet. For non-interactive installs, pass it with:
+
+```bash
+yeet init --install-docker --install-vm-tools --ts-client-secret=<secret> root@<machine-host>
+```
+
+Advanced users can instead create a preauthorized Tailscale auth key that
+assigns the catch server tag and pass it with:
 
 ```bash
 yeet init --install-docker --install-vm-tools --ts-auth-key=<key> root@<machine-host>
 ```
 
-The key is for the catch host itself. It is not required for interactive
-first-run setup, but the resulting catch node still must be tagged before catch
-will accept RPC. If your tailnet policy separates catch hosts by cluster or
-location, include the tags that policy expects. For example, one group might
-use `tag:catch`, while another uses `tag:other-catch`; admin devices can be
-granted access to either group through Tailscale ACLs or grants.
+The OAuth secret or auth key is for the catch host itself. The resulting catch
+node must be tagged before catch will accept RPC. If your tailnet policy
+separates catch hosts by cluster or location, include the tags that policy
+expects. For example, one group might use `tag:catch`, while another uses
+`tag:other-catch`; admin devices can be granted access to either group through
+Tailscale ACLs or grants.
 
 Or use the mise task:
 

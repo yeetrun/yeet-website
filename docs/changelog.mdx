@@ -5,6 +5,12 @@ description: Short notes for yeet + catch releases.
 
 ## June 7, 2026
 
+### v0.6.2
+
+- `yeet init` now prompts for a Tailscale OAuth client secret, with `--ts-client-secret` for non-interactive catch enrollment as a tagged host.
+- Catch stores that OAuth secret for later `--net=ts` services and fails fast with policy guidance when the requested catch tag cannot be assigned.
+- The Tailscale guide now gives first-time users a clear setup checklist for `tagOwners`, OAuth owner tags, catch enrollment, and validation.
+
 ### v0.6.1
 
 - `yeet upgrade check` now refreshes the latest release for explicit checks, keeps dev-build rows compact, and `yeet upgrade` exits without prompting when nothing can be upgraded.

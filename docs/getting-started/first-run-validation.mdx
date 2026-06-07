@@ -30,9 +30,15 @@ If you have Tailscale installed locally, `yeet list-hosts` can also confirm the
 catch node is visible in your tailnet. It is optional for this playbook because
 normal yeet RPC uses embedded tsnet.
 
-If `yeet status` cannot connect, confirm you completed the Tailscale login URL
-printed by `yeet init`, and confirm the catch node is tagged. For unattended
-or repeatable setup, rerun init with a catch-node auth key:
+If `yeet status` cannot connect, confirm `yeet init` stored a Tailscale OAuth
+client secret or catch-node auth key, and confirm the catch node is tagged. For
+repeatable setup, rerun init with the OAuth client secret:
+
+```bash
+yeet init --install-docker --ts-client-secret=<secret> root@<machine-host>
+```
+
+Advanced users can rerun init with a direct catch-node auth key:
 
 ```bash
 yeet init --install-docker --ts-auth-key=<key> root@<machine-host>

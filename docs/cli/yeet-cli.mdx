@@ -603,9 +603,10 @@ Show the service IP (only meaningful when `--net=svc` was used).
 
 Interactive setup for the catch host's Tailscale OAuth client secret using
 `yeet tailscale --setup` (alias: `yeet ts --setup`). The CLI walks you through
-creating a Tailscale OAuth client that can assign the service tags you plan to
-use with `--net=ts`, then stores the `tskey-client-...` secret on the target
-host. Use `--client-secret` to skip the prompt.
+creating a Tailscale OAuth client with an owner tag, such as `tag:yeet`, that
+can assign the service tags you plan to use with `--net=ts`, then stores the
+`tskey-client-...` secret on the target host. Use `--client-secret` to skip the
+prompt.
 
 See [Tailscale](/docs/concepts/tailscale) for the full setup flow and related
 flags.
@@ -756,11 +757,12 @@ daemon.
 On hosts that expose KVM and TUN/TAP, `--install-vm-tools` installs the
 Debian/Ubuntu packages required for VM payloads.
 
-If the catch tsnet node needs first login, `init` prints the Tailscale login URL
-while the remote install runs. The catch node must end up tagged, such as
-`tag:catch`; user-owned catch nodes are rejected. For unattended setup, pass a
-preauthorized Tailscale auth key for the catch node with
-`--ts-auth-key=<key>`.
+If the catch tsnet node needs first login, `init` prompts for a Tailscale OAuth
+client secret while the remote install runs. The catch node must end up tagged,
+such as `tag:catch`; user-owned catch nodes are rejected. For non-interactive
+setup, pass the OAuth client secret with `--ts-client-secret=<secret>`.
+Advanced users can pass a preauthorized Tailscale auth key for the catch node
+with `--ts-auth-key=<key>`.
 
 When stdout is a terminal, `init` uses the full TTY progress UI (spinners, live
 updates). Pipe output for plain text. Use `--progress=plain` (or

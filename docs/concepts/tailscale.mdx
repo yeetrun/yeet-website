@@ -14,21 +14,73 @@ and IPs.
 - **Per-service networking**: `--net=ts` gives a service its own Tailscale
   interface and IP address.
 
-During `yeet init`, catch starts its own embedded tsnet node for RPC. A plain
-first run works:
+## First-Time Host Setup
 
-```bash
-yeet init root@<machine-host>
+`catch` is the small daemon that yeet installs on each host. During
+`yeet init`, catch starts its own embedded tsnet node for RPC. That node must
+join Tailscale with a tag-based identity, usually `tag:catch`. User-owned catch
+nodes are rejected.
+
+For a new tailnet or a first yeet host, use this order. The recommended setup
+uses one Tailscale OAuth client secret for both catch bootstrap and future
+`--net=ts` services.
+
+1. Add a yeet owner tag in Tailscale policy, such as `tag:yeet`.
+2. Let that owner tag own the catch tag, usually `tag:catch`.
+3. Let the same owner tag own any service tags you plan to use later, such as
+   `tag:app`.
+4. Create a Tailscale OAuth client with the `auth_keys` scope, shown in the
+   admin console as Auth Keys write access.
+5. Select the owner tag (`tag:yeet` in this example) in the OAuth client's
+   tags.
+6. Copy the OAuth client secret. It starts with `tskey-client-`.
+7. Run `yeet init root@<machine-host>` and paste the OAuth client secret when
+   prompted.
+8. Validate with `yeet status`.
+
+Here is a minimal policy shape to merge into your existing tailnet policy:
+
+```jsonc
+{
+  "tagOwners": {
+    "tag:yeet": ["autogroup:admin"],
+    "tag:catch": ["tag:yeet"],
+    "tag:app": ["tag:yeet"]
+  },
+  "grants": [
+    { "src": ["autogroup:member"], "dst": ["tag:catch"], "ip": ["tcp:41548"] },
+    { "src": ["tag:catch"], "dst": ["tag:catch"], "ip": ["tcp:41548"] }
+  ]
+}
 ```
 
-If the catch node is not already authenticated, `yeet init` prints the
-Tailscale login URL and waits for you to finish enrollment.
+The catch node itself joins as `tag:catch`. The OAuth client uses `tag:yeet`
+only as permission to mint auth keys for `tag:catch` and service tags such as
+`tag:app`.
 
-The catch node must end up with a tag-based Tailscale identity, not a
-user-owned identity. A common tag is `tag:catch`. If your tailnet policy does
-not already allow the catch node to use that tag, update `tagOwners` in
-Tailscale before or during first setup. For unattended host bootstrap, create a
-preauthorized auth key that assigns the catch server tag and pass it with
+The init command can install Docker and VM host tools in the same pass:
+
+```bash
+yeet init --install-docker --install-vm-tools root@<machine-host>
+```
+
+For non-interactive setup, pass the OAuth client secret directly:
+
+```bash
+yeet init --install-docker --ts-client-secret=<secret> root@<machine-host>
+```
+
+If Tailscale rejects the requested tag during init, fix the OAuth client tags
+or `tagOwners` policy and paste the corrected OAuth client secret when yeet
+prompts again.
+
+If you only need catch bootstrap and do not plan to use `--net=ts`, you can
+create the OAuth client directly with `tag:catch` instead of an owner tag. That
+is simpler, but it will not let the same secret mint different service tags
+later unless your `tagOwners` policy allows it.
+
+Advanced users can also create a preauthorized auth key that assigns
+`tag:catch` and pass it with
 `yeet init --install-docker --ts-auth-key=<key> root@<machine-host>`.
 
 If you use more than one catch cluster, use tags and Tailscale ACLs/grants to
@@ -45,20 +97,19 @@ may assign a suffixed name such as `catch-1`. Yeet prints a warning during
 
 If the catch node joins as a user-owned device, catch refuses RPC and asks you
 to fix the Tailscale policy/device tag, then rerun `yeet init`. Passing
-`--ts-auth-key=<key>` is the unattended way to make that enrollment tagged from
-the start.
+`--ts-client-secret=<secret>` lets yeet mint a tagged auth key during init.
 
 ## Keys and Tags
 
-Yeet uses two different Tailscale credential paths:
+Yeet uses two Tailscale credential paths:
 
-- **Catch bootstrap key**: passed to `yeet init --ts-auth-key`. This key
-  authenticates the catch host itself for unattended installs and must assign
-  at least one catch server tag, such as `tag:catch`. It is optional for
-  interactive first-run setup.
-- **Service key source**: used only for services deployed with `--net=ts`. The
-  recommended path is `yeet tailscale --setup`, which stores a Tailscale OAuth
-  client secret on catch so catch can mint per-service auth keys.
+- **OAuth client secret**: the preferred path. `yeet init` prompts for it when
+  catch needs first enrollment, or you can pass `--ts-client-secret=<secret>`.
+  catch stores the secret and can reuse it later to mint per-service auth keys
+  for services deployed with `--net=ts`.
+- **Direct auth key**: the advanced/manual path. Pass
+  `yeet init --ts-auth-key=<key>` for catch bootstrap or `yeet run --net=ts
+  --ts-auth-key=<key>` for a specific service.
 
 For `--net=ts --ts-tags=...`, Tailscale decides which tags the OAuth client can
 assign. A client can mint keys for an exact matching tag set. If you want one
@@ -77,6 +128,9 @@ allow the tags you ask Tailscale to assign:
 
 - `tagOwners` must allow catch bootstrap to assign the catch tag, such as
   `tag:catch`.
+- The OAuth client used with `yeet init --ts-client-secret` must have the
+  `auth_keys` scope and be allowed to assign `tag:catch`, either directly or
+  through an owner tag such as `tag:yeet`.
 - `tagOwners` must allow the catch OAuth client to assign any service tags you
   pass with `--ts-tags`.
 - ACLs or grants must allow your admin device or admin tag to reach the catch
@@ -84,30 +138,15 @@ allow the tags you ask Tailscale to assign:
 - ACLs or grants for service tags are yours to design; yeet only asks Tailscale
   to enroll the service with those tags.
 
-For example, a small policy might include:
-
-```jsonc
-{
-  "tagOwners": {
-    "tag:catch": ["autogroup:admin"],
-    "tag:yeet": ["autogroup:admin"],
-    "tag:app": ["tag:yeet"]
-  },
-  "grants": [
-    { "src": ["autogroup:member"], "dst": ["tag:catch"], "ip": ["tcp:41548"] },
-    { "src": ["tag:catch"], "dst": ["tag:catch"], "ip": ["tcp:41548"] }
-  ]
-}
-```
-
 If you use a Tailscale OAuth client for `yeet tailscale --setup`, give that
 OAuth client the owner tag (`tag:yeet` in the example) so it can mint keys for
 the service tags owned by that tag.
 
 ## Get Started (OAuth Setup)
 
-Before using `--net=ts`, configure the catch host with a Tailscale OAuth client
-secret:
+If you completed first-time host setup with an OAuth client secret, catch has
+already stored it and can use it for `--net=ts` services. To add or replace the
+stored secret later, run:
 
 ```bash
 yeet tailscale --setup
@@ -115,8 +154,8 @@ yeet tailscale --setup
 
 This stores a `tskey-client-...` secret on the catch host. When you deploy a
 service with `--net=ts`, yeet uses that secret to mint per-service auth keys.
-Make sure the OAuth client can assign the service tags you pass with
-`--ts-tags`.
+Make sure the OAuth client has the owner tag that can assign the service tags
+you pass with `--ts-tags`.
 
 If you prefer, you can bypass OAuth and provide your own key:
 

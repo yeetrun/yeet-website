@@ -21,17 +21,26 @@ Tailscale identity, such as `tag:catch`; user-owned catch nodes are rejected.
 First, make sure your tailnet policy allows the catch tag. In Tailscale terms,
 `tagOwners` must allow the actor doing enrollment to assign the catch tag. Your
 existing ACLs or grants can stay in your own style, but they must allow your
-admin device or admin tag to reach the catch tag on TCP port `41548`.
+admin device or admin tag to reach the catch tag on TCP port `41548`. For the
+recommended OAuth flow, that usually means an owner tag such as `tag:yeet` owns
+`tag:catch`, and the OAuth client has the owner tag.
 
-Then rerun init. A plain rerun is valid and will show the Tailscale login URL
-again if enrollment is needed:
+Then rerun init. A plain rerun is valid and will prompt for a Tailscale OAuth
+client secret if enrollment is needed:
 
 ```bash
 yeet init root@<machine-host>
 ```
 
-For unattended setup, create a preauthorized Tailscale auth key for the catch
-node that assigns the server tags your tailnet policy expects, then rerun init:
+For repeatable setup, pass an OAuth client secret that can mint auth keys for
+the server tags your tailnet policy expects:
+
+```bash
+yeet init --install-docker --ts-client-secret=<secret> root@<machine-host>
+```
+
+Advanced users can create a preauthorized Tailscale auth key for the catch node
+and pass it directly:
 
 ```bash
 yeet init --install-docker --ts-auth-key=<key> root@<machine-host>

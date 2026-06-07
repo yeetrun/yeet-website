@@ -48,8 +48,17 @@ the bare init path is fine:
 yeet init root@<machine-host>
 ```
 
-If the catch tsnet node needs first login, `yeet init` prints the Tailscale
-login URL. For unattended setup, pass a Tailscale auth key for the catch node:
+If the catch tsnet node needs first login, `yeet init` prompts for a Tailscale
+OAuth client secret so it can enroll catch with a tag such as `tag:catch`. For
+first-time tailnets, create that OAuth client from the Tailscale guide so the
+same secret can also support future `--net=ts` services. For non-interactive
+setup, pass that secret directly:
+
+```bash
+yeet init --install-docker --install-vm-tools --ts-client-secret=<secret> root@<machine-host>
+```
+
+Advanced users can pass a direct Tailscale auth key for the catch node:
 
 ```bash
 yeet init --install-docker --install-vm-tools --ts-auth-key=<key> root@<machine-host>
