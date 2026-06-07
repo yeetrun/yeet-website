@@ -5,6 +5,11 @@ description: Short notes for yeet + catch releases.
 
 ## June 7, 2026
 
+### v0.6.5
+
+- `yeet ssh <vm>` now chooses the VM SSH path from the VM network model: `svc` and `svc,lan` VMs proxy through catch, while LAN-only VMs connect directly to their guest LAN IP.
+- Added `yeet ssh --force-proxy <vm>` and stderr transport notices so VM SSH makes the selected path clear before opening the session.
+
 ### v0.6.4
 
 - Fixed `yeet init` and catch upgrades on hosts whose login shell is not POSIX-compatible, such as fish.
