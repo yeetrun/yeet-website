@@ -52,15 +52,21 @@ yeet docker update <svc...> # pull + recreate containers (restart)
 yeet docker update --outdated # update compose services that have image updates
 ```
 
-## Create an Ubuntu VM
+## Create a VM
 
 For the full VM guide, see [VMs](/docs/payloads/vms).
 
-Use a `vm://` payload when you want a long-lived Ubuntu guest managed by yeet:
+Use a `vm://` payload when you want a long-lived Linux guest managed by yeet:
 
 ```bash
 yeet run <vm> vm://ubuntu/26.04
 yeet ssh <vm>
+```
+
+Official images include Ubuntu and NixOS:
+
+```bash
+yeet run <vm> vm://nixos/26.05
 ```
 
 VM payloads require a Linux catch host with KVM. During `yeet init`, catch
@@ -88,15 +94,17 @@ Image bundles are cached per host:
 ```bash
 yeet vm images
 yeet vm images update
+yeet vm images update vm://nixos/26.05
 yeet vm images prune --dry-run
 yeet vm console <vm>
 ```
 
 `yeet run` downloads the image automatically on the first VM create and waits
 for the guest readiness marker before returning. `yeet vm console <vm>` streams
-the serial console for boot diagnostics. `yeet vm images update` removes old
-unreferenced image versions when it is safe; use `yeet vm images prune
---dry-run` to preview manual cleanup. Remove a VM disk with:
+the serial console for boot diagnostics. `yeet vm images update` refreshes all
+official image families and removes old unreferenced image versions when it is
+safe; pass a specific `vm://` payload to refresh one family. Use `yeet vm
+images prune --dry-run` to preview manual cleanup. Remove a VM disk with:
 
 ```bash
 yeet rm --clean-data <vm>

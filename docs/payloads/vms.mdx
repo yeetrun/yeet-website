@@ -1,10 +1,15 @@
 ---
 title: VMs
-description: Create and manage Firecracker-backed Ubuntu VM services.
+description: Create and manage Firecracker-backed Linux VM services.
 ---
 
-VM payloads create long-lived Ubuntu guests managed by yeet. They are useful
+VM payloads create long-lived Linux guests managed by yeet. They are useful
 when a workload needs a full guest OS or stronger isolation than a container.
+
+Official images:
+
+- `vm://ubuntu/26.04` for Ubuntu 26.04.
+- `vm://nixos/26.05` for NixOS 26.05.
 
 ## Create a VM
 
@@ -12,6 +17,13 @@ when a workload needs a full guest OS or stronger isolation than a container.
 
 ```bash
 yeet run <vm> vm://ubuntu/26.04
+yeet ssh <vm>
+```
+
+To create a NixOS VM instead, use the NixOS payload:
+
+```bash
+yeet run <vm> vm://nixos/26.05
 yeet ssh <vm>
 ```
 
@@ -104,15 +116,18 @@ VM image bundles are cached per catch host.
 ```bash
 yeet vm images
 yeet vm images update
+yeet vm images update vm://nixos/26.05
 yeet vm images prune --dry-run
 ```
 
-A missing image is downloaded automatically on the first VM create. Refreshing
-the cache updates the image used for future VM creates, does not rewrite
-existing VM disks, and automatically removes old unreferenced image versions
-when it is safe. When creating a VM with a stale cached image, interactive runs
-prompt by default; non-interactive runs require `--image-policy=update` or
-`--image-policy=cached`.
+A missing image is downloaded automatically on the first VM create. `yeet vm
+images update` refreshes every official image family; pass a specific payload,
+such as `vm://ubuntu/26.04` or `vm://nixos/26.05`, to refresh only that family.
+Refreshing the cache updates the image used for future VM creates, does not
+rewrite existing VM disks, and automatically removes old unreferenced image
+versions when it is safe. When creating a VM with a stale cached image,
+interactive runs prompt by default; non-interactive runs require
+`--image-policy=update` or `--image-policy=cached`.
 
 `yeet vm images prune --dry-run` shows what cleanup would remove. Run
 `yeet vm images prune` to review the same plan and confirm removal, or add
@@ -143,6 +158,11 @@ Imported image names are catch-host global. Re-importing the same name updates
 the ref for new VMs; existing VMs keep the exact imported content version they
 were created with.
 
+For non-Ubuntu custom images, include a manifest that declares fields such as
+`default_user`, `guest_system_init`, and `metadata_driver`. NixOS bundles should
+use `metadata_driver: "nixos"` so yeet writes data under `/etc/yeet-vm` and lets
+the guest's NixOS module own system configuration.
+
 ## Boot and readiness
 
 When `yeet run` starts a VM, it waits for the guest to report SSH readiness and
@@ -162,25 +182,33 @@ entries.
 Before opening a VM SSH session, yeet prints the selected path to stderr, such
 as proxying through the catch host or connecting directly to the guest LAN IP.
 
-The default `ubuntu` user has passwordless sudo. Metadata injection also writes
-yeet-managed `.profile` and `.bashrc` blocks for that user, including
-`~/.local/bin` on `PATH`, `XDG_RUNTIME_DIR` when systemd creates it, and
-color-friendly Ubuntu shell behavior. User content outside the managed blocks is
-preserved.
+Ubuntu VMs default to the `ubuntu` user. NixOS VMs default to the `nixos`
+user. Both have passwordless sudo in the official images.
+
+Ubuntu metadata injection writes yeet-managed `.profile` and `.bashrc` blocks
+for the default user, including `~/.local/bin` on `PATH`, `XDG_RUNTIME_DIR`
+when systemd creates it, and color-friendly Ubuntu shell behavior. User content
+outside the managed blocks is preserved.
+
+NixOS metadata injection is data-only: yeet writes host name, authorized keys,
+and network files under `/etc/yeet-vm`, and the NixOS module in the image owns
+the systemd, user, sudo, SSH, and networking configuration. Use normal NixOS
+configuration and `nixos-rebuild` for guest changes.
 
 ## Kernel and init
 
-The fast Ubuntu VM image uses a yeet-managed Firecracker kernel and init shim.
-Guest apt upgrades do not manage the boot kernel, bootloader, initrd, or init
-shim. Publish a new yeet VM image bundle to update that boot path.
+Official VM images use a yeet-managed Firecracker kernel and init shim. Guest
+package upgrades do not manage the boot kernel, bootloader, initrd, or init
+shim. Updating that boot path comes from a newer yeet VM image bundle.
 
-The official image includes built-in TUN, IPv6, nftables, conntrack, conntrack
-marks, and NAT/masquerade support, plus `iptables` and `nftables` userspace
-tools, so guest-installed router and VPN services can manage their own firewall
-and routing state. Tailscale is not preinstalled.
+The official images include built-in TUN, IPv6, nftables, conntrack, conntrack
+marks, and NAT/masquerade support, plus firewall userspace tools, so
+guest-installed router and VPN services can manage their own firewall and
+routing state. Tailscale is not preinstalled.
 
-The fast VM image does not support snap packages. Use container payloads for
-workloads that need snap-like packaging behavior.
+The fast Ubuntu VM image does not support snap packages. Use container payloads
+for workloads that need snap-like packaging behavior. NixOS VMs should be
+customized the Nix way through NixOS modules and `nixos-rebuild`.
 
 ## Cleanup
 

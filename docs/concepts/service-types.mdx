@@ -21,7 +21,7 @@ the compact detection reference. For step-by-step usage, start with
     },
     {
       title: "VMs",
-      description: "Firecracker-backed Ubuntu guests with yeet-managed image bundles.",
+      description: "Firecracker-backed Linux guests with yeet-managed image bundles.",
       href: "/docs/payloads/vms",
     },
     {
@@ -76,8 +76,9 @@ the compact detection reference. For step-by-step usage, start with
 ## VM
 
 - `vm://ubuntu/26.04` creates a long-lived Ubuntu VM service.
+- `vm://nixos/26.05` creates a long-lived NixOS VM service.
 - Requires a Linux catch host with KVM available.
-- Uses the yeet-owned Ubuntu 26.04 image bundle published at
+- Uses yeet-owned VM image bundles published at
   `github.com/yeetrun/yeet-vm-images`.
 - Saved config uses `type = "vm"`.
 - `yeet init` checks the host for KVM, TUN/TAP, and required VM tooling; use

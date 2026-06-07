@@ -152,6 +152,9 @@ yeet ssh yeet-smoke-vm -- uname -a
 yeet rm --clean-data yeet-smoke-vm
 ```
 
+To verify the NixOS image family too, run the same smoke check with
+`vm://nixos/26.05`.
+
 If KVM is missing, use containers, binaries, scripts, and cron jobs on this
 host, and run VM payloads on a KVM-capable machine. See [VMs](/docs/payloads/vms).
 

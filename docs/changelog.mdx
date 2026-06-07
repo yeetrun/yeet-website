@@ -5,6 +5,12 @@ description: Short notes for yeet + catch releases.
 
 ## June 7, 2026
 
+### v0.6.6
+
+- Added `vm://nixos/26.05` as an official Firecracker VM image alongside Ubuntu.
+- `yeet vm images` now lists, updates, and prunes official image families independently, including targeted updates such as `yeet vm images update vm://nixos/26.05`.
+- VM image manifests can declare the guest default user, system init path, and metadata driver so custom images can use the right guest setup model.
+
 ### v0.6.5
 
 - `yeet ssh <vm>` now chooses the VM SSH path from the VM network model: `svc` and `svc,lan` VMs proxy through catch, while LAN-only VMs connect directly to their guest LAN IP.

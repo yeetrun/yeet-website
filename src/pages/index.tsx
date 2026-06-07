@@ -30,9 +30,9 @@ yeet status <svc>`,
   },
   {
     id: "vm",
-    title: "Ubuntu VM",
+    title: "Linux VM",
     description:
-      "Create a Firecracker-backed Ubuntu guest and SSH through yeet.",
+      "Create a Firecracker-backed Ubuntu or NixOS guest and SSH through yeet.",
     code: `yeet run <vm> vm://ubuntu/26.04
 yeet ssh <vm>
 yeet vm console <vm>`,
@@ -91,7 +91,7 @@ export default function Home({ docsNavTree }: HomePageProps) {
                 managing services on remote Linux hosts. It’s optimized for a
                 personal homelab: fast workflows, minimal ceremony, and a tight
                 CLI that ships compose stacks, Dockerfiles, images, binaries,
-                scripts, cron jobs, and Firecracker-backed Ubuntu VMs over your
+                scripts, cron jobs, and Firecracker-backed Linux VMs over your
                 tailnet.
               </P>
               <div className={s.heroActions}>
@@ -127,7 +127,7 @@ yeet init root@<machine-host>
 # deploy a compose stack
 yeet run <svc> ./compose.yml
 
-# create an Ubuntu VM
+# create a VM
 yeet run <vm> vm://ubuntu/26.04
 yeet ssh <vm>`}</code>
               </CodeBlock>

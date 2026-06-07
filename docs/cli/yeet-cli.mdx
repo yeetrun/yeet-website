@@ -55,6 +55,7 @@ Install or update a service based on the payload:
 - `Dockerfile` -> built locally for the remote platform, pushed to the
   internal registry, then installed
 - `vm://ubuntu/26.04` -> Ubuntu VM service on KVM-capable hosts
+- `vm://nixos/26.05` -> NixOS VM service on KVM-capable hosts
 
 Examples:
 
@@ -72,6 +73,7 @@ yeet run vaultwarden ./compose.yml --service-root=/srv/apps/vaultwarden
 yeet run vaultwarden ./compose.yml --service-root=tank/apps/vaultwarden --zfs
 yeet run vaultwarden ./compose.yml --snapshots=off
 yeet run <svc> vm://ubuntu/26.04
+yeet run <svc> vm://nixos/26.05
 yeet run <svc> vm://ubuntu/26.04 --net=lan
 yeet run <svc> ./Dockerfile
 yeet run <svc> ./bin/<svc> -- --app-flag value
@@ -191,10 +193,11 @@ VM disk clones.
 - `--restart=<bool>`: currently unused.
 - `--env-file=<path>`: upload an env file before deploying the payload.
 
-The fast Ubuntu VM image uses a yeet-managed kernel and init shim for
-Firecracker direct boot. Snap packages are not supported in this fast image
-profile. Kernel and init updates are delivered by publishing a new yeet VM image
-bundle and updating the host image cache.
+Official VM images use a yeet-managed kernel and init shim for Firecracker
+direct boot. Kernel and init updates are delivered by publishing a new yeet VM
+image bundle and updating the host image cache. The fast Ubuntu image does not
+support snap packages; NixOS guests should be customized through normal NixOS
+modules and `nixos-rebuild`.
 
 During `yeet init`, catch checks the host for KVM, TUN/TAP, and required VM
 tooling. On Debian/Ubuntu hosts with the required VM devices available,
@@ -549,6 +552,7 @@ yeet vm images
 yeet vm images ls
 yeet vm images --format=json
 yeet vm images update
+yeet vm images update vm://nixos/26.05
 yeet vm images prune --dry-run
 yeet vm images prune
 yeet vm images import <name> <bundle-dir>
@@ -557,11 +561,13 @@ yeet vm images rm <name> --yes
 ```
 
 `yeet vm images` and `yeet vm images ls` show the host file-cache state for
-`vm://ubuntu/26.04`, old cache entries that are still in use or prunable, and
-any imported local image refs. `yeet vm images update` downloads and verifies
-the latest Ubuntu image bundle used for future VM creates, then removes old
-unreferenced cache entries when it is safe. A missing image is downloaded
-automatically on the first VM create. Existing VMs are not rebuilt or modified.
+official VM image families, old cache entries that are still in use or
+prunable, and any imported local image refs. `yeet vm images update` downloads
+and verifies the latest official image bundles used for future VM creates, then
+removes old unreferenced cache entries when it is safe. Pass a specific payload,
+such as `vm://ubuntu/26.04` or `vm://nixos/26.05`, to refresh one image family.
+A missing image is downloaded automatically on the first VM create. Existing VMs
+are not rebuilt or modified.
 
 `yeet vm images prune --dry-run` previews cleanup. `yeet vm images prune` asks
 for confirmation before removing prunable entries; `--yes` skips that prompt.
@@ -571,7 +577,9 @@ for confirmation before removing prunable entries; `--yes` skips that prompt.
 host. If the bundle includes a yeet VM `manifest.json`, yeet preserves its
 guest boot capability metadata. Rootfs-only imports use yeet's managed kernel
 and Firecracker; add `--allow-local-kernel` only when the bundle includes
-`vmlinux`. Remove an imported ref with `yeet vm images rm <name> --yes`.
+`vmlinux`. Non-Ubuntu bundles should include a manifest with the right
+`default_user`, `guest_system_init`, and `metadata_driver`. Remove an imported
+ref with `yeet vm images rm <name> --yes`.
 
 For ZFS-backed VMs, the first create on a pool and image version prepares a
 shared ZFS image base. Later VMs on the same pool clone that base, so normal
