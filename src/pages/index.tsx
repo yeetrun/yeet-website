@@ -65,9 +65,9 @@ export default function Home({ docsNavTree }: HomePageProps) {
                 />
               </div>
               <div className={s.heroNote}>
-                <strong>Read this first:</strong> Yeet is personal
-                infrastructure tooling tuned for a specific homelab. Use it as
-                reference or a starting point, not a general-purpose platform.
+                <strong>Read this first:</strong> Yeet is opinionated homelab
+                tooling. It works best with Linux hosts you control, Tailscale
+                for RPC, systemd, and Docker when deploying container payloads.
               </div>
             </div>
 
