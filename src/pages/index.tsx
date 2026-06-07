@@ -18,8 +18,7 @@ const commonWorkflows = [
     title: "Compose stack",
     description: "Ship a compose file, then pull and redeploy when needed.",
     code: `yeet run <svc> ./compose.yml
-yeet run --pull <svc> \\
-  ./compose.yml
+yeet run --pull <svc> ./compose.yml
 yeet logs -f <svc>`,
   },
   {
@@ -42,8 +41,7 @@ yeet vm console <vm>`,
     id: "binary",
     title: "Binary",
     description: "Build a Linux binary locally and install it as a service.",
-    code: `GOOS=linux GOARCH=amd64 \\
-  go build -o ./bin/<svc>
+    code: `GOOS=linux GOARCH=amd64 go build -o ./bin/<svc>
 yeet run <svc> ./bin/<svc>
 yeet logs -f <svc>`,
   },
