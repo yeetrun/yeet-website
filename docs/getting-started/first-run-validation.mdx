@@ -1,0 +1,168 @@
+---
+title: First-Run Validation
+description: A practical smoke-test playbook for a fresh yeet + catch host.
+---
+
+Use this playbook after `yeet init` on a fresh host. It checks the control
+plane first, then the payload paths that should work on a normal
+Debian/Ubuntu-style server. Optional host capabilities such as KVM, LAN
+macvlan, and ZFS are checked separately.
+
+All examples use disposable service names. If you have more than one catch
+host, set `CATCH_HOST=<catch-host>` or pass `--host=<catch-host>` so every
+command targets the fresh host.
+
+## 1) Confirm catch is reachable
+
+```bash
+yeet list-hosts
+CATCH_HOST=<catch-host> yeet version
+CATCH_HOST=<catch-host> yeet status
+```
+
+If this is your only catch host, the unqualified commands should work too:
+
+```bash
+yeet version
+yeet status
+```
+
+If `yeet status` cannot connect, confirm you completed the Tailscale login URL
+printed by `yeet init`, or rerun init with a catch-node auth key:
+
+```bash
+yeet init --install-docker --ts-auth-key=<key> root@<machine-host>
+```
+
+See [Tailscale](/docs/concepts/tailscale) if the SSH machine host and catch
+host names are confusing.
+
+## 2) Smoke-test Docker image payloads
+
+This validates the most common path: Docker on the host, generated Compose,
+published host ports, service status, logs, and cleanup.
+
+```bash
+yeet run -p 18080:80 yeet-smoke-web nginx:alpine
+yeet status yeet-smoke-web
+yeet info yeet-smoke-web
+yeet logs yeet-smoke-web
+```
+
+From the catch host itself, confirm the published port answers:
+
+```bash
+yeet ssh -- curl -fsS http://127.0.0.1:18080/ >/dev/null
+```
+
+Then remove the disposable service:
+
+```bash
+yeet rm --clean-data yeet-smoke-web
+```
+
+If this fails, start with [Docker errors](/docs/operations/troubleshooting#docker-errors).
+
+## 3) Smoke-test script payloads
+
+This validates host systemd services without involving containers.
+
+```bash
+cat > yeet-smoke-script.sh <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+while true; do
+  date
+  sleep 30
+done
+EOF
+chmod +x yeet-smoke-script.sh
+
+yeet run yeet-smoke-script ./yeet-smoke-script.sh
+yeet status yeet-smoke-script
+yeet logs yeet-smoke-script
+yeet rm --clean-data yeet-smoke-script
+rm yeet-smoke-script.sh
+```
+
+If this fails while Docker payloads work, inspect the unit with:
+
+```bash
+yeet ssh -- systemctl status yeet-smoke-script.service
+```
+
+## 4) Smoke-test cron payloads
+
+Cron payloads are systemd timers. This validates timer creation and one
+scheduled run. It takes about one minute.
+
+```bash
+cat > yeet-smoke-cron.sh <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+date
+EOF
+chmod +x yeet-smoke-cron.sh
+
+yeet cron yeet-smoke-cron ./yeet-smoke-cron.sh "* * * * *"
+yeet status yeet-smoke-cron
+sleep 70
+yeet logs yeet-smoke-cron
+yeet rm --clean-data yeet-smoke-cron
+rm yeet-smoke-cron.sh
+```
+
+## 5) Check VM capability before creating a VM
+
+VM payloads require KVM and TUN/TAP on the catch host. Many VPS providers do
+not expose nested virtualization; that is a host limitation, not a failed yeet
+install.
+
+```bash
+yeet ssh -- sh -lc 'test -e /dev/kvm && echo kvm=yes || echo kvm=no; test -e /dev/net/tun && echo tun=yes || echo tun=no'
+```
+
+If both are available, create a disposable VM:
+
+```bash
+yeet run yeet-smoke-vm vm://ubuntu/26.04
+yeet ssh yeet-smoke-vm -- uname -a
+yeet rm --clean-data yeet-smoke-vm
+```
+
+If KVM is missing, use containers, binaries, scripts, and cron jobs on this
+host, and run VM payloads on a KVM-capable machine. See [VMs](/docs/payloads/vms).
+
+## 6) Check optional host features only when needed
+
+LAN networking depends on the host being attached to a network where macvlan
+and DHCP make sense. A WAN-only VPS usually should skip this check.
+
+```bash
+yeet run yeet-smoke-lan nginx:alpine --net=lan
+yeet ip yeet-smoke-lan
+yeet rm --clean-data yeet-smoke-lan
+```
+
+ZFS-backed service roots require an existing parent dataset. Skip this if you
+do not plan to use ZFS.
+
+```bash
+yeet run yeet-smoke-zfs nginx:alpine --service-root=tank/apps/yeet-smoke-zfs --zfs
+yeet rm --clean-data yeet-smoke-zfs
+```
+
+See [Networking](/docs/concepts/networking) and [ZFS](/docs/concepts/zfs) for
+the full model.
+
+## Cleanup check
+
+After the smoke tests, `yeet status` should not list the disposable services:
+
+```bash
+yeet status
+```
+
+If a service removal fails, rerun the remove command and then inspect
+[Troubleshooting](/docs/operations/troubleshooting) for the relevant payload
+type.

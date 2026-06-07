@@ -5,10 +5,12 @@ description: Common failures and how to fix them.
 
 ## Cannot connect to host
 
-- Verify Tailscale is up on both client and host.
-- Check the target with `yeet list-hosts`.
+- Confirm the catch tsnet node is authenticated and visible with
+  `yeet list-hosts`.
 - Override host: `CATCH_HOST=<host> yeet status`.
 - See [Tailscale](/docs/concepts/tailscale) for tailnet setup details.
+- For a step-by-step fresh-host check, run
+  [First-Run Validation](/docs/getting-started/first-run-validation).
 
 ## `yeet init` needs Tailscale login
 
