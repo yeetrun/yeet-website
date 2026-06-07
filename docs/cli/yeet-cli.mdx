@@ -519,8 +519,9 @@ Notes:
 - `yeet ssh <svc>` resolves the host from `<svc>@<host>`, `--host`,
   `CATCH_HOST`, or `yeet.toml` service entries. For regular services, it drops
   into the service data dir. For VM services, it connects to the guest.
-- Because it connects over Tailscale/tsnet, you can firewall port 22 on
-  public/LAN interfaces and still reach the host via your tailnet.
+- Catch-host SSH and regular service SSH connect over Tailscale/tsnet, so you
+  can firewall port 22 on public/LAN interfaces and still reach the catch host
+  via your tailnet. VM SSH depends on the VM network mode described below.
 - For catch-host SSH and regular services, if catch reports an install user,
   that user is used for SSH; otherwise your SSH defaults apply. For VM services,
   yeet uses the VM-reported user or defaults to `ubuntu` unless you pass an SSH
