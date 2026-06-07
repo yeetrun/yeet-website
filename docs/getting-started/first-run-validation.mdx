@@ -114,15 +114,26 @@ rm yeet-smoke-cron.sh
 
 ## 5) Check VM capability before creating a VM
 
-VM payloads require KVM and TUN/TAP on the catch host. Many VPS providers do
-not expose nested virtualization; that is a host limitation, not a failed yeet
-install.
+VM payloads require x86_64 Linux, KVM, TUN/TAP, and a few host filesystem and
+networking tools. Many VPS providers do not expose nested virtualization; that
+is a host limitation, not a failed yeet install.
 
 ```bash
-yeet ssh -- sh -lc 'test -e /dev/kvm && echo kvm=yes || echo kvm=no; test -e /dev/net/tun && echo tun=yes || echo tun=no'
+yeet ssh -- sh -lc '
+test -e /dev/kvm && echo kvm=yes || echo kvm=no
+test -e /dev/net/tun && echo tun=yes || echo tun=no
+for c in qemu-img zstd e2fsck resize2fs mount umount ip; do
+  command -v "$c" >/dev/null && echo "$c=yes" || echo "$c=no"
+done
+'
 ```
 
-If both are available, create a disposable VM:
+If the VM devices exist but tools are missing on a Debian/Ubuntu host, rerun
+`yeet init` interactively or install the packages listed in
+[Installation](/docs/getting-started/installation#vm-host-requirements).
+
+If KVM and TUN/TAP are available and the required tools are present, create a
+disposable VM:
 
 ```bash
 yeet run yeet-smoke-vm vm://ubuntu/26.04
