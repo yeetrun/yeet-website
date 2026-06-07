@@ -14,7 +14,7 @@ This is an opinionated homelab setup. The install flow assumes:
 ## Host terminology
 
 - **machine host (SSH)**: the host you connect to for
-  `yeet init --install-docker root@<host>`.
+  `yeet init --install-docker root@<machine-host>`.
 - **catch host (Tailscale/tsnet)**: the hostname that `yeet` targets for RPC
   (`CATCH_HOST`, `--host`, `@<host>`). After install, this is the tsnet name
   advertised by catch (default `catch` or `--tsnet-host`). See
@@ -68,14 +68,14 @@ Use `--nightly` to install the nightly build instead of the latest stable
 release.
 
 ```bash
-yeet init --install-docker root@<host>
+yeet init --install-docker root@<machine-host>
 ```
 
 If Docker is already installed, or you only plan to run non-container payloads,
 the bare init path is fine:
 
 ```bash
-yeet init root@<host>
+yeet init root@<machine-host>
 ```
 
 If the catch tsnet node needs first login, `yeet init` prints the Tailscale
@@ -83,13 +83,13 @@ login URL while the remote install runs. For unattended setup, create a
 Tailscale auth key for the catch node and pass it with:
 
 ```bash
-yeet init --install-docker --ts-auth-key=<key> root@<host>
+yeet init --install-docker --ts-auth-key=<key> root@<machine-host>
 ```
 
 Or use the mise task:
 
 ```bash
-mise run init-host -- root@<host>
+mise run init-host -- root@<machine-host>
 ```
 
 Notes:
@@ -100,8 +100,8 @@ Notes:
 - `yeet init` configures Docker's containerd snapshotter during catch install
   so pushed images are visible to the host Docker daemon.
 - If this is your first host, prefer `--install-docker`; the bare
-  `yeet init root@<host>` path is best when Docker is already installed or you
-  only plan to run non-container payloads.
+  `yeet init root@<machine-host>` path is best when Docker is already
+  installed or you only plan to run non-container payloads.
 
 After bootstrap, use [First-Run Validation](/docs/getting-started/first-run-validation)
 to prove the host can run the payload types you care about.
@@ -176,8 +176,8 @@ Example (from the repo root):
 
 ```bash
 GOOS=linux GOARCH=amd64 go build -o catch ./cmd/catch
-scp catch root@<host>:
-ssh root@<host> ./catch install
+scp catch root@<machine-host>:
+ssh root@<machine-host> ./catch install
 ```
 
 ## Catch flags and environment

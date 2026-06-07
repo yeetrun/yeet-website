@@ -40,7 +40,7 @@ export default function Home({ docsNavTree }: HomePageProps) {
           <GridContainer className={s.heroGrid}>
             <div className={s.heroContent}>
               <div className={s.heroBadge}>
-                Homelab-first • Tailscale RPC • Containers + VMs
+                Homelab-first • Tailscale/tsnet RPC • Containers + VMs
               </div>
               <H1 className={s.heroTitle}>Run services fast with yeet.</H1>
               <P className={s.heroSubtitle} weight="regular">
@@ -66,8 +66,9 @@ export default function Home({ docsNavTree }: HomePageProps) {
               </div>
               <div className={s.heroNote}>
                 <strong>Read this first:</strong> Yeet is opinionated homelab
-                tooling. It works best with Linux hosts you control, Tailscale
-                for RPC, systemd, and Docker when deploying container payloads.
+                tooling. It works best with Linux hosts you control,
+                Tailscale/tsnet for RPC, systemd, and Docker when deploying
+                container payloads.
               </div>
             </div>
 
@@ -78,7 +79,7 @@ export default function Home({ docsNavTree }: HomePageProps) {
 curl -fsSL https://yeetrun.com/install.sh | sh
 
 # bootstrap a host
-yeet init --install-docker root@<host>
+yeet init --install-docker root@<machine-host>
 
 # deploy a compose stack
 yeet run <svc> ./compose.yml

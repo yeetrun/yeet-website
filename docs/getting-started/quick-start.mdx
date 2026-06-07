@@ -28,7 +28,7 @@ Use SSH to install the catch service on a remote host. For a fresh
 Debian/Ubuntu-style host, let yeet install Docker too:
 
 ```bash
-yeet init --install-docker root@<host>
+yeet init --install-docker root@<machine-host>
 ```
 
 If you use a non-root user, yeet will invoke sudo on the remote. Add `--nightly`
@@ -38,18 +38,18 @@ If Docker is already installed, or you only plan to run non-container payloads,
 the bare init path is fine:
 
 ```bash
-yeet init root@<host>
+yeet init root@<machine-host>
 ```
 
 If the catch tsnet node needs first login, `yeet init` prints the Tailscale
 login URL. For unattended setup, pass a Tailscale auth key for the catch node:
 
 ```bash
-yeet init --install-docker --ts-auth-key=<key> root@<host>
+yeet init --install-docker --ts-auth-key=<key> root@<machine-host>
 ```
 
-Note: this `<host>` is the **machine host** you SSH into. After install,
-`yeet run <svc>@<host>` uses the **catch host** (Tailscale/tsnet hostname). See
+After install, `yeet run <svc>@<catch-host>` uses the **catch host**
+(Tailscale/tsnet hostname), not the SSH machine host. See
 [Tailscale](/docs/concepts/tailscale).
 
 ## 3) Sanity check

@@ -22,7 +22,7 @@ For unattended setup, create a Tailscale auth key for the catch node and pass it
 to init:
 
 ```bash
-yeet init --install-docker --ts-auth-key=<key> root@<host>
+yeet init --install-docker --ts-auth-key=<key> root@<machine-host>
 ```
 
 If your tailnet ACL only allows tagged catch nodes, make sure the new node is
@@ -37,8 +37,9 @@ required tags.
 ## Docker errors
 
 - Docker compose services require Docker on the host.
-- On Debian/Ubuntu-style hosts, `yeet init --install-docker root@<host>` can
-  install Docker during bootstrap.
+- On Debian/Ubuntu-style hosts,
+  `yeet init --install-docker root@<machine-host>` can install Docker during
+  bootstrap.
 - `yeet init` configures Docker's containerd snapshotter during catch install
   so pushed local images are visible to the host Docker daemon. For manual catch
   installs, confirm `/etc/docker/daemon.json` contains:
