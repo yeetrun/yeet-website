@@ -5,29 +5,39 @@ description: Common failures and how to fix them.
 
 ## Cannot connect to host
 
-- Confirm the catch tsnet node is authenticated. If you have Tailscale
-  installed locally, `yeet list-hosts` can also confirm the node is visible.
+- Confirm the catch tsnet node is authenticated and tagged. If you have
+  Tailscale installed locally, `yeet list-hosts` can also confirm tagged catch
+  nodes are visible.
 - Override host: `CATCH_HOST=<host> yeet status`.
 - See [Tailscale](/docs/concepts/tailscale) for tailnet setup details.
 - For a step-by-step fresh-host check, run
   [First-Run Validation](/docs/getting-started/first-run-validation).
 
-## `yeet init` needs Tailscale login
+## `yeet init` says catch must be tagged
 
-Catch uses an embedded tsnet node for RPC. If the node is not already
-authenticated, `yeet init` prints a Tailscale login URL while the remote install
-runs. Open that URL, approve the node, then rerun `yeet status`.
+Catch uses an embedded tsnet node for RPC. That node must use a tag-based
+Tailscale identity, such as `tag:catch`; user-owned catch nodes are rejected.
 
-For unattended setup, create a Tailscale auth key for the catch node and pass it
-to init:
+First, make sure your tailnet policy allows the catch tag. In Tailscale terms,
+`tagOwners` must allow the actor doing enrollment to assign the catch tag. Your
+existing ACLs or grants can stay in your own style, but they must allow your
+admin device or admin tag to reach the catch tag on TCP port `41548`.
+
+Then rerun init. A plain rerun is valid and will show the Tailscale login URL
+again if enrollment is needed:
+
+```bash
+yeet init root@<machine-host>
+```
+
+For unattended setup, create a preauthorized Tailscale auth key for the catch
+node that assigns the server tags your tailnet policy expects, then rerun init:
 
 ```bash
 yeet init --install-docker --ts-auth-key=<key> root@<machine-host>
 ```
 
-If your tailnet ACL only allows tagged catch nodes, make sure the new node is
-tagged appropriately after enrollment or use an auth key that applies the
-required tags.
+See [Tailscale](/docs/concepts/tailscale) for the policy checklist.
 
 ## Architecture mismatch
 
@@ -151,13 +161,16 @@ Tailscale assigned a suffix such as `catch-1`.
 - Use the assigned catch host with `--host=catch-1` or `CATCH_HOST=catch-1`.
 - Or remove the stale/conflicting Tailscale device and rerun `yeet init`.
 
-## catch joined Tailscale but `yeet status` times out
+## catch joined Tailscale but `yeet status` fails
 
-If you used `--ts-auth-key`, confirm the key assigns any tags required by your
-tailnet ACLs. In tagged-server tailnets, a user-owned catch node may authenticate
-and appear in Tailscale status, but RPC traffic can still be blocked by ACLs.
-Create a preauthorized auth key with the required server tags, or apply the
-tags to the catch device and retry.
+If the error says the catch Tailscale node must be tagged, the host joined as a
+user-owned device. Fix `tagOwners`, tag the catch node, and rerun `yeet init`;
+or use a preauthorized auth key that assigns your catch server tag, such as
+`tag:catch`.
+
+If the node is tagged but traffic still times out, check the tailnet policy.
+Tailscale ACLs or grants must allow your laptop or admin tag to reach the catch
+tag on RPC port 41548.
 
 ## `edit` fails without TTY
 

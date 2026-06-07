@@ -39,9 +39,11 @@ Services can run in `host`, `ts`, `svc`, or `lan` network modes. See
 
 RPC access is gated by Tailscale identity:
 
-- Tagged nodes must share tags to connect.
-- Untagged nodes must match the owner of the catch node (unless the catch node
-  is tagged).
+- Catch must run as a tagged Tailscale node, such as `tag:catch`.
+- Tailnet ACLs or grants decide which users, devices, and tagged nodes can
+  reach catch RPC.
+- Untagged, user-owned catch nodes are rejected; catch is server
+  infrastructure, not an end-user device.
 
 See [Tailscale](/docs/concepts/tailscale) for setup and tailnet behaviors.
 

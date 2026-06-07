@@ -31,14 +31,16 @@ catch node is visible in your tailnet. It is optional for this playbook because
 normal yeet RPC uses embedded tsnet.
 
 If `yeet status` cannot connect, confirm you completed the Tailscale login URL
-printed by `yeet init`, or rerun init with a catch-node auth key:
+printed by `yeet init`, and confirm the catch node is tagged. For unattended
+or repeatable setup, rerun init with a catch-node auth key:
 
 ```bash
 yeet init --install-docker --ts-auth-key=<key> root@<machine-host>
 ```
 
 See [Tailscale](/docs/concepts/tailscale) if the SSH machine host and catch
-host names are confusing.
+host names are confusing, or if the tailnet policy needs `tagOwners`/grant
+changes before catch can use the tag you selected.
 
 ## 2) Smoke-test Docker image payloads
 

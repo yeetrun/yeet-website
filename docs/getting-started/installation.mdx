@@ -112,19 +112,29 @@ yeet init --install-docker --install-vm-tools root@<machine-host>
 ```
 
 If Docker is already installed, or you only plan to run non-container payloads,
-the bare init path is fine:
+the bare init path is fine. If Tailscale enrollment is needed, `yeet init`
+prints the login URL and waits:
 
 ```bash
 yeet init root@<machine-host>
 ```
 
-If the catch tsnet node needs first login, `yeet init` prints the Tailscale
-login URL while the remote install runs. For unattended setup, create a
-Tailscale auth key for the catch node and pass it with:
+Catch uses an embedded Tailscale node for RPC, and that node must be tagged.
+Before first setup, make sure your Tailscale policy allows the catch tag you
+plan to use, such as `tag:catch`. For unattended installs, create a
+preauthorized Tailscale auth key that assigns that catch server tag and pass it
+with:
 
 ```bash
 yeet init --install-docker --install-vm-tools --ts-auth-key=<key> root@<machine-host>
 ```
+
+The key is for the catch host itself. It is not required for interactive
+first-run setup, but the resulting catch node still must be tagged before catch
+will accept RPC. If your tailnet policy separates catch hosts by cluster or
+location, include the tags that policy expects. For example, one group might
+use `tag:catch`, while another uses `tag:other-catch`; admin devices can be
+granted access to either group through Tailscale ACLs or grants.
 
 Or use the mise task:
 
