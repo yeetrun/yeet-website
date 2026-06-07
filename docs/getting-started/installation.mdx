@@ -13,7 +13,8 @@ This is an opinionated homelab setup. The install flow assumes:
 
 ## Host terminology
 
-- **machine host (SSH)**: the host you connect to for `yeet init root@<host>`.
+- **machine host (SSH)**: the host you connect to for
+  `yeet init --install-docker root@<host>`.
 - **catch host (Tailscale/tsnet)**: the hostname that `yeet` targets for RPC
   (`CATCH_HOST`, `--host`, `@<host>`). After install, this is the tsnet name
   advertised by catch (default `catch` or `--tsnet-host`). See
@@ -67,14 +68,14 @@ Use `--nightly` to install the nightly build instead of the latest stable
 release.
 
 ```bash
-yeet init root@<host>
+yeet init --install-docker root@<host>
 ```
 
-On a fresh host without Docker, interactive `yeet init` prompts to install it.
-For non-interactive or scripted setup, pass:
+If Docker is already installed, or you only plan to run non-container payloads,
+the bare init path is fine:
 
 ```bash
-yeet init --install-docker root@<host>
+yeet init root@<host>
 ```
 
 If the catch tsnet node needs first login, `yeet init` prints the Tailscale

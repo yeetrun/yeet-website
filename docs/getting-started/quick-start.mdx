@@ -24,20 +24,21 @@ curl -fsSL https://yeetrun.com/install.sh | sh -s -- --nightly
 
 ## 2) Bootstrap catch on a host
 
-Use SSH to install the catch service on a remote host:
+Use SSH to install the catch service on a remote host. For a fresh
+Debian/Ubuntu-style host, let yeet install Docker too:
 
 ```bash
-yeet init root@<host>
+yeet init --install-docker root@<host>
 ```
 
 If you use a non-root user, yeet will invoke sudo on the remote. Add `--nightly`
 for nightly.
 
-On a fresh host without Docker, interactive `yeet init` prompts to install it.
-For scripted setup, pass `--install-docker`:
+If Docker is already installed, or you only plan to run non-container payloads,
+the bare init path is fine:
 
 ```bash
-yeet init --install-docker root@<host>
+yeet init root@<host>
 ```
 
 If the catch tsnet node needs first login, `yeet init` prints the Tailscale

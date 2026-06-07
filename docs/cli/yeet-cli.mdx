@@ -14,7 +14,7 @@ Yeet uses "host" in two different ways:
 - **catch host (Tailscale/tsnet)**: the hostname that `yeet` targets for RPC.
   This is what `CATCH_HOST`, `--host`, and `@<host>` refer to.
 - **machine host (SSH)**: the SSH target you use with `yeet init` (for
-  installing catch). Example: `yeet init root@<host>`.
+  installing catch). Example: `yeet init --install-docker root@<host>`.
 
 After `yeet init`, catch will advertise a tsnet hostname (default `catch` or
 `--tsnet-host`). That tsnet name is the **catch host** you use for `yeet run`,
@@ -693,7 +693,7 @@ Push a local image into the internal registry.
 Install or update catch on a remote host via SSH.
 
 ```bash
-yeet init root@<host>
+yeet init --install-docker root@<host>
 ```
 
 If omitted, `init` uses the current `CATCH_HOST` value.
@@ -711,10 +711,11 @@ If catch reports an install host, `init` will prefer that host for SSH.
 In interactive terminals, `init` will prompt to accept the SSH host key if
 needed. For non-interactive runs, pre-populate `~/.ssh/known_hosts`.
 
-On hosts without Docker, interactive `init` prompts to install Docker. For
-scripted setup, pass `--install-docker`. During catch install, yeet also
-configures Docker's containerd snapshotter so pushed images are visible to the
-host Docker daemon.
+On hosts without Docker, interactive `init` prompts to install Docker. For a
+fresh Debian/Ubuntu-style host, prefer `--install-docker`; use bare
+`yeet init root@<host>` when Docker is already installed or you only plan to run
+non-container payloads. During catch install, yeet also configures Docker's
+containerd snapshotter so pushed images are visible to the host Docker daemon.
 
 If the catch tsnet node needs first login, `init` prints the Tailscale login URL
 while the remote install runs. For unattended setup, pass a Tailscale auth key
