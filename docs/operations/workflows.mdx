@@ -10,14 +10,21 @@ These are the core workflows used day-to-day. All examples use placeholders.
 For the full container guide, see [Containers](/docs/payloads/containers).
 
 ```bash
-yeet run <svc> ./compose.yml --net=lan
+yeet run <svc> ./compose.yml
 ```
 
-Get the LAN IP:
+Inspect the service:
 
 ```bash
 yeet info <svc>
 yeet ip <svc>
+```
+
+Use `--net=lan` when the service should request a LAN address through macvlan
+and your host network supports it:
+
+```bash
+yeet run <svc> ./compose.yml --net=lan
 ```
 
 After your first run, yeet writes a `yeet.toml` in the project directory. You

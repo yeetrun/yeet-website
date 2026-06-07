@@ -78,10 +78,10 @@ export default function Home({ docsNavTree }: HomePageProps) {
 curl -fsSL https://yeetrun.com/install.sh | sh
 
 # bootstrap a host
-yeet init root@<host>
+yeet init --install-docker root@<host>
 
 # deploy a compose stack
-yeet run <svc> ./compose.yml --net=svc,ts
+yeet run <svc> ./compose.yml
 
 # create an Ubuntu VM
 yeet run <vm> vm://ubuntu/26.04
@@ -107,7 +107,7 @@ yeet ssh <vm>`}</code>
               </P>
               <pre className={s.deployCode}>
                 <code>{`yeet run --web
-yeet run <svc> ./compose.yml --net=svc,ts`}</code>
+yeet run <svc> ./compose.yml`}</code>
               </pre>
             </div>
             <figure className={s.webRunShotFrame}>

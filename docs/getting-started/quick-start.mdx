@@ -68,11 +68,18 @@ VM capability, and optional LAN/ZFS support, see
 Docker Compose (most common):
 
 ```bash
-yeet run <svc> ./compose.yml --net=lan
+yeet run <svc> ./compose.yml
 ```
 
 See [Containers](/docs/payloads/containers) for Compose, Dockerfile, image,
 Python, and TypeScript payloads.
+
+If the service should request a LAN address through macvlan and your host
+network supports it, add `--net=lan`:
+
+```bash
+yeet run <svc> ./compose.yml --net=lan
+```
 
 To place a new service under a custom root on the catch host, pass an absolute
 host path or, with `--zfs`, a dataset name:
@@ -94,7 +101,7 @@ ZFS-backed services also get yeet-managed snapshots before redeploys, Docker
 image updates, and ZFS-backed service-root migrations. The default policy is
 enabled, required, keeps 5 snapshots, and prunes snapshots older than 7 days.
 
-Find the service IP on your LAN:
+Inspect the service:
 
 ```bash
 yeet info <svc>
