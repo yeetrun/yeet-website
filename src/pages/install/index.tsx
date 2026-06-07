@@ -87,19 +87,22 @@ export default function InstallPage({ docsNavTree }: InstallPageProps) {
             <section className={s.card}>
               <H2>Bootstrap a host</H2>
               <P>
-                Install catch on a remote Linux host via SSH. On fresh
-                Debian/Ubuntu-style hosts, let yeet install Docker too.
+                Install catch on a remote Linux host via SSH. The normal path is
+                interactive, so yeet can ask before installing missing
+                Debian/Ubuntu packages.
               </P>
               <CodeBlock>
-                <code>{`yeet init --install-docker root@<machine-host>`}</code>
+                <code>{`yeet init root@<machine-host>`}</code>
               </CodeBlock>
-              <P className={s.note}>KVM-capable VM host:</P>
+              <P className={s.note}>
+                KVM-capable VM host, unattended package install:
+              </P>
               <CodeBlock>
-                <code>{`yeet init --install-docker --install-vm-tools root@<machine-host>`}</code>
+                <code>{`yeet init --install-vm-tools root@<machine-host>`}</code>
               </CodeBlock>
               <P className={s.note}>Unattended setup:</P>
               <CodeBlock>
-                <code>{`yeet init --install-docker --install-vm-tools --ts-auth-key=<key> root@<machine-host>`}</code>
+                <code>{`yeet init --install-docker --install-vm-tools --ts-client-secret=<secret> root@<machine-host>`}</code>
               </CodeBlock>
               <P className={s.note}>
                 The SSH target is the <strong>machine host</strong>. After

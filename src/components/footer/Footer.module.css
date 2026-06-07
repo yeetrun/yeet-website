@@ -38,6 +38,15 @@
     }
     & .copyright {
       color: var(--gray-5);
+      & a {
+        color: var(--gray-5);
+        text-decoration: none;
+        font-weight: 500;
+        &:hover {
+          color: var(--gray-9);
+          text-decoration: underline;
+        }
+      }
     }
   }
 }

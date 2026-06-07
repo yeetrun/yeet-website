@@ -8,9 +8,15 @@ interface FooterProps {
   className?: string;
   links?: SimpleLink[];
   copyright: string;
+  copyrightHref?: string;
 }
 
-export default function Footer({ className, links, copyright }: FooterProps) {
+export default function Footer({
+  className,
+  links,
+  copyright,
+  copyrightHref,
+}: FooterProps) {
   return (
     <footer className={classNames(s.footer, className)}>
       <GridContainer
@@ -28,7 +34,17 @@ export default function Footer({ className, links, copyright }: FooterProps) {
             })}
           </ul>
         )}
-        <P className={s.copyright}>{copyright}</P>
+        <P className={s.copyright}>
+          {copyrightHref ? (
+            <Link
+              text={copyright}
+              href={copyrightHref}
+              showExternalIcon={false}
+            />
+          ) : (
+            copyright
+          )}
+        </P>
       </GridContainer>
     </footer>
   );

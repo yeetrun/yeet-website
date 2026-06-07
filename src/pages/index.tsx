@@ -9,7 +9,45 @@ import { NavTreeNode } from "@/components/nav-tree";
 import CodeBlock from "@/components/codeblock";
 import Link from "next/link";
 import Image from "next/image";
+import { useState } from "react";
 import s from "./Home.module.css";
+
+const commonWorkflows = [
+  {
+    id: "compose",
+    title: "Compose stack",
+    description: "Ship a compose file, then pull and redeploy when needed.",
+    code: `yeet run <svc> ./compose.yml
+yeet run --pull <svc> \\
+  ./compose.yml
+yeet logs -f <svc>`,
+  },
+  {
+    id: "dockerfile",
+    title: "Dockerfile",
+    description: "Build a local Dockerfile on the catch host and run it.",
+    code: `yeet run <svc> ./Dockerfile
+yeet status <svc>`,
+  },
+  {
+    id: "vm",
+    title: "Ubuntu VM",
+    description:
+      "Create a Firecracker-backed Ubuntu guest and SSH through yeet.",
+    code: `yeet run <vm> vm://ubuntu/26.04
+yeet ssh <vm>
+yeet vm console <vm>`,
+  },
+  {
+    id: "binary",
+    title: "Binary",
+    description: "Build a Linux binary locally and install it as a service.",
+    code: `GOOS=linux GOARCH=amd64 \\
+  go build -o ./bin/<svc>
+yeet run <svc> ./bin/<svc>
+yeet logs -f <svc>`,
+  },
+];
 
 export async function getStaticProps() {
   return {
@@ -24,6 +62,13 @@ interface HomePageProps {
 }
 
 export default function Home({ docsNavTree }: HomePageProps) {
+  const [activeWorkflowId, setActiveWorkflowId] = useState(
+    commonWorkflows[0].id,
+  );
+  const activeWorkflow =
+    commonWorkflows.find((workflow) => workflow.id === activeWorkflowId) ??
+    commonWorkflows[0];
+
   return (
     <NavFooterLayout
       docsNavTree={docsNavTree}
@@ -79,7 +124,7 @@ export default function Home({ docsNavTree }: HomePageProps) {
 curl -fsSL https://yeetrun.com/install.sh | sh
 
 # bootstrap a host
-yeet init --install-docker root@<machine-host>
+yeet init root@<machine-host>
 
 # deploy a compose stack
 yeet run <svc> ./compose.yml
@@ -155,33 +200,48 @@ yeet run <svc> ./compose.yml`}</code>
             <H2>Common workflows</H2>
             <P>Run what you already have. Yeet detects the payload type.</P>
           </div>
-          <div className={s.workflowGrid}>
-            <div className={s.workflowCard}>
-              <h3>Compose stack</h3>
-              <pre>
-                <code>{`yeet run <svc> ./compose.yml
-yeet run --pull <svc> ./compose.yml`}</code>
-              </pre>
+          <div className={s.workflowShell}>
+            <div
+              className={s.workflowList}
+              role="tablist"
+              aria-label="Common workflow examples"
+            >
+              {commonWorkflows.map((workflow) => {
+                const isActive = workflow.id === activeWorkflow.id;
+                return (
+                  <button
+                    key={workflow.id}
+                    id={`workflow-tab-${workflow.id}`}
+                    className={`${s.workflowTab} ${
+                      isActive ? s.workflowTabActive : ""
+                    }`}
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    aria-controls="workflow-panel"
+                    onClick={() => setActiveWorkflowId(workflow.id)}
+                  >
+                    <span className={s.workflowTitle}>{workflow.title}</span>
+                    <span className={s.workflowDescription}>
+                      {workflow.description}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
-            <div className={s.workflowCard}>
-              <h3>Dockerfile</h3>
-              <pre>
-                <code>{`yeet run <svc> ./Dockerfile`}</code>
-              </pre>
-            </div>
-            <div className={s.workflowCard}>
-              <h3>Ubuntu VM</h3>
-              <pre>
-                <code>{`yeet run <vm> vm://ubuntu/26.04
-yeet ssh <vm>`}</code>
-              </pre>
-            </div>
-            <div className={s.workflowCard}>
-              <h3>Binary</h3>
-              <pre>
-                <code>{`GOOS=linux GOARCH=amd64 go build -o ./bin/<svc>
-yeet run <svc> ./bin/<svc>`}</code>
-              </pre>
+            <div
+              className={s.workflowPanel}
+              id="workflow-panel"
+              role="tabpanel"
+              aria-labelledby={`workflow-tab-${activeWorkflow.id}`}
+            >
+              <div className={s.workflowPanelHeader}>
+                <h3>{activeWorkflow.title}</h3>
+                <Link href="/docs/operations/workflows">Workflow docs</Link>
+              </div>
+              <CodeBlock>
+                <code>{activeWorkflow.code}</code>
+              </CodeBlock>
             </div>
           </div>
         </SectionWrapper>
@@ -208,7 +268,9 @@ yeet run <svc> ./bin/<svc>`}</code>
             </Link>
             <Link className={s.docsCard} href="/docs/payloads">
               <h3>Payloads</h3>
-              <p>Dive into containers, VMs, binaries, scripts, and cron jobs.</p>
+              <p>
+                Dive into containers, VMs, binaries, scripts, and cron jobs.
+              </p>
             </Link>
             <Link className={s.docsCard} href="/docs/operations/workflows">
               <h3>Workflows</h3>

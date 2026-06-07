@@ -46,7 +46,8 @@ export default function NavFooterLayout(props: NavFooterLayoutProps) {
             href: "/docs/getting-started/quick-start",
           },
         ]}
-        copyright={`© ${currentYear} yeet`}
+        copyright={`© ${currentYear} AUTHORS`}
+        copyrightHref="https://github.com/yeetrun/yeet/blob/main/AUTHORS"
       />
     </RootLayout>
   );
