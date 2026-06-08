@@ -5,9 +5,13 @@ description: Short notes for yeet + catch releases.
 
 ## June 8, 2026
 
+### v0.6.10
+
+- Fixed SSH access for fresh `vm://nixos/26.05` VMs by writing per-user OpenSSH authorized-key metadata that NixOS consumes through normal key-file configuration.
+
 ### v0.6.9
 
-- Fixed SSH access for fresh `vm://nixos/26.05` VMs by aligning yeet metadata with NixOS' OpenSSH key lookup model.
+- Improved `vm://nixos/26.05` SSH metadata permissions so yeet-written key files are readable by the guest OpenSSH configuration.
 
 ### v0.6.8
 
