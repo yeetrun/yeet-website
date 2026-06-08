@@ -147,6 +147,7 @@ If KVM and TUN/TAP are available and the required tools are present, create a
 disposable VM:
 
 ```bash
+yeet vm images catalog
 yeet run yeet-smoke-vm vm://ubuntu/26.04
 yeet ssh yeet-smoke-vm -- uname -a
 yeet rm --clean-data yeet-smoke-vm

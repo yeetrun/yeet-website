@@ -545,9 +545,11 @@ Notes:
 
 ### vm images
 
-Show, refresh, import, or prune the VM image cache on the selected catch host:
+Show available VM images and manage the VM image cache on the selected catch
+host:
 
 ```bash
+yeet vm images catalog
 yeet vm images
 yeet vm images ls
 yeet vm images --format=json
@@ -559,6 +561,11 @@ yeet vm images import <name> <bundle-dir>
 yeet vm images import <name> <bundle-dir> --allow-local-kernel
 yeet vm images rm <name> --yes
 ```
+
+`yeet vm images catalog` lists the runnable VM payload names supported by the
+selected catch host before any image is cached. It includes official image
+families such as `vm://ubuntu/26.04` and `vm://nixos/26.05`, plus imported
+local image refs.
 
 `yeet vm images` and `yeet vm images ls` show the host file-cache state for
 official VM image families, old cache entries that are still in use or
