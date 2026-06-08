@@ -5,6 +5,11 @@ description: Short notes for yeet + catch releases.
 
 ## June 8, 2026
 
+### v0.6.11
+
+- VM image downloads now retry transient GitHub fetch failures and identify yeet as the downloader, making new image rollouts more reliable.
+- VM SSH host-key repair now clears stale backup files before removing regenerated guest keys from yeet's known-hosts file.
+
 ### v0.6.10
 
 - Fixed SSH access for fresh `vm://nixos/26.05` VMs by writing per-user OpenSSH authorized-key metadata that NixOS consumes through normal key-file configuration.
