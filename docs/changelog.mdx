@@ -3,6 +3,12 @@ title: Changelog
 description: Short notes for yeet + catch releases.
 ---
 
+## June 9, 2026
+
+### v0.6.15
+
+- Moved VM resource and networking changes to `yeet vm set`, keeping `yeet service set` focused on service roots, published ports, and snapshots.
+
 ## June 8, 2026
 
 ### v0.6.14
@@ -135,7 +141,7 @@ description: Short notes for yeet + catch releases.
 
 - Added custom VM image imports with `yeet vm images import`, so you can run your own rootfs bundles as `vm://<name>`.
 - Improved VM guest shell defaults, including color-friendly bash setup and Ghostty terminal support.
-- Added VM resource updates for CPU, memory, disk growth, and networking through `yeet service set`.
+- Added VM resource updates for CPU, memory, disk growth, and networking.
 
 ### v0.5.1
 

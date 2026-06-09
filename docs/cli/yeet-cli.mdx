@@ -357,8 +357,6 @@ yeet service set vaultwarden --publish-reset
 yeet service set vaultwarden --snapshots=off
 yeet service set vaultwarden --snapshots=on --snapshot-keep-last=3 --snapshot-max-age=72h
 yeet service set vaultwarden --snapshots=inherit
-yeet service set devbox --cpus=6 --memory=6g --disk=128g
-yeet service set devbox --net=lan
 ```
 
 Without `--zfs`, `--service-root` is an absolute filesystem path on the catch
@@ -392,12 +390,6 @@ service. If the current list contains `80:80`, then
 Keep existing mappings by including them in the command, or pass
 `--publish-reset` to replace or clear the list intentionally.
 
-For VM services, `yeet service set` can change CPU count, memory, grow the root
-disk, and replace VM networking while the VM is stopped. Disk changes are
-grow-only and update the raw disk file or ZFS ZVOL before growing the guest
-ext4 filesystem. Network changes use the same `--net` and `--macvlan-*` flags
-as `yeet run vm://...`.
-
 ### service sync
 
 Pull catch-owned service settings into an existing local `yeet.toml` entry.
@@ -416,6 +408,22 @@ machine. The catch DB is the source of truth for live state; `yeet.toml` is the
 TOML replay recipe. Sync updates matching existing entries only and does not
 import every service from catch. The file passed with `--config` must already
 exist and contain the service entries you want to update.
+
+### vm set
+
+Change VM resources or networking while the VM is stopped.
+
+```bash
+yeet stop devbox
+yeet vm set devbox --cpus=6 --memory=6g --disk=128g
+yeet vm set devbox --net=lan
+yeet start devbox
+```
+
+CPU and memory changes update the Firecracker config used on the next start.
+Disk changes are grow-only and update the raw disk file or ZFS ZVOL before
+growing the guest ext4 filesystem. Network changes use the same `--net` and
+`--macvlan-*` flags as `yeet run vm://...`.
 
 ### snapshots defaults
 

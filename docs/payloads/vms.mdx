@@ -60,9 +60,9 @@ Stop a VM before changing CPU, memory, disk size, or networking:
 
 ```bash
 yeet stop <vm>
-yeet service set <vm> --cpus=6 --memory=6g
-yeet service set <vm> --disk=128g
-yeet service set <vm> --net=lan
+yeet vm set <vm> --cpus=6 --memory=6g
+yeet vm set <vm> --disk=128g
+yeet vm set <vm> --net=lan
 yeet start <vm>
 ```
 
@@ -106,7 +106,7 @@ Use ZFS-backed VMs when you want fast repeated VM creates on the same pool or
 storage-level VM disk management. Raw VM disks still work without ZFS.
 
 Growing a ZFS-backed VM disk grows the VM ZVOL and then the guest ext4
-filesystem. `yeet service set <vm> --disk=<size>` still requires the VM to be
+filesystem. `yeet vm set <vm> --disk=<size>` still requires the VM to be
 stopped and still refuses shrink requests.
 
 ## Image cache
