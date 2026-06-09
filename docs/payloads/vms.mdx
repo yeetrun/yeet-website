@@ -188,6 +188,18 @@ entries.
 Before opening a VM SSH session, yeet prints the selected path to stderr, such
 as proxying through the catch host or connecting directly to the guest LAN IP.
 
+## Copy Files
+
+Use `yeet copy` with a VM endpoint to sync files into or out of the guest:
+
+```bash
+yeet copy ./app devbox:~/app
+yeet copy devbox:/var/log/cloud-init.log ./logs/
+yeet copy --force-proxy ./configs/ devbox:~/configs/
+```
+
+VM copy uses rsync over the same direct or proxied SSH path as `yeet ssh`.
+
 Ubuntu VMs default to the `ubuntu` user. NixOS VMs default to the `nixos`
 user. Both have passwordless sudo in the official images.
 

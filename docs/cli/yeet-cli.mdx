@@ -475,10 +475,11 @@ Open the current config for editing in `$EDITOR` (defaults to vim).
 
 ### copy
 
-Copy files between local paths and a service data dir (rsync-like).
-Exactly one side must be remote using `svc:` or `svc:path` (paths are relative
-to the service `data/` directory). By default, `yeet copy` behaves like
-`rsync -avz` (archive + verbose + compress). Alias: `cp`.
+Copy files between local paths and a remote endpoint. For regular services,
+`svc:path` targets the service `data/` directory. For VM services, `vm:path`
+targets the VM guest filesystem and uses rsync over the same transport as
+`yeet ssh`. By default, `yeet copy` behaves like `rsync -avz` (archive +
+verbose + compress). Alias: `cp`.
 
 Examples:
 
@@ -494,12 +495,28 @@ yeet copy ./configs/ svc:config/
 
 # Remote -> local
 yeet copy svc:config ./config
+
+# Local -> VM guest
+yeet copy ./app devbox:~/app
+yeet copy ./nginx.conf devbox:/etc/nginx/nginx.conf
+
+# VM guest -> local
+yeet copy devbox:/var/log/cloud-init.log ./logs/
+
+# Force the catch proxy path for VM copy
+yeet copy --force-proxy ./configs/ devbox:~/configs/
 ```
 
 Notes:
 
 - `-a` is archive mode (includes recursion and metadata preservation).
 - `-z` compresses the transfer stream.
+- VM copy requires `rsync` locally and in the guest. Official yeet VM images
+  include it; custom images should install it.
+- `--force-proxy` applies only to VM endpoints and mirrors
+  `yeet ssh --force-proxy`.
+- VM endpoints allow absolute guest paths. Regular service endpoints remain
+  relative to service `data/`.
 - Output mirrors rsync's file list and summary format.
 - File ownership (uid/gid) is not preserved.
 - A trailing slash on the source copies directory contents (rsync-style).
