@@ -5,6 +5,11 @@ description: Short notes for yeet + catch releases.
 
 ## June 9, 2026
 
+### v0.6.16
+
+- `yeet copy` now syncs VM endpoints into the guest filesystem with rsync over the same direct or proxied SSH path as `yeet ssh`.
+- Official Ubuntu and NixOS VM images include rsync for VM guest file copy.
+
 ### v0.6.15
 
 - Moved VM resource and networking changes to `yeet vm set`, keeping `yeet service set` focused on service roots, published ports, and snapshots.
