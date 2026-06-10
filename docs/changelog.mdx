@@ -3,6 +3,14 @@ title: Changelog
 description: Short notes for yeet + catch releases.
 ---
 
+## June 10, 2026
+
+### v0.7.0
+
+- Added a release upgrade workflow with `yeet upgrade check`, `yeet upgrade`, forced reinstalls, specific-version targets, passive update notices, and checksum-verified GitHub release assets for local yeet and catch hosts.
+- Expanded VM image management with official Ubuntu and NixOS catalog images, independent image listing, updating, importing, and pruning, plus preserved guest metadata such as default users, system init paths, and metadata drivers.
+- Improved day-to-day VM operations: `yeet ssh` and `yeet copy` choose the right direct or proxied guest path, `yeet vm set` owns stopped-VM resource and network changes, and invalid VM network or LAN-only macvlan settings now fail before provisioning work.
+
 ## June 9, 2026
 
 ### v0.6.16
