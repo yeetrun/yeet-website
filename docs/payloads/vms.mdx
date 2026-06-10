@@ -84,8 +84,8 @@ or uses an existing Linux bridge for that VLAN if the host already has one.
 
 VM payloads require a Linux catch host with KVM available. During `yeet init`,
 catch checks for KVM, TUN/TAP, and required VM tooling such as `qemu-img`,
-`zstd`, `e2fsck`, `resize2fs`, `mount`, `umount`, and `ip`. On Debian/Ubuntu
-hosts with the required VM devices available, use
+`zstd`, `e2fsck`, `resize2fs`, `mount`, `umount`, `ip`, and `tic`. On
+Debian/Ubuntu hosts with the required VM devices available, use
 `yeet init --install-vm-tools root@<machine-host>` to install missing VM
 packages.
 

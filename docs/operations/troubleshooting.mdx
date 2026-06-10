@@ -147,7 +147,7 @@ Check host capability:
 ```bash
 test -e /dev/kvm && echo kvm=yes || echo kvm=no
 test -e /dev/net/tun && echo tun=yes || echo tun=no
-for c in qemu-img zstd e2fsck resize2fs mount umount ip; do
+for c in qemu-img zstd e2fsck resize2fs mount umount ip tic; do
   command -v "$c" >/dev/null && echo "$c=yes" || echo "$c=no"
 done
 ```
