@@ -610,8 +610,10 @@ host. If the bundle includes a yeet VM `manifest.json`, yeet preserves its
 guest boot capability metadata. Rootfs-only imports use yeet's managed kernel
 and Firecracker; add `--allow-local-kernel` only when the bundle includes
 `vmlinux`. Non-Ubuntu bundles should include a manifest with the right
-`default_user`, `guest_system_init`, and `metadata_driver`. Remove an imported
-ref with `yeet vm images rm <name> --yes`.
+`default_user`, `guest_system_init`, and `metadata_driver`. Custom image rootfs
+contents should include the guest tools you expect to use, such as SSH, `rsync`
+for `yeet copy`, and terminal definitions for operator `TERM` values such as
+`xterm-ghostty`. Remove an imported ref with `yeet vm images rm <name> --yes`.
 
 For ZFS-backed VMs, the first create on a pool and image version prepares a
 shared ZFS image base. Later VMs on the same pool clone that base, so normal

@@ -11,6 +11,10 @@ Official images:
 - `vm://ubuntu/26.04` for Ubuntu 26.04.
 - `vm://nixos/26.05` for NixOS 26.05.
 
+Official images include the guest pieces yeet expects for normal workflows:
+SSH, `rsync` for `yeet copy`, yeet metadata integration, and terminal support
+for `TERM=xterm-ghostty`.
+
 ## Create a VM
 
 `svc` networking is the default for VM payloads:
@@ -84,8 +88,8 @@ or uses an existing Linux bridge for that VLAN if the host already has one.
 
 VM payloads require a Linux catch host with KVM available. During `yeet init`,
 catch checks for KVM, TUN/TAP, and required VM tooling such as `qemu-img`,
-`zstd`, `e2fsck`, `resize2fs`, `mount`, `umount`, `ip`, and `tic`. On
-Debian/Ubuntu hosts with the required VM devices available, use
+`zstd`, `e2fsck`, `resize2fs`, `mount`, `umount`, and `ip`. On Debian/Ubuntu
+hosts with the required VM devices available, use
 `yeet init --install-vm-tools root@<machine-host>` to install missing VM
 packages.
 
@@ -168,6 +172,12 @@ For non-Ubuntu custom images, include a manifest that declares fields such as
 `default_user`, `guest_system_init`, and `metadata_driver`. NixOS bundles should
 use `metadata_driver: "nixos"` so yeet writes data under `/etc/yeet-vm` and lets
 the guest's NixOS module own system configuration.
+
+Custom images own their guest userspace. Install and configure the pieces you
+want yeet workflows to use: an SSH server that accepts yeet-managed
+`authorized_keys`, `rsync` for `yeet copy`, and terminal definitions such as
+`xterm-ghostty` when your operators use Ghostty or another terminal with a
+specific `TERM` value.
 
 ## Boot and readiness
 

@@ -71,10 +71,10 @@ yeet run <vm> vm://nixos/26.05
 
 VM payloads require a Linux catch host with KVM. During `yeet init`, catch
 checks the host for KVM, TUN/TAP, and the required VM tooling (`qemu-img`,
-`zstd`, `e2fsck`, `resize2fs`, `mount`, `umount`, `ip`, and `tic`). On
-Debian/Ubuntu hosts with the required VM devices available, pass
-`--install-vm-tools` to install missing VM packages with `apt-get`. ZFS is
-optional; use `--zfs` only when you want ZFS-backed VM disks.
+`zstd`, `e2fsck`, `resize2fs`, `mount`, `umount`, and `ip`). On Debian/Ubuntu
+hosts with the required VM devices available, pass `--install-vm-tools` to
+install missing VM packages with `apt-get`. ZFS is optional; use `--zfs` only
+when you want ZFS-backed VM disks.
 
 Use `lan` when the VM should get a LAN address through DHCP:
 

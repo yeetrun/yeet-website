@@ -208,14 +208,13 @@ catch host with:
 - x86_64/amd64 architecture.
 - KVM available at `/dev/kvm`.
 - TUN/TAP available at `/dev/net/tun`.
-- Required tools: `qemu-img`, `zstd`, `e2fsck`, `resize2fs`, `mount`, `umount`,
-  `ip`, and `tic`.
+- VM disk, image, and network tools: `qemu-img`, `zstd`, `e2fsck`, `resize2fs`,
+  `mount`, `umount`, and `ip`.
 
 During `yeet init`, catch checks those requirements and prints warnings for
 missing host capabilities. On Debian/Ubuntu hosts with the required VM devices
 available, pass `--install-vm-tools` to install the missing VM packages:
-`qemu-utils`, `zstd`, `e2fsprogs`, `util-linux`, `iproute2`, and
-`ncurses-bin`.
+`qemu-utils`, `zstd`, `e2fsprogs`, `util-linux`, and `iproute2`.
 
 ZFS is optional. Install and configure ZFS only if you want dataset-backed
 service roots, ZFS snapshots, or VMs with `--zfs`; raw VM disks work without
