@@ -171,7 +171,9 @@ were created with.
 For non-Ubuntu custom images, include a manifest that declares fields such as
 `default_user`, `guest_system_init`, and `metadata_driver`. NixOS bundles should
 use `metadata_driver: "nixos"` so yeet writes data under `/etc/yeet-vm` and lets
-the guest's NixOS module own system configuration.
+the guest's NixOS module own system configuration. The default user must be a
+valid Linux user name, `guest_system_init` must be an absolute path without
+spaces or `..`, and `metadata_driver` must be `ubuntu` or `nixos`.
 
 Custom images own their guest userspace. Install and configure the pieces you
 want yeet workflows to use: an SSH server that accepts yeet-managed
