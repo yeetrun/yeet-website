@@ -8,6 +8,10 @@ commits the updated submodule pointer.
 
 - Update docs when user-facing CLI commands, flags, workflows, or behavior
   change.
+- Keep screenshots and referenced images current when UI, homepage, or
+  workflow documentation changes. If a page references an existing screenshot,
+  refresh that asset in the same work session or document why it is still
+  accurate.
 - Keep changelog entries date-first, release-version second, and limited to
   1-3 user-facing bullets.
 - Use plain user-facing language. Avoid internal refactor details in release
