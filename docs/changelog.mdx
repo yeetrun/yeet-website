@@ -5,6 +5,12 @@ description: Short notes for yeet + catch releases.
 
 ## June 12, 2026
 
+### v0.7.2
+
+- `yeet run --web` is now a workload-first new-service builder for Compose apps, VM catalog images, Dockerfiles, container images, binaries/scripts, and scheduled jobs, with a command preview that matches the deploy path.
+- The web builder now keeps common network, storage, and ZFS choices visible while showing workload-specific fields, including safer VM defaults and cleaner image-reference entry.
+- `yeet logs <service>` now streams through a non-TTY path and handles client disconnects cleanly, avoiding inconsistent output and broken-pipe noise.
+
 ### v0.7.1
 
 - VM setup now fails earlier for malformed network modes, unsupported VM networking, invalid VLAN values, and macvlan settings that are missing LAN networking.
