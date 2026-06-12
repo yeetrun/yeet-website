@@ -3,6 +3,14 @@ title: Changelog
 description: Short notes for yeet + catch releases.
 ---
 
+## June 12, 2026
+
+### v0.7.1
+
+- VM setup now fails earlier for malformed network modes, unsupported VM networking, invalid VLAN values, and macvlan settings that are missing LAN networking.
+- Failed VM provisioning cleans up new service roots more safely while preserving existing service-root data, including existing ZFS datasets.
+- `yeet upgrade` handles protected install directories more reliably, and VM image manifests now validate guest runtime metadata before use.
+
 ## June 10, 2026
 
 ### v0.7.0
