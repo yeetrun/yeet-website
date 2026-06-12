@@ -93,9 +93,31 @@ When stdout is a terminal, `run` uses the full TTY progress UI (spinners, live
 updates). Pipe output for plain text. Use `--progress=plain` (or
 `--progress=quiet`) for POSIX-friendly scripted output.
 
-### Web deploy
+### Web new-service builder
 
-For a guided first-time deployment, run:
+`yeet run --web` opens a localhost-only browser UI for creating a new service.
+It is a faster way to build the first deploy command when you want to choose a
+workload type, network mode, storage root, ZFS dataset, or VM catalog image
+without writing every flag by hand.
+
+Supported workload types:
+
+- Compose app.
+- Virtual machine from the yeet VM image catalog.
+- Dockerfile.
+- Container image.
+- Binary or script.
+- Scheduled job with a five-field cron expression.
+
+The web builder is for new services only. Existing service changes still use
+the normal CLI commands such as `yeet run`, `yeet service set`, `yeet vm set`,
+`yeet cron`, `yeet logs`, and `yeet status`.
+
+Network and storage controls are visible in the builder because they are common
+first-deploy choices. VM deploys default to `svc` networking, and `svc,lan` is
+the recommended choice when you want LAN presence plus a reliable yeet-managed
+SSH path. ZFS mode changes the service-root field from a filesystem path to a
+dataset name.
 
 ```bash
 yeet run --web
@@ -103,15 +125,10 @@ yeet run --web <svc>
 yeet run --web <svc> ./compose.yml
 ```
 
-Yeet opens a localhost browser form, validates the selected catch host and
-payload, and deploys the new service through the same path as the CLI. After
-you click Deploy, yeet opens a compact read-only terminal in the browser that
-mirrors the local terminal output. Successful deploys tell you to close the tab
-and return to the terminal. Failed deploys keep the form open so you can adjust
-fields and try again.
-
-The web flow is for new services in this release. Redeploy existing services
-with the CLI form of `yeet run`.
+After you click Deploy, yeet opens a compact read-only terminal in the browser
+that mirrors the local terminal output. Successful deploys tell you to close
+the tab and return to the terminal. Failed deploys keep the form open so you can
+adjust fields and try again.
 
 If a `yeet.toml` exists (or after your first `run`), you can omit the payload:
 
@@ -142,7 +159,7 @@ yeet docker push <svc> <local-image>:<tag> --run
 
 Run flags:
 
-- `--web`: open a local browser form for a guided first-time deployment.
+- `--web`: open a local new-service builder for a guided first deployment.
 - `--pull`: for docker compose/image payloads, pull latest images on deploy.
   Without this, `run` reuses existing images.
 - `--force`: redeploy even when yeet detects no payload/env/arg changes.
