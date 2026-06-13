@@ -461,7 +461,9 @@ yeet vm snapshot devbox --full --comment "checkpoint before risky change"
 
 Disk snapshots are the default. If the VM is running, catch pauses the
 Firecracker VM, snapshots the ZVOL, then resumes it. `--full` also stores
-Firecracker state and memory checkpoint files.
+Firecracker state and memory checkpoint files. Manual VM snapshots require
+snapshots to be enabled for the VM service. `--full` requires the VM to be
+running.
 
 ### snapshots list
 
