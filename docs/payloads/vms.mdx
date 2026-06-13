@@ -128,6 +128,8 @@ yeet vm snapshot <vm> --full --comment "checkpoint before risky change"
 The default command snapshots the VM ZVOL. If the VM is running, catch pauses
 the Firecracker VM, snapshots the ZVOL, then resumes it. `--full` also writes
 Firecracker state and memory checkpoint files for advanced recovery workflows.
+Manual VM snapshots require snapshots to be enabled for the VM service.
+`--full` is VM-only and requires the VM to be running.
 Restore and clone commands are not implemented yet, so treat those files as
 advanced recovery materials rather than a built-in restore flow.
 

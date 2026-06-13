@@ -111,10 +111,10 @@ Manual recovery point flow:
 ```bash
 yeet snapshots create <svc> --comment "before upgrade"
 yeet snapshots list <svc>
-yeet snapshots inspect <svc> yeet-20260613
-yeet snapshots protect <svc> yeet-20260613
-yeet snapshots unprotect <svc> yeet-20260613
-yeet snapshots rm <svc> yeet-20260613 --yes
+yeet snapshots inspect <svc> <snapshot>
+yeet snapshots protect <svc> <snapshot>
+yeet snapshots unprotect <svc> <snapshot>
+yeet snapshots rm <svc> <snapshot> --yes
 ```
 
 ## Moving roots

@@ -510,10 +510,12 @@ yeet snapshots create <svc> --comment="before upgrade"
 yeet snapshots create <vm> --full --comment="checkpoint before risky change"
 ```
 
-For normal services, the service root must be ZFS-backed. For VMs, yeet
-snapshots the VM disk; `--full` also writes Firecracker state and memory
-checkpoint files for advanced recovery workflows. This command creates recovery
-points, but restore and clone commands are not implemented yet.
+Manual recovery point creation requires snapshots to be enabled for the
+service. For non-VM services, the service root must also be ZFS-backed. For
+VMs, yeet snapshots the VM disk; `--full` is VM-only, requires the VM to be
+running, and also writes Firecracker state and memory checkpoint files for
+advanced recovery workflows. This command creates recovery points, but restore
+and clone commands are not implemented yet.
 
 ### snapshots protect
 
