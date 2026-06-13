@@ -117,7 +117,10 @@ Network and storage controls are visible in the builder because they are common
 first-deploy choices. VM deploys default to `svc` networking, and `svc,lan` is
 the recommended choice when you want LAN presence plus a reliable yeet-managed
 SSH path. ZFS mode changes the service-root field from a filesystem path to a
-dataset name.
+dataset name. When the selected catch host supports the current web-run RPC,
+the builder checks for mounted ZFS filesystems and suggests likely dataset
+roots. Pick a root to fill the service dataset path, or enter the dataset name
+manually if you already know where it should live.
 
 ```bash
 yeet run --web
