@@ -450,7 +450,8 @@ growing the guest ext4 filesystem. Network changes use the same `--net` and
 
 ### vm snapshot
 
-Create a manual snapshot for a ZFS-backed VM:
+Create a manual recovery point for a ZFS-backed VM. This is a VM-focused
+shortcut for `yeet snapshots create <vm>`:
 
 ```bash
 yeet vm snapshot devbox
@@ -461,6 +462,97 @@ yeet vm snapshot devbox --full --comment "checkpoint before risky change"
 Disk snapshots are the default. If the VM is running, catch pauses the
 Firecracker VM, snapshots the ZVOL, then resumes it. `--full` also stores
 Firecracker state and memory checkpoint files.
+
+### snapshots list
+
+List yeet recovery points:
+
+Usage: `yeet snapshots list [svc] [--format=table|json|json-pretty]`.
+
+```bash
+yeet snapshots list
+yeet snapshots list <svc>
+yeet snapshots list <svc> --format=json
+yeet snapshots list <svc> --format=json-pretty
+```
+
+Without `<svc>`, yeet lists recovery points for all supported services on the
+selected catch host. Table output is the default. Use `--format=json` or
+`--format=json-pretty` when you need structured output for scripts.
+
+### snapshots inspect
+
+Inspect one recovery point:
+
+Usage:
+`yeet snapshots inspect <svc> <snapshot> [--format=table|json|json-pretty]`.
+
+```bash
+yeet snapshots inspect <svc> <snapshot>
+yeet snapshots inspect <svc> <snapshot> --format=json
+yeet snapshots inspect <svc> <snapshot> --format=json-pretty
+```
+
+`<snapshot>` can be the full ZFS snapshot name, the short yeet snapshot name,
+or an unambiguous prefix of the short name. Inspect before deleting or
+protecting a point so you know which service, dataset, event, mode, retention
+state, and comment it carries.
+
+### snapshots create
+
+Create a manual recovery point:
+
+Usage: `yeet snapshots create <svc> [--comment=TEXT] [--full]`.
+
+```bash
+yeet snapshots create <svc>
+yeet snapshots create <svc> --comment="before upgrade"
+yeet snapshots create <vm> --full --comment="checkpoint before risky change"
+```
+
+For normal services, the service root must be ZFS-backed. For VMs, yeet
+snapshots the VM disk; `--full` also writes Firecracker state and memory
+checkpoint files for advanced recovery workflows. This command creates recovery
+points, but restore and clone commands are not implemented yet.
+
+### snapshots protect
+
+Protect a recovery point from automatic retention pruning:
+
+Usage: `yeet snapshots protect <svc> <snapshot>`.
+
+```bash
+yeet snapshots protect <svc> <snapshot>
+```
+
+Protected points stay out of automatic pruning. A protected point must be
+unprotected before it can be removed.
+
+### snapshots unprotect
+
+Allow a recovery point to be pruned or removed:
+
+Usage: `yeet snapshots unprotect <svc> <snapshot>`.
+
+```bash
+yeet snapshots unprotect <svc> <snapshot>
+```
+
+Use this when a previously protected point no longer needs to be kept.
+
+### snapshots rm
+
+Remove a yeet recovery point:
+
+Usage: `yeet snapshots rm <svc> <snapshot> [--yes]`.
+
+```bash
+yeet snapshots rm <svc> <snapshot>
+yeet snapshots rm <svc> <snapshot> --yes
+```
+
+Without `--yes`, yeet asks for confirmation. Protected recovery points are not
+removed until you run `yeet snapshots unprotect <svc> <snapshot>`.
 
 ### snapshots defaults
 

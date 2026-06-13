@@ -78,6 +78,45 @@ commands. VM snapshots target the VM ZVOL instead of the service-root dataset.
 `--snapshot-events` and `--snapshot-required` are for automatic service-root
 snapshots and are not shown in the VM web-run snapshot controls.
 
+## Recovery points
+
+Yeet-created ZFS snapshots are recovery points for a service or VM disk. List
+them when you need to see what yeet can identify for a service:
+
+```bash
+yeet snapshots list
+yeet snapshots list <svc>
+```
+
+Inspect a recovery point before relying on it. The inspect view shows the
+service, snapshot name, storage target, creation time, event, mode, retention
+state, and any comment saved with the point:
+
+```bash
+yeet snapshots inspect <svc> <snapshot>
+```
+
+Protect important recovery points when they should survive automatic retention
+pruning:
+
+```bash
+yeet snapshots protect <svc> <snapshot>
+```
+
+Protected recovery points are excluded from automatic pruning. They must be
+unprotected before removal.
+
+Manual recovery point flow:
+
+```bash
+yeet snapshots create <svc> --comment "before upgrade"
+yeet snapshots list <svc>
+yeet snapshots inspect <svc> yeet-20260613
+yeet snapshots protect <svc> yeet-20260613
+yeet snapshots unprotect <svc> yeet-20260613
+yeet snapshots rm <svc> yeet-20260613 --yes
+```
+
 ## Moving roots
 
 `yeet run` can set the initial root for a new service. To move an existing

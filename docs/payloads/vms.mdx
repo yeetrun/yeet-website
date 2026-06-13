@@ -115,7 +115,9 @@ stopped and still refuses shrink requests.
 
 ## VM snapshots
 
-ZFS-backed VMs can be snapshotted manually:
+ZFS-backed VMs use the same recovery point lifecycle as other ZFS-backed
+services. `yeet vm snapshot <vm>` remains a VM-focused shortcut for
+`yeet snapshots create <vm>`:
 
 ```bash
 yeet vm snapshot <vm>
@@ -126,6 +128,16 @@ yeet vm snapshot <vm> --full --comment "checkpoint before risky change"
 The default command snapshots the VM ZVOL. If the VM is running, catch pauses
 the Firecracker VM, snapshots the ZVOL, then resumes it. `--full` also writes
 Firecracker state and memory checkpoint files for advanced recovery workflows.
+Restore and clone commands are not implemented yet, so treat those files as
+advanced recovery materials rather than a built-in restore flow.
+
+Use the top-level snapshot commands to find and inspect VM disk recovery
+points:
+
+```bash
+yeet snapshots list <vm>
+yeet snapshots inspect <vm> <snapshot>
+```
 
 Manual VM snapshots use the same retention policy fields as other yeet
 snapshots: `--snapshots`, `--snapshot-keep-last`, and `--snapshot-max-age`.
