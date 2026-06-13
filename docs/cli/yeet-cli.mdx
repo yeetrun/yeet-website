@@ -448,6 +448,20 @@ Disk changes are grow-only and update the raw disk file or ZFS ZVOL before
 growing the guest ext4 filesystem. Network changes use the same `--net` and
 `--macvlan-*` flags as `yeet run vm://...`.
 
+### vm snapshot
+
+Create a manual snapshot for a ZFS-backed VM:
+
+```bash
+yeet vm snapshot devbox
+yeet vm snapshot devbox --comment "before package upgrade"
+yeet vm snapshot devbox --full --comment "checkpoint before risky change"
+```
+
+Disk snapshots are the default. If the VM is running, catch pauses the
+Firecracker VM, snapshots the ZVOL, then resumes it. `--full` also stores
+Firecracker state and memory checkpoint files.
+
 ### snapshots defaults
 
 Show or change catch-wide snapshot defaults:

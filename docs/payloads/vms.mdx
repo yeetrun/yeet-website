@@ -113,6 +113,24 @@ Growing a ZFS-backed VM disk grows the VM ZVOL and then the guest ext4
 filesystem. `yeet vm set <vm> --disk=<size>` still requires the VM to be
 stopped and still refuses shrink requests.
 
+## VM snapshots
+
+ZFS-backed VMs can be snapshotted manually:
+
+```bash
+yeet vm snapshot <vm>
+yeet vm snapshot <vm> --comment "before package upgrade"
+yeet vm snapshot <vm> --full --comment "checkpoint before risky change"
+```
+
+The default command snapshots the VM ZVOL. If the VM is running, catch pauses
+the Firecracker VM, snapshots the ZVOL, then resumes it. `--full` also writes
+Firecracker state and memory checkpoint files for advanced recovery workflows.
+
+Manual VM snapshots use the same retention policy fields as other yeet
+snapshots: `--snapshots`, `--snapshot-keep-last`, and `--snapshot-max-age`.
+Docker-style snapshot events do not apply to VMs.
+
 ## Image cache
 
 VM image bundles are cached per catch host.
