@@ -72,6 +72,14 @@ examples.
 - catch also performs this reconciliation pass at startup for netns-backed
   docker services and logs when it recreates a service for this reason.
 
+Services and VMs on `svc` also use catch-owned DNS by default. The resolver is
+available inside the service network at `192.168.100.1`; yeet writes that
+nameserver plus `search yeet.internal` into generated network namespace and VM
+guest resolver config. Other `svc` services and VMs can be reached by short
+name, such as `web`, or by fully qualified name, such as `web.yeet.internal`.
+Queries outside yeet service names are forwarded through the catch host's
+resolver.
+
 You can inspect the current host-side firewall state with:
 
 ```bash
@@ -87,7 +95,9 @@ For VMs, `svc` is the default network mode. The guest gets a private management
 IP reachable from the catch host, and `yeet ssh <vm>` proxies through catch to
 reach it. The VM does not need to be directly reachable from your laptop.
 VMs with both `svc` and `lan` also use the `svc` address for `yeet ssh`, so LAN
-presence does not remove the managed SSH path.
+presence does not remove the managed SSH path. In that combined mode, yeet
+scopes the `svc` DNS link to yeet names so LAN-provided DNS can still handle
+normal external lookups.
 
 ## LAN (`lan`)
 

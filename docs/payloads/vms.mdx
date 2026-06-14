@@ -52,6 +52,12 @@ With `svc` or `svc,lan`, `yeet ssh <vm>` proxies through catch to the VM's
 private management IP. Use `yeet ssh --force-proxy <vm>` to force that proxy
 path for a VM that otherwise would be reached directly.
 
+VMs with a `svc` interface use yeet DNS by default. From the guest, other
+services and VMs on the service network resolve by short name, such as `web`,
+or by fully qualified `*.yeet.internal` names, such as `web.yeet.internal`.
+For `svc,lan` VMs, the yeet DNS link is scoped to yeet names so the LAN
+interface can still provide DNS for normal external lookups.
+
 Override the default shape when needed:
 
 ```bash
