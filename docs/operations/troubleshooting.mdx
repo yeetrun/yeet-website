@@ -135,6 +135,22 @@ sudo systemctl restart yeet-ns.service
   shutdown or restart appears hung, inspect `journalctl -u catch` for the
   underlying docker or netns command that failed to exit.
 
+## Yeet DNS names do not resolve
+
+Yeet DNS only publishes names for services and VMs with `svc` networking. The
+catch-owned resolver listens at `192.168.100.1:53` inside the service network.
+
+Check the resolver directly:
+
+```bash
+dig @192.168.100.1 <svc> A +short
+dig @192.168.100.1 <svc>.yeet.internal A +short
+```
+
+If the query returns nothing, confirm `yeet info <svc>` shows a service-network
+IP and that `catch` plus `yeet-dns.service` are active. See
+[DNS](/docs/concepts/dns) for the full service discovery model.
+
 ## VM payloads do not start
 
 VMs require an x86_64 Linux catch host with KVM available at `/dev/kvm`,

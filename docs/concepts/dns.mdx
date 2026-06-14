@@ -1,0 +1,151 @@
+---
+title: DNS
+description: Catch-owned service discovery for yeet services and VMs.
+---
+
+Catch runs a small DNS server for yeet-managed service discovery on the
+private service network. It lets services and VMs on `svc` networking reach
+each other by service name instead of hard-coding private IP addresses.
+
+## What it provides
+
+The resolver listens on the service-network gateway:
+
+```text
+192.168.100.1:53
+```
+
+For yeet-managed names, it answers A records for:
+
+- short service names, such as `web`
+- fully qualified names under `yeet.internal`, such as
+  `web.yeet.internal`
+
+Both forms resolve to the service's `svc` network address. Queries for
+ordinary external names are forwarded through the catch host's resolver from
+`/etc/resolv.conf`.
+
+```bash
+dig @192.168.100.1 web A +short
+dig @192.168.100.1 web.yeet.internal A +short
+dig @192.168.100.1 example.com A +short
+```
+
+Yeet DNS is scoped to the service network. It is not meant to replace your
+LAN DNS, your tailnet DNS, or public DNS.
+
+## Which address is returned
+
+DNS records come from catch's service registry. A name resolves only when the
+service has a `svc` network address.
+
+- For a VM, the answer is the VM's private `svc` management IP.
+- For a Docker Compose service in a service network namespace, the answer is
+  the netns `svc` IP.
+- For services without `svc` networking, there is no yeet DNS record.
+
+For example, if `api` is a compose service deployed with `--net=svc` and
+`worker` is a VM using the default VM network, then `api`,
+`api.yeet.internal`, `worker`, and `worker.yeet.internal` resolve from other
+`svc` services and VMs.
+
+## Containers and service netns
+
+When a container-backed service uses `--net=svc`, catch creates a service
+network namespace and writes a generated `resolv.conf` for that namespace.
+By default it contains:
+
+```text
+nameserver 192.168.100.1
+search yeet.internal
+```
+
+That means application code inside the service can normally use short names:
+
+```text
+postgres://db:5432/app
+http://api:8080
+```
+
+If you combine service networking with Tailscale, such as `--net=svc,ts`,
+yeet DNS still provides service-network discovery while the Tailscale
+interface provides tailnet reachability for that service.
+
+## VMs
+
+VMs use `svc` networking by default, so new VMs get yeet DNS automatically.
+The guest metadata configures the VM's `svc` interface with the yeet resolver
+and the `yeet.internal` search domain.
+
+From inside a VM, these forms are equivalent for another `svc` service named
+`api`:
+
+```bash
+ping api
+ping api.yeet.internal
+```
+
+For VMs with both `svc` and `lan`, yeet keeps the `svc` resolver scoped to
+yeet names so LAN-provided DNS can still handle ordinary external names. This
+lets the VM appear on the LAN while keeping the stable yeet management and
+service-discovery path.
+
+## Name rules
+
+DNS labels follow the same practical shape as service names used for network
+discovery:
+
+- lower-case letters, digits, and hyphens
+- starts and ends with a letter or digit
+- one label only for the short form
+
+Names are resolved case-insensitively. Use simple service names such as
+`web`, `api`, `db`, or `worker`.
+
+## Lifecycle
+
+The DNS server is catch-owned. During catch startup, catch reconciles the
+network namespace service and the DNS unit:
+
+- `yeet-ns.service` owns the service-network gateway.
+- `yeet-dns.service` runs `catch dns`.
+- `yeet-dns.service` is part of the catch lifecycle, so catch upgrades also
+  refresh the DNS process.
+
+This keeps the resolver present after `yeet init`, after catch upgrades, and
+after host restarts.
+
+## Troubleshooting
+
+Check that both catch and DNS are active:
+
+```bash
+sudo systemctl is-active catch yeet-dns.service
+```
+
+Check that the resolver is listening on the service-network gateway:
+
+```bash
+sudo ss -lunp 'sport = :53'
+```
+
+Query it directly from the catch host:
+
+```bash
+dig @192.168.100.1 <svc> A +short
+dig @192.168.100.1 <svc>.yeet.internal A +short
+```
+
+If a service name does not resolve:
+
+- confirm the service uses `svc` networking
+- confirm `yeet info <svc>` shows a service-network IP
+- restart catch so it reconciles the DNS unit and service registry state
+
+```bash
+sudo systemctl restart catch
+```
+
+Existing services or VMs created before yeet DNS support may need to be
+recreated or have their networking metadata refreshed before their guest or
+netns resolver config points at `192.168.100.1`.

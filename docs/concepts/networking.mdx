@@ -73,12 +73,10 @@ examples.
   docker services and logs when it recreates a service for this reason.
 
 Services and VMs on `svc` also use catch-owned DNS by default. The resolver is
-available inside the service network at `192.168.100.1`; yeet writes that
-nameserver plus `search yeet.internal` into generated network namespace and VM
-guest resolver config. Other `svc` services and VMs can be reached by short
-name, such as `web`, or by fully qualified name, such as `web.yeet.internal`.
-Queries outside yeet service names are forwarded through the catch host's
-resolver.
+available inside the service network at `192.168.100.1`; other `svc` services
+and VMs can be reached by short name, such as `web`, or by fully qualified
+name, such as `web.yeet.internal`. See [DNS](/docs/concepts/dns) for resolver
+behavior, VM and service netns details, and troubleshooting.
 
 You can inspect the current host-side firewall state with:
 

@@ -56,7 +56,9 @@ VMs with a `svc` interface use yeet DNS by default. From the guest, other
 services and VMs on the service network resolve by short name, such as `web`,
 or by fully qualified `*.yeet.internal` names, such as `web.yeet.internal`.
 For `svc,lan` VMs, the yeet DNS link is scoped to yeet names so the LAN
-interface can still provide DNS for normal external lookups.
+interface can still provide DNS for normal external lookups. See
+[DNS](/docs/concepts/dns) for the resolver address, record behavior, and how
+VM names map to `svc` management IPs.
 
 Override the default shape when needed:
 
