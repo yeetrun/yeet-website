@@ -122,13 +122,13 @@ stopped and still refuses shrink requests.
 ## VM snapshots and restore
 
 ZFS-backed VMs use the same recovery point lifecycle as other ZFS-backed
-services. `yeet vm snapshot <vm>` remains a VM-focused shortcut for
-`yeet snapshots create <vm>`:
+services. Use `yeet snapshots create <vm>` to create manual VM recovery
+points:
 
 ```bash
-yeet vm snapshot <vm>
-yeet vm snapshot <vm> --comment "before package upgrade"
-yeet vm snapshot <vm> --full --comment "checkpoint before risky change"
+yeet snapshots create <vm>
+yeet snapshots create <vm> --comment "before package upgrade"
+yeet snapshots create <vm> --full --comment "checkpoint before risky change"
 ```
 
 The default command snapshots the VM ZVOL. If the VM is running, catch pauses

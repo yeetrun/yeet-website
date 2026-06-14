@@ -73,8 +73,9 @@ yeet service set <svc> --snapshots=inherit
 Snapshot-only changes do not require the service to be stopped. Service-root
 moves still require the service to be stopped.
 
-For VM payloads, the policy controls retention for manual `yeet vm snapshot`
-commands. VM snapshots target the VM ZVOL instead of the service-root dataset.
+For VM payloads, the policy controls retention for manual `yeet snapshots
+create <vm>` commands. VM snapshots target the VM ZVOL instead of the
+service-root dataset.
 `--snapshot-events` and `--snapshot-required` are for automatic service-root
 snapshots and are not shown in the VM web-run snapshot controls.
 
