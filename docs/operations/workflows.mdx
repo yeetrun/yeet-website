@@ -216,6 +216,26 @@ DB is the live source of truth; run `yeet service sync <svc>` to mirror
 per-service snapshot overrides back into `yeet.toml`.
 For the complete ZFS model, see [ZFS](/docs/concepts/zfs).
 
+## Clone-first recovery
+
+When you are unsure what a recovery point contains, clone it into a new service
+first and inspect the clone:
+
+```bash
+yeet snapshots clone <svc> <snapshot> <svc>-recover
+yeet info <svc>-recover
+```
+
+After you verify the clone, either copy the recovered data out or restore the
+original service in place:
+
+```bash
+yeet snapshots restore <svc> <snapshot> --stop --yes
+```
+
+In-place restore creates a pre-restore recovery point before changing ZFS
+state. Use `--start` if the original service should start again after restore.
+
 ## Build from a Dockerfile and run
 
 ```bash

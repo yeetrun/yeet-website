@@ -113,7 +113,7 @@ Growing a ZFS-backed VM disk grows the VM ZVOL and then the guest ext4
 filesystem. `yeet vm set <vm> --disk=<size>` still requires the VM to be
 stopped and still refuses shrink requests.
 
-## VM snapshots
+## VM snapshots and restore
 
 ZFS-backed VMs use the same recovery point lifecycle as other ZFS-backed
 services. `yeet vm snapshot <vm>` remains a VM-focused shortcut for
@@ -130,8 +130,6 @@ the Firecracker VM, snapshots the ZVOL, then resumes it. `--full` also writes
 Firecracker state and memory checkpoint files for advanced recovery workflows.
 Manual VM snapshots require snapshots to be enabled for the VM service.
 `--full` is VM-only and requires the VM to be running.
-Restore and clone commands are not implemented yet, so treat those files as
-advanced recovery materials rather than a built-in restore flow.
 
 Use the top-level snapshot commands to find and inspect VM disk recovery
 points:
@@ -140,6 +138,31 @@ points:
 yeet snapshots list <vm>
 yeet snapshots inspect <vm> <snapshot>
 ```
+
+Clone a VM disk snapshot when you want to inspect the recovered disk through a
+separate stopped VM service before changing the original:
+
+```bash
+yeet snapshots clone <vm> <snapshot> <new-vm>
+yeet info <new-vm>
+```
+
+Restore the original VM disk in place with disk mode:
+
+```bash
+yeet snapshots restore <vm> <snapshot> --mode=disk --stop --yes
+```
+
+`--mode=disk` is the default. If the VM is running, pass `--stop` so yeet can
+stop it before disk restore. Add `--start` when the VM should start again
+after the disk restore succeeds.
+
+Full checkpoints can be captured and inspected, but this release restores VM
+disks only. `--mode=full` is refused before disk mutation until yeet's
+Firecracker launcher can safely start a microVM in the pre-boot state required
+by Firecracker snapshot loading. Compatibility failures, such as missing
+checkpoint files or mismatched VM shape, are also refused before disk mutation.
+Use `--mode=disk` to restore the VM disk from the same recovery point.
 
 Manual VM snapshots use the same retention policy fields as other yeet
 snapshots: `--snapshots`, `--snapshot-keep-last`, and `--snapshot-max-age`.

@@ -117,6 +117,32 @@ yeet snapshots unprotect <svc> <snapshot>
 yeet snapshots rm <svc> <snapshot> --yes
 ```
 
+## Recovery workflow
+
+Use `clone` first when you want to inspect a recovery point or copy files out
+without changing the original service:
+
+```bash
+yeet snapshots clone <svc> <snapshot> <svc>-recover
+yeet info <svc>-recover
+```
+
+Use `restore` when you want to roll the original service data back in place:
+
+```bash
+yeet snapshots restore <svc> <snapshot> --stop --yes
+```
+
+`restore` creates a pre-restore recovery point before it mutates ZFS state. If
+the restore does not produce the result you expected, inspect the new
+pre-restore point before making another change.
+
+Snapshots recover storage state. Service generations recover deployed
+definitions and install artifacts. The default `--generation=current` keeps
+the current deployed definition while restoring data. Pass
+`--generation=snapshot` only when the selected snapshot recorded a generation
+and you also want to restore that older deployed definition.
+
 ## Moving roots
 
 `yeet run` can set the initial root for a new service. To move an existing

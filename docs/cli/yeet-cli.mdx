@@ -344,9 +344,29 @@ includes published ports when catch reports them. Use `--format=json` or
 `--format=json-pretty` for machine-readable output with structured port
 mappings.
 
-### rollback
+### service generations
 
-Roll back to the previous generation if available.
+Show the deployed generation state for one service:
+
+```bash
+yeet service generations <svc>
+yeet service generations <svc> --format=json
+```
+
+Service generations track deployed definitions and install artifacts. They are
+not VM disk snapshots, memory checkpoints, or persistent data recovery points.
+Use snapshot commands when you need storage recovery.
+
+### service rollback
+
+Move a non-VM service back to its previous deployed definition generation:
+
+```bash
+yeet service rollback <svc>
+```
+
+VM services do not support generation rollback. Use
+`yeet snapshots restore <vm> <snapshot>` for VM disk recovery.
 
 ### remove
 
@@ -467,6 +487,19 @@ running.
 
 ### snapshots list
 
+Use snapshots to recover persistent service-root state or VM disks:
+
+```bash
+yeet snapshots list [svc]
+yeet snapshots inspect <svc> <snapshot>
+yeet snapshots create <svc> [--comment=TEXT] [--full]
+yeet snapshots clone <svc> <snapshot> <new-svc>
+yeet snapshots restore <svc> <snapshot> [--stop] [--start] [--yes] [--mode=disk|full] [--generation=current|snapshot]
+yeet snapshots protect <svc> <snapshot>
+yeet snapshots unprotect <svc> <snapshot>
+yeet snapshots rm <svc> <snapshot> [--yes]
+```
+
 List yeet recovery points:
 
 Usage: `yeet snapshots list [svc] [--format=table|json|json-pretty]`.
@@ -516,8 +549,48 @@ Manual recovery point creation requires snapshots to be enabled for the
 service. For non-VM services, the service root must also be ZFS-backed. For
 VMs, yeet snapshots the VM disk; `--full` is VM-only, requires the VM to be
 running, and also writes Firecracker state and memory checkpoint files for
-advanced recovery workflows. This command creates recovery points, but restore
-and clone commands are not implemented yet.
+advanced recovery workflows.
+
+### snapshots clone
+
+Clone a recovery point into a new service without changing the original:
+
+Usage: `yeet snapshots clone <svc> <snapshot> <new-svc>`.
+
+```bash
+yeet snapshots clone <svc> <snapshot> <new-svc>
+yeet info <new-svc>
+```
+
+Use clones when you want to inspect a snapshot or recover files before
+mutating the original service. Recovery clones are created stopped. The
+`--start` flag is reserved for a future clone flow and is refused by this
+release.
+
+### snapshots restore
+
+Restore the original service or VM disk from a recovery point:
+
+Usage:
+`yeet snapshots restore <svc> <snapshot> [--stop] [--start] [--yes] [--mode=disk|full] [--generation=current|snapshot]`.
+
+```bash
+yeet snapshots restore <svc> <snapshot> --stop --yes
+yeet snapshots restore <svc> <snapshot> --stop --yes --start
+yeet snapshots restore <svc> <snapshot> --generation=snapshot --stop --yes
+```
+
+Use `--stop` when the service is running and must be stopped before restore.
+Use `--yes` for non-interactive restores and `--start` when the service should
+start after the restore succeeds. The default restore mode is `--mode=disk`,
+which restores a ZFS service root or VM disk. `--mode=full` is VM-only; this
+release can capture and inspect full VM checkpoints but refuses full restore
+before disk mutation. Use `--mode=disk` for VM disk recovery.
+
+For service-root recovery points that recorded a generation, the default
+`--generation=current` keeps the current deployed definition. Pass
+`--generation=snapshot` only when you also want to restore the deployed
+definition associated with that snapshot.
 
 ### snapshots protect
 
