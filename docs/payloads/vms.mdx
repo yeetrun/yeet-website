@@ -157,12 +157,16 @@ yeet snapshots restore <vm> <snapshot> --mode=disk --stop --yes
 stop it before disk restore. Add `--start` when the VM should start again
 after the disk restore succeeds.
 
-Full checkpoints can be captured and inspected, but this release restores VM
-disks only. `--mode=full` is refused before disk mutation until yeet's
-Firecracker launcher can safely start a microVM in the pre-boot state required
-by Firecracker snapshot loading. Compatibility failures, such as missing
-checkpoint files or mismatched VM shape, are also refused before disk mutation.
-Use `--mode=disk` to restore the VM disk from the same recovery point.
+For a full checkpoint, restore the same recovery point with `--mode=full`:
+
+```bash
+yeet snapshots restore <vm> <snapshot> --mode=full --stop --yes
+```
+
+Full restore resumes the VM from Firecracker state and memory. It is stricter
+than disk restore: the VM must still use the same zvol path, CPU and memory
+shape, Firecracker binary, and network device names that were present when the
+checkpoint was captured.
 
 Manual VM snapshots use the same retention policy fields as other yeet
 snapshots: `--snapshots`, `--snapshot-keep-last`, and `--snapshot-max-age`.

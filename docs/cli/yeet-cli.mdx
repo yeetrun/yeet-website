@@ -583,9 +583,12 @@ yeet snapshots restore <svc> <snapshot> --generation=snapshot --stop --yes
 Use `--stop` when the service is running and must be stopped before restore.
 Use `--yes` for non-interactive restores and `--start` when the service should
 start after the restore succeeds. The default restore mode is `--mode=disk`,
-which restores a ZFS service root or VM disk. `--mode=full` is VM-only; this
-release can capture and inspect full VM checkpoints but refuses full restore
-before disk mutation. Use `--mode=disk` for VM disk recovery.
+which restores a ZFS service root or VM disk. Use `--mode=full` for a full VM
+checkpoint created with `yeet snapshots create <vm> --full`; yeet restores the
+zvol first, then loads Firecracker state and memory and resumes the VM. Full
+restore is an in-place operation for the same VM service and requires the VM's
+shape, Firecracker binary, disk path, and network device names to remain
+compatible.
 
 For service-root recovery points that recorded a generation, the default
 `--generation=current` keeps the current deployed definition. Pass
