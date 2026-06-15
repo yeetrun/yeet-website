@@ -78,11 +78,14 @@ yeet DNS still provides service-network discovery while the Tailscale
 interface provides tailnet reachability for that service.
 
 Docker Compose containers normally still see Docker's embedded resolver at
-`127.0.0.11`. On hosts configured by `yeet init --install-docker`, Docker's
-daemon defaults send that embedded resolver to catch DNS and add
-`yeet.internal` as a search domain. Compose files do not need to set `dns:` or
-`dns_search:` for yeet DNS. If a compose file explicitly sets DNS, that service
-owns its resolver configuration and may bypass yeet DNS.
+`127.0.0.11`. For compose payloads that use `--net=svc`, yeet writes a generated
+compose overlay that points each service at catch DNS and adds `yeet.internal`
+as a search domain. Services that already set `dns:` or `dns_search:` keep their
+own resolver configuration.
+
+Compose payloads without `svc` networking do not get yeet DNS. Use `--net=svc`
+for private yeet service discovery, or `--net=svc,lan` when a service needs both
+yeet names and LAN reachability.
 
 ## VMs
 

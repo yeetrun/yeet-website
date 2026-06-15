@@ -127,10 +127,10 @@ under the managed service root.
 
 Docker hosts need Docker, Compose support, and the containerd snapshotter so
 pushed images show up locally. `yeet init` can install Docker on fresh
-Debian/Ubuntu hosts and configures the snapshotter during catch install. It
-also configures Docker daemon DNS defaults so containers without explicit
-compose `dns:` settings use catch DNS for `svc` service discovery, public DNS,
-and tailnet names. See [DNS](/docs/concepts/dns) for resolver behavior,
+Debian/Ubuntu hosts and configures the snapshotter during catch install. Docker
+daemon DNS remains under the host operator's control; yeet adds service
+discovery per workload when the service uses `--net=svc`. See
+[DNS](/docs/concepts/dns) for resolver behavior,
 [Installation](/docs/getting-started/installation) for host setup, and
 [Workflows](/docs/operations/workflows) for common update flows. ZFS is
 optional; see [ZFS](/docs/concepts/zfs) if you want dataset-backed service
