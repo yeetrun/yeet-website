@@ -78,6 +78,10 @@ and VMs can be reached by short name, such as `web`, or by fully qualified
 name, such as `web.yeet.internal`. See [DNS](/docs/concepts/dns) for resolver
 behavior, VM and service netns details, and troubleshooting.
 
+The `svc` network currently requires exclusive use of `192.168.100.0/24` on
+the catch host. Catch rejects new `svc` networking if an existing host address
+or route overlaps that range.
+
 You can inspect the current host-side firewall state with:
 
 ```bash

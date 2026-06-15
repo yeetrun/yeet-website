@@ -23,7 +23,8 @@ For yeet-managed names, it answers A records for:
 
 Both forms resolve to the service's `svc` network address. Queries for
 ordinary external names are forwarded through the catch host's resolver from
-`/etc/resolv.conf`.
+`/etc/resolv.conf`. Tailnet names under `*.ts.net` are forwarded directly to
+Tailscale DNS.
 
 ```bash
 dig @192.168.100.1 web A +short
@@ -31,8 +32,13 @@ dig @192.168.100.1 web.yeet.internal A +short
 dig @192.168.100.1 example.com A +short
 ```
 
-Yeet DNS is scoped to the service network. It is not meant to replace your
-LAN DNS, your tailnet DNS, or public DNS.
+Yeet DNS is scoped to yeet-managed hosts and the service network. It is not
+meant to replace your LAN DNS or public DNS; it acts as the single resolver
+that knows yeet-local names and forwards everything else.
+
+In v1, yeet requires exclusive use of `192.168.100.0/24` for the private
+service network. Catch hard-errors if another host interface or route already
+uses an overlapping subnet. A future release may make this range configurable.
 
 ## Which address is returned
 
@@ -70,6 +76,13 @@ http://api:8080
 If you combine service networking with Tailscale, such as `--net=svc,ts`,
 yeet DNS still provides service-network discovery while the Tailscale
 interface provides tailnet reachability for that service.
+
+Docker Compose containers normally still see Docker's embedded resolver at
+`127.0.0.11`. On hosts configured by `yeet init --install-docker`, Docker's
+daemon defaults send that embedded resolver to catch DNS and add
+`yeet.internal` as a search domain. Compose files do not need to set `dns:` or
+`dns_search:` for yeet DNS. If a compose file explicitly sets DNS, that service
+owns its resolver configuration and may bypass yeet DNS.
 
 ## VMs
 
