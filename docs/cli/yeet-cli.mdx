@@ -780,18 +780,20 @@ yeet vm images rm <name> --yes
 ```
 
 `yeet vm images catalog` lists the runnable VM payload names supported by the
-selected catch host before any image is cached. It includes official image
-families such as `vm://ubuntu/26.04` and `vm://nixos/26.05`, plus imported
-local image refs.
+selected catch host before any image is cached. Official families come from the
+remote `yeet-vm-images` catalog at runtime; examples include
+`vm://ubuntu/26.04` and `vm://nixos/26.05`. The catalog output also includes
+imported local image refs.
 
 `yeet vm images` and `yeet vm images ls` show the host file-cache state for
 official VM image families, old cache entries that are still in use or
 prunable, and any imported local image refs. `yeet vm images update` downloads
-and verifies the latest official image bundles used for future VM creates, then
-removes old unreferenced cache entries when it is safe. Pass a specific payload,
-such as `vm://ubuntu/26.04` or `vm://nixos/26.05`, to refresh one image family.
-A missing image is downloaded automatically on the first VM create. Existing VMs
-are not rebuilt or modified.
+and verifies the latest official image bundles from the stable latest manifests
+used for future VM creates, then removes old unreferenced cache entries when it
+is safe. New image versions are picked up through those manifests rather than a
+yeet release. Pass a specific payload, such as `vm://ubuntu/26.04` or
+`vm://nixos/26.05`, to refresh one image family. A missing image is downloaded
+automatically on the first VM create. Existing VMs are not rebuilt or modified.
 
 `yeet vm images prune --dry-run` previews cleanup. `yeet vm images prune` asks
 for confirmation before removing prunable entries; `--yes` skips that prompt.

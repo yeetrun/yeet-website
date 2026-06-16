@@ -63,7 +63,7 @@ yeet run <vm> vm://ubuntu/26.04
 yeet ssh <vm>
 ```
 
-Official images include Ubuntu and NixOS:
+Official catalog examples include Ubuntu and NixOS:
 
 ```bash
 yeet run <vm> vm://nixos/26.05
@@ -103,8 +103,9 @@ yeet vm console <vm>
 `yeet run` downloads the image automatically on the first VM create and waits
 for the guest readiness marker before returning. `yeet vm console <vm>` streams
 the serial console for boot diagnostics; detach by pressing Enter, then typing
-`~.`. `yeet vm images catalog` lists the VM payloads the selected catch host can
-run, even before any image is cached.
+`~.`. The official VM catalog is loaded from `yeet-vm-images` at runtime, and
+`yeet vm images catalog` lists the VM payloads the selected catch host can run,
+even before any image is cached.
 `yeet vm images update` refreshes all official image families and removes old
 unreferenced image versions when it is safe; pass a specific `vm://` payload to
 refresh one family. Use `yeet vm images prune --dry-run` to preview manual

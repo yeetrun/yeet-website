@@ -6,7 +6,9 @@ description: Create and manage Firecracker-backed Linux VM services.
 VM payloads create long-lived Linux guests managed by yeet. They are useful
 when a workload needs a full guest OS or stronger isolation than a container.
 
-Official images:
+The official VM catalog is loaded from `yeet-vm-images` at runtime. Use
+`yeet vm images catalog` to see the supported `vm://...` families for the
+selected catch host. Examples include:
 
 - `vm://ubuntu/26.04` for Ubuntu 26.04.
 - `vm://nixos/26.05` for NixOS 26.05.
@@ -193,17 +195,17 @@ yeet vm images prune --dry-run
 ```
 
 `yeet vm images catalog` shows the VM payload names supported by the selected
-catch host before any image is cached, including official images and imported
-local images. A missing image is downloaded automatically on the first VM
-create.
+catch host before any image is cached, including official remote catalog
+families and imported local images. A missing image is downloaded automatically
+on the first VM create.
 
 `yeet vm images` shows host cache state. `yeet vm images update` refreshes
-every official image family; pass a specific payload, such as
-`vm://ubuntu/26.04` or `vm://nixos/26.05`, to refresh only that family.
-Refreshing the cache updates the image used for future VM creates, does not
-rewrite existing VM disks, and automatically removes old unreferenced image
-versions when it is safe. When creating a VM with a stale cached image,
-interactive runs prompt by default; non-interactive runs require
+official image families from their stable latest manifests; pass a specific
+payload, such as `vm://ubuntu/26.04` or `vm://nixos/26.05`, to refresh only
+that family. Refreshing the cache picks up new image versions for future VM
+creates, does not rewrite existing VM disks, and automatically removes old
+unreferenced image versions when it is safe. When creating a VM with a stale
+cached image, interactive runs prompt by default; non-interactive runs require
 `--image-policy=update` or `--image-policy=cached`.
 
 `yeet vm images prune --dry-run` shows what cleanup would remove. Run
