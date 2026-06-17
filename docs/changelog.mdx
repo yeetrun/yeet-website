@@ -3,6 +3,14 @@ title: Changelog
 description: Short notes for yeet + catch releases.
 ---
 
+## June 17, 2026
+
+### v0.8.0
+
+- Added `yeet snapshots` recovery commands for ZFS-backed services and VMs, including manual recovery points, list and inspect views, clone-first recovery, in-place restore, protection from pruning, and full VM checkpoints.
+- `yeet run --web` now discovers ZFS roots from the selected host, fills predictable VM sizing defaults, and keeps VM network choices valid while still allowing service-network, LAN, or combined VM networking.
+- Service-network deployments now get yeet-managed DNS, and official VM images resolve through the published catalog so hosts can pick up catalog updates without a yeet binary release.
+
 ## June 12, 2026
 
 ### v0.7.2
