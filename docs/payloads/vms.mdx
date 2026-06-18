@@ -33,6 +33,10 @@ yeet run <vm> vm://nixos/26.05
 yeet ssh <vm>
 ```
 
+`yeet run` creates the VM service. It is not the update path for an existing
+VM with the same name. To change CPU, memory, disk size, or networking after
+creation, stop the VM and use `yeet vm set`.
+
 Use `lan` when the VM should request an address on your LAN through DHCP:
 
 ```bash

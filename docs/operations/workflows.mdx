@@ -63,6 +63,10 @@ yeet run <vm> vm://ubuntu/26.04
 yeet ssh <vm>
 ```
 
+VM creates are one-time operations for a service name. Use `yeet vm set` for
+supported VM changes after creation; remove and recreate the VM when you want a
+fresh guest from an image.
+
 Official catalog examples include Ubuntu and NixOS:
 
 ```bash
