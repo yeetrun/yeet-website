@@ -5,6 +5,11 @@ description: Short notes for yeet + catch releases.
 
 ## June 19, 2026
 
+### v0.8.2
+
+- VM service networking now routes traffic through the service bridge correctly, avoiding hangs when VMs reach yeet service-network apps by name or service IP.
+- Tailscale-exposed services now repair their sidecar networking after catch recreates a service network namespace, so services keep responding after netns repair, catch restarts, or host reboots.
+
 ### v0.8.1
 
 - VM service networking is repaired automatically after catch restarts, host reboots, and VM setting changes, and `yeet ssh` now reaches VMs with both service and LAN networking through the VM's LAN address via catch.
