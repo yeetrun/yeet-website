@@ -7,7 +7,7 @@ description: Short notes for yeet + catch releases.
 
 ### v0.8.1
 
-- VM service networking is repaired automatically after catch restarts, host reboots, and VM setting changes, so stale service-network wiring is less likely to break DNS or service-to-service access.
+- VM service networking is repaired automatically after catch restarts, host reboots, and VM setting changes, and `yeet ssh` now reaches VMs with both service and LAN networking through the VM's LAN address via catch.
 - VMs that shut themselves down from inside the guest are now detected as stopped more reliably, including Firecracker guests that report a halted state after `poweroff`.
 - `yeet vm images catalog` now shows the fields users need for choosing a VM payload without exposing empty kernel-policy details for managed catalog images.
 
