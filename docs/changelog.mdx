@@ -5,6 +5,12 @@ description: Short notes for yeet + catch releases.
 
 ## June 19, 2026
 
+### v0.8.3
+
+- Compose deploys no longer require a local Docker daemon when there are no local images to push, so `yeet run --web` can deploy from machines where the local Docker runtime is stopped.
+- Failed first-time web deploys now clean up staged placeholders, avoiding misleading "service already exists" errors on the next attempt.
+- ZFS-backed Compose deploys now keep uploaded env files under the selected service root, and LAN plus Tailscale services no longer fail startup because of a missing namespace resolver file.
+
 ### v0.8.2
 
 - VM service networking now routes traffic through the service bridge correctly, avoiding hangs when VMs reach yeet service-network apps by name or service IP.
