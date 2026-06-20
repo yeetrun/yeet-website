@@ -670,13 +670,14 @@ Open the current config for editing in `$EDITOR` (defaults to vim).
 Copy files between local paths and a remote endpoint. Like `scp` and `rsync`,
 every operand except the last is a source and the last operand is the
 destination. When copying multiple sources, the destination must be a
-directory, such as `svc:dir/`, `devbox:.ssh/`, or an existing local directory.
+directory, such as `svc:dir/`, `devbox:~/configs/`, or an existing local
+directory.
 
 For regular services, `svc:path` targets the service `data/` directory and
 supports exact service-data paths or directories, not remote globs. For VM
 services, `vm:path` targets the VM guest filesystem and uses rsync over the
 same transport as `yeet ssh`. Quoted remote globs such as
-`devbox:".ssh/id*"` are VM-only. By default, `yeet copy` behaves like
+`devbox:"/var/log/*.log"` are VM-only. By default, `yeet copy` behaves like
 `rsync -avz` (archive + verbose + compress). Alias: `cp`.
 
 Examples:
@@ -692,7 +693,7 @@ yeet copy ./config.yml svc:config/config.yml
 yeet copy ./configs/ svc:config/
 
 # Multiple local sources -> VM guest dir
-yeet copy ~/.ssh/id* devbox:.ssh/
+yeet copy ./configs/*.yml devbox:~/configs/
 
 # Remote -> local
 yeet copy svc:config ./config
@@ -702,7 +703,7 @@ yeet copy ./app devbox:~/app
 yeet copy ./nginx.conf devbox:/etc/nginx/nginx.conf
 
 # VM guest -> local
-yeet copy devbox:".ssh/id*" .ssh/
+yeet copy devbox:"/var/log/*.log" ./logs/
 yeet copy devbox:/var/log/cloud-init.log ./logs/
 
 # Force the catch proxy path for VM copy
