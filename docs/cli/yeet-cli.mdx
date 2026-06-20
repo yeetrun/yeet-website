@@ -721,10 +721,10 @@ Notes:
 - VM endpoints allow absolute guest paths. Regular service endpoints remain
   relative to service `data/` and do not expand remote globs.
 - Output mirrors rsync's file list and summary format.
-- File ownership (uid/gid) is not preserved.
 - A trailing slash on the source copies directory contents (rsync-style).
 - A trailing slash on the destination forces directory semantics.
-- Transfers are staged and moved into place only after completion.
+- Regular service-data transfers are staged and moved into place only after
+  completion. VM endpoint transfers use direct rsync.
 
 ## Connect and debug
 
