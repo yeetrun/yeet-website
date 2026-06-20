@@ -763,11 +763,13 @@ Notes:
 - Use `--` to pass a remote command. For regular services, the command runs
   from the service directory. For VM services, the command runs in the guest's
   default SSH session context.
-- For VM services with `svc` or `svc,lan`, yeet proxies SSH through the catch
-  host to the VM's private management IP. For LAN-only VMs, yeet connects
-  directly to the guest LAN IP. It prints the selected path to stderr before
-  starting SSH.
-- Use `--force-proxy` to force the catch-host proxy path for a VM.
+- For VM services with `svc`, yeet proxies SSH through the catch host to the
+  VM's private management IP. For LAN-only VMs, yeet connects directly to the
+  guest LAN IP.
+- For VMs with `svc,lan`, yeet uses the LAN IP when your workstation can reach
+  it, then falls back to the catch-host proxy path.
+- Use `--force-proxy` to skip the LAN probe and force the catch-host proxy path
+  for a VM.
 - For yeet-managed VM aliases in `~/.yeet/known_hosts`, `yeet ssh <vm>` repairs
   a stale VM host key and retries once after a VM is recreated. Yeet does not
   edit normal `~/.ssh/known_hosts` entries.

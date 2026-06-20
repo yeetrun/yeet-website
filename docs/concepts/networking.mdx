@@ -96,10 +96,11 @@ If the host is on legacy compatibility mode, use `iptables-legacy` in place of
 For VMs, `svc` is the default network mode. The guest gets a private management
 IP reachable from the catch host, and `yeet ssh <vm>` proxies through catch to
 reach it. The VM does not need to be directly reachable from your laptop.
-VMs with both `svc` and `lan` also use the `svc` address for `yeet ssh`, so LAN
-presence does not remove the managed SSH path. In that combined mode, yeet
-scopes the `svc` DNS link to yeet names so LAN-provided DNS can still handle
-normal external lookups.
+VMs with both `svc` and `lan` use the LAN IP for `yeet ssh` when your
+workstation can reach it on port 22, then fall back to the catch-proxied `svc`
+address when the LAN path is not reachable. In that combined mode, yeet scopes
+the `svc` DNS link to yeet names so LAN-provided DNS can still handle normal
+external lookups.
 
 ## LAN (`lan`)
 
@@ -122,8 +123,8 @@ For VM SSH, `lan` should be read as the catch host's LAN. For LAN-only VMs,
 stderr before starting SSH. If your workstation only reaches catch over the
 tailnet, a LAN-only VM might not be directly reachable from your workstation
 even though catch can reach it. Use `--net=svc,lan` when you want LAN presence
-and a stable yeet management path. If you need to override the automatic choice,
-use `yeet ssh --force-proxy <vm>`.
+and a stable yeet management fallback. If you need to skip the LAN probe and use
+the proxy path, use `yeet ssh --force-proxy <vm>`.
 
 ## Mounts
 

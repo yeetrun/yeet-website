@@ -46,17 +46,19 @@ yeet ssh <vm>
 
 For LAN-only VMs, `yeet ssh <vm>` connects directly to the guest's LAN IP.
 `lan` is the catch host's LAN, not necessarily your workstation's LAN. When
-you want a VM to appear on the host LAN but still keep SSH reachable through
-catch, use both networks:
+you want a VM to appear on the host LAN but still keep a catch-managed fallback,
+use both networks:
 
 ```bash
 yeet run <vm> vm://ubuntu/26.04 --net=svc,lan
 yeet ssh <vm>
 ```
 
-With `svc` or `svc,lan`, `yeet ssh <vm>` proxies through catch to the VM's
-private management IP. Use `yeet ssh --force-proxy <vm>` to force that proxy
-path for a VM that otherwise would be reached directly.
+With `svc`, `yeet ssh <vm>` proxies through catch to the VM's private
+management IP. With `svc,lan`, yeet uses the LAN IP when your workstation can
+reach it and falls back to the catch proxy when it cannot. Use
+`yeet ssh --force-proxy <vm>` to force the proxy path for a VM that otherwise
+would be reached directly.
 
 VMs with a `svc` interface use yeet DNS by default. From the guest, other
 services and VMs on the service network resolve by short name, such as `web`,
