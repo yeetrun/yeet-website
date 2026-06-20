@@ -107,7 +107,8 @@ VMs with both `svc` and `lan` use the LAN IP for `yeet ssh` when your
 workstation can reach it on port 22, then fall back to the catch-proxied `svc`
 address when the LAN path is not reachable. In that combined mode, yeet scopes
 the `svc` DNS link to yeet names so LAN-provided DNS can still handle normal
-external lookups.
+external lookups, and the guest uses the LAN interface as its default route for
+ordinary outbound traffic.
 
 ## LAN (`lan`)
 

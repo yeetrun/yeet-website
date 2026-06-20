@@ -87,7 +87,9 @@ yeet run <vm> vm://ubuntu/26.04 --net=lan
 ```
 
 Use `svc,lan` when the VM should be on the catch host's LAN and still have a
-private yeet management path for SSH:
+private yeet management path for SSH. In this mode, the VM's normal outbound
+traffic uses the LAN route while yeet management traffic stays available on the
+service network:
 
 ```bash
 yeet run <vm> vm://ubuntu/26.04 --net=svc,lan

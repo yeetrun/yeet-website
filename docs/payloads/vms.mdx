@@ -58,7 +58,9 @@ With `svc`, `yeet ssh <vm>` proxies through catch to the VM's private
 management IP. With `svc,lan`, yeet uses the LAN IP when your workstation can
 reach it and falls back to the catch proxy when it cannot. Use
 `yeet ssh --force-proxy <vm>` to force the proxy path for a VM that otherwise
-would be reached directly.
+would be reached directly. In `svc,lan` mode, the VM uses the LAN interface as
+its default route for normal outbound traffic while keeping the service network
+for yeet-managed names and management access.
 
 VMs with a `svc` interface use yeet DNS by default. From the guest, other
 services and VMs on the service network resolve by short name, such as `web`,

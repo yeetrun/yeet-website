@@ -5,6 +5,12 @@ description: Short notes for yeet + catch releases.
 
 ## June 20, 2026
 
+### v0.8.5
+
+- VMs with both service and LAN networking now prefer the LAN route for normal traffic and use a reachable LAN SSH path first, while the service network remains available for yeet management.
+- Service-network workloads keep public internet access while yeet blocks direct private-network and host traffic by default.
+- Service-network repair now preserves published ports and joined port mappings more reliably after catch or Docker network reconciliation.
+
 ### v0.8.4
 
 - `yeet copy` now accepts multiple sources, so shell-expanded globs and VM remote glob downloads work with the same last-argument-is-destination convention as scp and rsync.
