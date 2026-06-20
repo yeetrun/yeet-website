@@ -667,11 +667,17 @@ Open the current config for editing in `$EDITOR` (defaults to vim).
 
 ### copy
 
-Copy files between local paths and a remote endpoint. For regular services,
-`svc:path` targets the service `data/` directory. For VM services, `vm:path`
-targets the VM guest filesystem and uses rsync over the same transport as
-`yeet ssh`. By default, `yeet copy` behaves like `rsync -avz` (archive +
-verbose + compress). Alias: `cp`.
+Copy files between local paths and a remote endpoint. Like `scp` and `rsync`,
+every operand except the last is a source and the last operand is the
+destination. When copying multiple sources, the destination must be a
+directory, such as `svc:dir/`, `devbox:.ssh/`, or an existing local directory.
+
+For regular services, `svc:path` targets the service `data/` directory and
+supports exact service-data paths or directories, not remote globs. For VM
+services, `vm:path` targets the VM guest filesystem and uses rsync over the
+same transport as `yeet ssh`. Quoted remote globs such as
+`devbox:".ssh/id*"` are VM-only. By default, `yeet copy` behaves like
+`rsync -avz` (archive + verbose + compress). Alias: `cp`.
 
 Examples:
 
@@ -685,6 +691,9 @@ yeet copy ./config.yml svc:config/config.yml
 # Local dir contents -> remote dir (rsync-style)
 yeet copy ./configs/ svc:config/
 
+# Multiple local sources -> VM guest dir
+yeet copy ~/.ssh/id* devbox:.ssh/
+
 # Remote -> local
 yeet copy svc:config ./config
 
@@ -693,6 +702,7 @@ yeet copy ./app devbox:~/app
 yeet copy ./nginx.conf devbox:/etc/nginx/nginx.conf
 
 # VM guest -> local
+yeet copy devbox:".ssh/id*" .ssh/
 yeet copy devbox:/var/log/cloud-init.log ./logs/
 
 # Force the catch proxy path for VM copy
@@ -703,12 +713,13 @@ Notes:
 
 - `-a` is archive mode (includes recursion and metadata preservation).
 - `-z` compresses the transfer stream.
-- VM copy requires `rsync` locally and in the guest. Official yeet VM images
-  include it; custom images should install it.
+- VM copy uses rsync into the guest filesystem and requires `rsync` locally and
+  in the guest. Official yeet VM images include it; custom images should
+  install it.
 - `--force-proxy` applies only to VM endpoints and mirrors
   `yeet ssh --force-proxy`.
 - VM endpoints allow absolute guest paths. Regular service endpoints remain
-  relative to service `data/`.
+  relative to service `data/` and do not expand remote globs.
 - Output mirrors rsync's file list and summary format.
 - File ownership (uid/gid) is not preserved.
 - A trailing slash on the source copies directory contents (rsync-style).
