@@ -73,7 +73,7 @@ VM names map to `svc` management IPs.
 Override the default shape when needed:
 
 ```bash
-yeet run <vm> vm://ubuntu/26.04 --cpus=4 --memory=4g --disk=128g
+yeet run <vm> vm://ubuntu/26.04 --vcpus=4 --memory=4g --disk=128g
 ```
 
 ## Change an existing VM
@@ -82,7 +82,7 @@ Stop a VM before changing CPU, memory, disk size, or networking:
 
 ```bash
 yeet stop <vm>
-yeet vm set <vm> --cpus=6 --memory=6g
+yeet vm set <vm> --vcpus=6 --memory=6g
 yeet vm set <vm> --disk=128g
 yeet vm set <vm> --net=lan
 yeet start <vm>

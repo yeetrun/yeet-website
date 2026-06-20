@@ -206,7 +206,7 @@ VM disk clones.
 - `--macvlan-parent=<iface>`: parent interface for `lan`.
 - `--macvlan-vlan=<vlan>`: VLAN id for `lan`.
 - `--macvlan-mac=<mac>`: MAC address for `lan`.
-- `--cpus=<n>`: override the default VM vCPU count for `vm://` payloads.
+- `--vcpus=<n>`: override the default VM vCPU count for `vm://` payloads.
 - `--memory=<size>`: override the default VM memory size for `vm://` payloads.
   Sizes accept suffixes such as `m` and `g`.
 - `--disk=<size>`: override the default VM disk size for `vm://` payloads.
@@ -458,7 +458,7 @@ Change VM resources or networking while the VM is stopped.
 
 ```bash
 yeet stop devbox
-yeet vm set devbox --cpus=6 --memory=6g --disk=128g
+yeet vm set devbox --vcpus=6 --memory=6g --disk=128g
 yeet vm set devbox --net=lan
 yeet start devbox
 ```
