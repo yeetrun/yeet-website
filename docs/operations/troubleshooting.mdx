@@ -118,6 +118,9 @@ sudo iptables-nft -t nat -S YEET_POSTROUTING
 ```
 
 - On legacy hosts, replace `iptables-nft` with `iptables-legacy`.
+- The forward rules should allow `192.168.100.0/24`, reject representative
+  non-public IPv4 ranges such as `10.0.0.0/8`, `100.64.0.0/10`, and
+  `192.168.0.0/16`, then allow remaining public IPv4 egress.
 - Verify forwarding is enabled on the host:
 
 ```bash

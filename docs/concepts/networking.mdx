@@ -51,10 +51,15 @@ examples.
 ## Service network (`svc`)
 
 `svc` assigns a stable private IP from an internal range (`192.168.100.0/24`).
+`svc` is scoped to the yeet service subnet plus public IPv4 internet egress.
+It does not automatically grant access to the catch host's LAN routes,
+Tailscale interface, CGNAT ranges, loopback, link-local, multicast, or other
+non-public IPv4 destinations. Use `lan` when a workload should be a LAN host,
+and use `ts` when a workload should have its own Tailscale identity.
 
 - Use `yeet ip <svc>` to view it.
-- This is useful for service-to-service traffic or when combined with
-  Tailscale.
+- This is useful for service-to-service traffic or when combined with explicit
+  `ts` networking.
 - On modern Debian and Ubuntu hosts, yeet prefers native `nft` for the host
   forwarding and masquerade rules that support `svc`.
 - If `nft` is not available, yeet falls back to `iptables-nft`.
@@ -62,6 +67,8 @@ examples.
 - Yeet owns its own firewall objects for this path (`table ip yeet` for `nft`,
   or `YEET_FORWARD` / `YEET_POSTROUTING` chains for `iptables` backends)
   instead of appending anonymous one-off rules directly into the host ruleset.
+- The host-side forward rules allow service-subnet traffic, reject non-public
+  IPv4 destinations, then allow remaining public IPv4 egress through NAT.
 - Inside each service netns, yeet also owns the DNAT chains used for published
   compose ports (`YEET_PREROUTING` and `YEET_OUTPUT`) and now reconciles them
   from the current docker endpoint state so stale sidecar-targeting rules are
