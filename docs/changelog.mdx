@@ -3,6 +3,14 @@ title: Changelog
 description: Short notes for yeet + catch releases.
 ---
 
+## June 21, 2026
+
+### v0.8.7
+
+- VM guest kernel upgrades now work through the normal guest flow: install the new `yeet-vm-kernel` package or rebuild NixOS, reboot the VM, and catch syncs the selected kernel before Firecracker starts it again.
+- VM image metadata now preserves kernel provenance and compares image revisions more consistently, so catalog image updates and kernel-versioned image tags select the intended kernel build.
+- `yeet ip` and `yeet info` now keep user-connectable endpoints separate from runtime-only network addresses, making service networking output easier to act on.
+
 ## June 20, 2026
 
 ### v0.8.6
