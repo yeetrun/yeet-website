@@ -5,6 +5,10 @@ description: Short notes for yeet + catch releases.
 
 ## June 21, 2026
 
+### v0.8.8
+
+- New NixOS VMs now seed `/etc/nixos/system.nix` with the VM service name, so the guest hostname matches `yeet run <name>` and stays aligned after `nixos-rebuild`.
+
 ### v0.8.7
 
 - VM guest kernel upgrades now work through the normal guest flow: install the new `yeet-vm-kernel` package or rebuild NixOS, reboot the VM, and catch syncs the selected kernel before Firecracker starts it again.
