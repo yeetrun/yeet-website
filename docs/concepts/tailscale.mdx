@@ -17,7 +17,7 @@ such as `yeet list-hosts`.
 Catch must join your tailnet as a tagged node, usually `tag:catch`. Catch
 rejects user-owned nodes.
 
-For a first host, use this order:
+Before you run `yeet init`, set up Tailscale in this order:
 
 1. Add a yeet owner tag, such as `tag:yeet`.
 2. Let that owner tag own the catch tag, usually `tag:catch`.
@@ -25,9 +25,10 @@ For a first host, use this order:
    `tag:app`.
 4. Create a Tailscale OAuth client with the `auth_keys` scope.
 5. Select the owner tag on the OAuth client.
-6. Run `yeet init root@<machine-host>` and paste the OAuth client secret when
-   prompted.
-7. Validate with `yeet status`.
+6. Copy the `tskey-client-...` OAuth client secret.
+
+Then run `yeet init root@<machine-host>` and paste that secret when prompted.
+Validate the host with `yeet status`.
 
 Minimal policy shape:
 
@@ -51,9 +52,9 @@ can mint auth keys for `tag:catch` and later service tags.
 If you do not plan to use `--net=ts` for services, the OAuth client can assign
 `tag:catch` directly. The owner-tag pattern is more flexible.
 
-## Bootstrap with a secret
+## Run init with the secret
 
-Interactive init can prompt for the OAuth client secret:
+Interactive init prompts for the OAuth client secret during first setup:
 
 ```bash
 yeet init root@<machine-host>

@@ -41,17 +41,20 @@ yeet --help
 ## Prepare Tailscale access
 
 Catch uses an embedded tsnet node. That node must join your tailnet with a tag,
-such as `tag:catch`. Before the first install, make sure your tailnet
-policy allows catch to use that tag.
+such as `tag:catch`. This is required before the first `yeet init`.
 
-The usual setup is:
+Before you run `yeet init`, create this in the Tailscale admin console:
 
-- A `tagOwners` entry that lets your OAuth client assign `tag:catch`.
+- An owner tag for yeet, such as `tag:yeet`.
+- A catch tag, usually `tag:catch`, owned by `tag:yeet`.
 - ACLs or grants that let your workstation reach tagged catch nodes.
-- A Tailscale OAuth client secret with the `auth_keys` scope.
+- A Tailscale OAuth client with the Auth Keys write scope (`auth_keys`) and
+  `tag:yeet` selected.
 
-Follow [Tailscale Setup](/docs/concepts/tailscale#first-time-host-setup) if the
-tailnet policy is not ready yet.
+Keep the `tskey-client-...` OAuth client secret ready. Interactive `yeet init`
+will ask for it during first setup. Follow
+[Tailscale Setup](/docs/concepts/tailscale#first-time-host-setup) for the
+minimal policy snippet.
 
 ## Bootstrap catch
 
@@ -61,9 +64,12 @@ Run this from your workstation:
 yeet init root@<machine-host>
 ```
 
-During an interactive install, yeet can ask before installing missing
-Debian/Ubuntu packages. It can also ask for the Tailscale OAuth client secret
-when catch needs to join the tailnet.
+During first catch enrollment, interactive `yeet init` prompts for the
+Tailscale OAuth client secret unless you pass `--ts-client-secret=<secret>` or
+`--ts-auth-key=<key>`. Paste the secret from the Tailscale setup step.
+
+Interactive `yeet init` can also ask before installing missing Debian/Ubuntu
+packages.
 
 If you use a non-root SSH user, yeet runs the remote install with sudo.
 

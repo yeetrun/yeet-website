@@ -12,7 +12,7 @@ You need:
 
 - A Linux host with systemd and SSH access.
 - Tailscale admin access for the first catch enrollment.
-- A tag, such as `tag:catch`, that catch can use in your tailnet policy.
+- A Tailscale OAuth client secret that can create tagged auth keys for catch.
 
 You do not need Tailscale installed on your workstation. yeet uses an embedded
 tsnet client for normal commands.
@@ -32,7 +32,26 @@ To install the nightly build instead:
 curl -fsSL https://yeetrun.com/install.sh | sh -s -- --nightly
 ```
 
-## 2) Bootstrap catch on a host
+## 2) Prepare Tailscale access
+
+Do this before running `yeet init`. Catch must join your tailnet as a tagged
+device, usually `tag:catch`.
+
+In the Tailscale admin console, create:
+
+- An owner tag for yeet, such as `tag:yeet`.
+- A catch tag, usually `tag:catch`, owned by `tag:yeet`.
+- ACLs or grants that let your workstation reach `tag:catch`.
+- A Tailscale OAuth client with the Auth Keys write scope (`auth_keys`) and
+  `tag:yeet` selected.
+
+Keep the `tskey-client-...` OAuth client secret ready. Interactive `yeet init`
+will ask for it during first setup.
+
+For the minimal policy snippet, see
+[Tailscale Setup](/docs/concepts/tailscale#first-time-host-setup).
+
+## 3) Bootstrap catch on a host
 
 Run this from your workstation:
 
@@ -43,16 +62,18 @@ yeet init root@<machine-host>
 `<machine-host>` is the SSH target. If you use a non-root user, yeet runs the
 remote install with sudo.
 
-During first setup, `yeet init` may ask for a Tailscale OAuth client secret so
-catch can join the tailnet with a tag such as `tag:catch`. If your tailnet
-policy is not ready yet, follow
-[Tailscale Setup](/docs/concepts/tailscale#first-time-host-setup), then rerun
-`yeet init`.
+During first setup, `yeet init` prompts for the Tailscale OAuth client secret
+unless you pass `--ts-client-secret=<secret>` or `--ts-auth-key=<key>`. Paste
+the secret you created in the previous step.
+
+If the tailnet policy is not ready, finish
+[Tailscale Setup](/docs/concepts/tailscale#first-time-host-setup) before
+running `yeet init`.
 
 If Docker is missing on a Debian/Ubuntu-style host, interactive `yeet init` can
 ask to install it.
 
-## 3) Confirm yeet can reach catch
+## 4) Confirm yeet can reach catch
 
 After `yeet init`, commands target the catch hostname, not the SSH machine
 hostname. If yeet saved a default host, these should work:
@@ -71,7 +92,7 @@ yeet --host=<catch-host> status
 See [How Commands Work](/docs/cli/cli-overview) if `root@<machine-host>`,
 `<catch-host>`, and `<svc>@<host>` are still unclear.
 
-## 4) Deploy a disposable service
+## 5) Deploy a disposable service
 
 Start with a small container:
 
@@ -87,7 +108,7 @@ Check the published port from the host:
 yeet ssh -- curl -fsS http://127.0.0.1:18080/ >/dev/null
 ```
 
-## 5) Remove the disposable service
+## 6) Remove the disposable service
 
 ```bash
 yeet rm --clean-data hello

@@ -90,9 +90,10 @@ export default function InstallPage({ docsNavTree }: InstallPageProps) {
             <section className={s.card}>
               <H2>Bootstrap a host</H2>
               <P>
-                Install catch on a remote Linux host via SSH. The normal path is
-                interactive, so yeet can ask before installing missing
-                Debian/Ubuntu packages.
+                Prepare the Tailscale tag policy first, then install catch on a
+                remote Linux host via SSH. Interactive setup asks for the
+                Tailscale OAuth client secret and can ask before installing
+                missing Debian/Ubuntu packages.
               </P>
               <CodeBlock>
                 <code>{`yeet init root@<machine-host>`}</code>
