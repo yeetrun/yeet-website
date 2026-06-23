@@ -56,7 +56,7 @@ Use `lan` when the VM should request a LAN address through DHCP:
 yeet run <vm> vm://ubuntu/26.04 --net=lan
 ```
 
-Use `svc,lan` when the VM should be reachable on the host LAN and still keep a
+Use `svc,lan` when the VM needs host LAN access and should still keep a
 catch-managed fallback path:
 
 ```bash
@@ -151,7 +151,7 @@ machine.
 
 ## Image cache
 
-Official VM images are cached per catch host. A missing image downloads
+Catch caches official VM images per host. A missing image downloads
 automatically on the first VM create.
 
 ```bash
@@ -247,9 +247,9 @@ yeet run devbox vm://lab/ubuntu
 ```
 
 The import directory must contain `rootfs.ext4` or `rootfs.ext4.zst`. If it
-also contains a yeet VM `manifest.json`, yeet preserves the guest metadata from
-that manifest. Re-importing the same image name affects new VMs only; existing
-VMs keep the image version they were created with.
+also contains a yeet VM `manifest.json`, yeet uses the guest settings from that
+manifest. Re-importing the same image name affects new VMs only; existing VMs
+keep the image version from their original create.
 
 Remove an imported image:
 

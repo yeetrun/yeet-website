@@ -39,13 +39,13 @@ dig @192.168.100.1 web A +short
 dig @192.168.100.1 web.yeet.internal A +short
 ```
 
-Queries for ordinary external names are forwarded through the catch host's
-resolver. Tailnet names under `*.ts.net` are forwarded to Tailscale DNS.
+Yeet forwards ordinary external names through the catch host's resolver. It
+forwards tailnet names under `*.ts.net` to Tailscale DNS.
 
 ## Containers
 
-Compose services using `--net=svc` get yeet DNS through generated Compose
-network settings. Application code can normally use short service names.
+Compose services using `--net=svc` get yeet DNS automatically. Application
+code can normally use short service names.
 
 ```bash
 yeet run api ./compose.yml --net=svc

@@ -3,7 +3,7 @@ title: yeet Commands
 description: Client-side command reference for yeet.
 ---
 
-Use this page as a command index. For full generated help, run the command with
+Use this page as a command index. For full CLI help, run the command with
 `--help-llm`.
 
 ```bash
@@ -53,8 +53,9 @@ Common flags:
 
 - `--web`: open the local guided deploy form.
 - `--pull`: pull fresh images for Compose and image payloads.
-- `--force`: redeploy even when no payload or config change is detected.
-- `-p HOST:CONTAINER`: publish host ports for generated Compose payloads.
+- `--force`: redeploy even when yeet detects no payload or config change.
+- `-p HOST:CONTAINER`: publish host ports for image, Dockerfile, Python, and
+  TypeScript payloads.
 - `--publish-reset`: replace or clear the saved published-port list.
 - `--net=svc|ts|lan|svc,ts|svc,lan`: choose network modes.
 - `--service-root=<path-or-dataset>`: choose the initial service root.
@@ -258,7 +259,7 @@ yeet service set <svc> --snapshots=off
 yeet service set <svc> --snapshots=inherit
 ```
 
-Move service roots while the service is stopped. Use `--copy` to copy the old
+Stop the service before moving a service root. Use `--copy` to copy the old
 root or `--empty` to create a fresh root.
 
 ### `service sync`
@@ -330,7 +331,7 @@ Use [VMs](/docs/payloads/vms) for the full VM image workflow.
 
 ### `vm set`
 
-Change VM resources or networking while the VM is stopped:
+Stop the VM before changing VM resources or networking:
 
 ```bash
 yeet stop <vm>
@@ -410,8 +411,8 @@ yeet ip <svc>
 
 ### `tailscale` / `ts`
 
-Set up Tailscale OAuth for the catch host or run Tailscale commands inside a
-service network namespace:
+Set up Tailscale OAuth for the catch host or run Tailscale commands for a
+service identity:
 
 ```bash
 yeet tailscale --setup
@@ -471,8 +472,8 @@ List tailnet hosts matching tags:
 yeet list-hosts
 ```
 
-This command uses the local Tailscale client for discovery. Normal yeet RPC does
-not require a local Tailscale client.
+This command uses the local Tailscale client for discovery. Normal yeet commands
+do not require a local Tailscale client.
 
 ## Host Mounts
 

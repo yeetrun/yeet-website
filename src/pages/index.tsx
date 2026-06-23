@@ -74,7 +74,7 @@ export default function Home({ docsNavTree }: HomePageProps) {
         title:
           "yeet: Homelab Service Manager for Containers, VMs, and Binaries",
         description:
-          "Homelab service manager over Tailscale RPC for shipping containers, VMs, and host services to remote Linux machines.",
+          "Homelab service manager for shipping containers, VMs, and host services to remote Linux machines over your tailnet.",
         path: "/",
       }}
     >
@@ -83,16 +83,14 @@ export default function Home({ docsNavTree }: HomePageProps) {
           <GridContainer className={s.heroGrid}>
             <div className={s.heroContent}>
               <div className={s.heroBadge}>
-                Homelab-first • Tailscale/tsnet RPC • Containers + VMs
+                Homelab-first • Tailnet access • Containers + VMs
               </div>
               <H1 className={s.heroTitle}>Run services fast with yeet.</H1>
               <P className={s.heroSubtitle} weight="regular">
-                Yeet is a lightweight client + server setup for deploying and
-                managing services on remote Linux hosts. It’s optimized for a
-                personal homelab: fast workflows, minimal ceremony, and a tight
-                CLI that ships compose stacks, Dockerfiles, images, binaries,
-                scripts, cron jobs, and Firecracker-backed Linux VMs over your
-                tailnet.
+                Yeet deploys and manages services on remote Linux hosts you
+                control. Use one CLI to ship compose stacks, Dockerfiles,
+                images, binaries, scripts, cron jobs, and Firecracker-backed
+                Linux VMs over your tailnet.
               </P>
               <div className={s.heroActions}>
                 <ButtonLink
@@ -108,9 +106,9 @@ export default function Home({ docsNavTree }: HomePageProps) {
                 />
               </div>
               <div className={s.heroNote}>
-                <strong>Read this first:</strong> Yeet is opinionated homelab
-                tooling. It works best with Linux hosts you control,
-                Tailscale/tsnet for RPC, systemd, and Docker when deploying
+                <strong>Read this first:</strong> Yeet targets opinionated
+                homelab workflows. It expects Linux hosts, SSH access,
+                Tailscale/tsnet connectivity, systemd, and Docker for
                 container payloads.
               </div>
             </div>
@@ -183,7 +181,7 @@ yeet run <svc> ./compose.yml`}</code>
               <p>Runs services, streams logs, and reports status.</p>
             </div>
             <div className={s.featureCard}>
-              <h3>Tailnet RPC</h3>
+              <h3>Tailnet connection</h3>
               <p>Connects yeet to catch through embedded Tailscale nodes.</p>
             </div>
             <div className={s.featureCard}>
@@ -247,7 +245,7 @@ yeet run <svc> ./compose.yml`}</code>
         <SectionWrapper className={s.section}>
           <div className={s.sectionHeader}>
             <H2>Explore the docs</H2>
-            <P>Everything from quick start to CLI references and networking.</P>
+            <P>Start with setup, then move into payloads, workflows, and CLI reference.</P>
           </div>
           <div className={s.docsGrid}>
             <Link
@@ -272,7 +270,7 @@ yeet run <svc> ./compose.yml`}</code>
             </Link>
             <Link className={s.docsCard} href="/docs/operations/workflows">
               <h3>Workflows</h3>
-              <p>Day‑to‑day deploy, update, and maintenance flows.</p>
+              <p>Day-to-day deploy, update, and maintenance flows.</p>
             </Link>
           </div>
         </SectionWrapper>

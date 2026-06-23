@@ -28,14 +28,11 @@ yeet run <svc> ./compose.yml --service-root=/srv/apps/<svc>
 yeet run <svc> ./compose.yml --service-root=tank/apps/<svc> --zfs
 ```
 
-Catch accepts an existing dataset or runs plain `zfs create <dataset>`,
-resolves the dataset mountpoint, and uses that path as the service root. Parent
-datasets must already exist. If the dataset already exists or its mountpoint
-already contains files, catch prints a warning and deploys into it.
+Parent datasets must already exist. If the dataset already exists or its
+mountpoint already contains files, catch prints a warning and deploys into it.
 
-Catch stores both the mounted filesystem path and the ZFS dataset identity in
-its DB. `yeet.toml` stores the replay intent, including `service_root` and
-`service_root_zfs`. If another checkout changes the live service root, run:
+`yeet.toml` records the service-root intent for future deploys. If another
+checkout changes the live service root, sync it back:
 
 ```bash
 yeet service sync <svc>
@@ -44,15 +41,14 @@ yeet service sync <svc>
 ## Snapshots
 
 ZFS-backed service roots get yeet-managed snapshots before risky changes. The
-built-in default is enabled and required, keeps the newest 5 yeet-created
-snapshots, prunes snapshots older than 7 days, and snapshots before these
-events:
+built-in default keeps the newest 5 yeet-created snapshots, prunes snapshots
+older than 7 days, and runs before these events:
 
 - `run`
 - `docker-update`
 - `service-root-migration`
 
-First deploys are skipped because there is no prior service state to recover.
+Yeet skips first deploys because there is no prior service state to recover.
 Catch prunes only snapshots it created for that service.
 
 ```bash
@@ -70,14 +66,12 @@ yeet service set <svc> --snapshot-events=run,docker-update
 yeet service set <svc> --snapshots=inherit
 ```
 
-Snapshot-only changes do not require the service to be stopped. Service-root
-moves still require the service to be stopped.
+Snapshot-only changes do not require a service stop. Stop the service before a
+service-root move.
 
-For VM payloads, the policy controls retention for manual `yeet snapshots
-create <vm>` commands. VM snapshots target the VM ZVOL instead of the
-service-root dataset.
-`--snapshot-events` and `--snapshot-required` are for automatic service-root
-snapshots and are not shown in the VM web-run snapshot controls.
+For VM payloads, the policy controls retention for manual
+`yeet snapshots create <vm>` commands. Automatic service-root snapshot events
+do not apply to VM web-run snapshot controls.
 
 ## Recovery points
 
@@ -104,8 +98,8 @@ pruning:
 yeet snapshots protect <svc> <snapshot>
 ```
 
-Protected recovery points are excluded from automatic pruning. They must be
-unprotected before removal.
+Automatic pruning skips protected recovery points. Unprotect a recovery point
+before removing it.
 
 Manual recovery point flow:
 
@@ -170,11 +164,11 @@ The first VM created on a pool for an image family/version prepares a shared
 ZFS image base. Later VMs on the same pool and image family/version clone that
 base instead of writing the root filesystem again.
 
-When a newer VM image is cached, yeet keeps ZFS image bases that are still
-referenced by VM clones and prunes only old unreferenced bases. Use `yeet vm
-images prune --dry-run` to inspect cleanup before removing anything.
+When a newer VM image enters the cache, yeet keeps ZFS image bases that VM
+clones still use and prunes only old unreferenced bases. Use
+`yeet vm images prune --dry-run` to inspect cleanup before removing anything.
 
-Grow an existing ZFS-backed VM disk while the VM is stopped:
+Stop a ZFS-backed VM before growing its disk:
 
 ```bash
 yeet stop <vm>
@@ -182,9 +176,8 @@ yeet vm set <vm> --disk=128g
 yeet start <vm>
 ```
 
-Yeet grows the VM ZVOL, waits for the block device to settle, checks the ext4
-filesystem, and then grows the guest root filesystem. Disk shrink and live
-resize are not supported.
+Yeet grows the VM disk and guest ext4 filesystem. Disk shrink and live resize
+are not supported.
 
 `yeet rm --clean-data <vm>` removes the VM service data and VM clone. It does
 not remove the shared image base, so future VMs can keep cloning it.

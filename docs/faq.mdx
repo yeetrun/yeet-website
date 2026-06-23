@@ -5,16 +5,16 @@ description: Short answers to common yeet questions.
 
 ## Is this intended for general use?
 
-Yeet is intended for homelab-style use by people comfortable operating Linux
-hosts over SSH. It is not a general-purpose platform or a multi-tenant
-orchestrator: hosts are expected to run Linux/systemd, RPC uses Tailscale/tsnet,
-and catch currently manages services as root.
+Yeet targets homelab-style use by people comfortable operating Linux hosts over
+SSH. It is not a general-purpose platform or a multi-tenant orchestrator: use
+Linux/systemd hosts, Tailscale/tsnet connectivity, and a single-operator trust
+model.
 
 ## Does yeet require Tailscale?
 
 Yes, but you do not need the Tailscale client installed locally for normal yeet
-commands. Catch runs an embedded tsnet node for RPC, and the yeet CLI talks to
-that node over tsnet. A local Tailscale client is only needed for local
+commands. Catch runs an embedded tsnet node, and the yeet CLI talks to that
+node over tsnet. A local Tailscale client is only needed for local
 tailnet discovery commands such as `yeet list-hosts`. See
 [Tailscale](/docs/concepts/tailscale).
 
@@ -41,15 +41,16 @@ containers and still not support VM payloads. See [VMs](/docs/payloads/vms).
 
 Re-run `yeet run` with the updated payload. For compose services, `yeet run`
 does not pull images by default; use `yeet run --pull <svc> ./compose.yml` or
-`yeet docker update <svc...>` (pulls images and recreates containers) when you
-want fresh images for selected services. Use `yeet docker update --outdated` to
-update all compose services with available image updates.
+`yeet docker update <svc...>` when you want fresh images for selected services.
+That command pulls images and recreates containers. Use
+`yeet docker update --outdated` to update all compose services with available
+image updates.
 
 ## What is the difference between a machine host and catch host?
 
 The machine host is the SSH target for `yeet init`, such as
 `root@<machine-host>`. The catch host is the tsnet hostname yeet targets after
-catch is installed. Use the catch host with `CATCH_HOST`, `--host`, and
+install. Use the catch host with `CATCH_HOST`, `--host`, and
 `<svc>@<catch-host>`.
 
 ## What deletes data?

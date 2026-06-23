@@ -12,7 +12,7 @@ Yeet uses two host names during setup:
 
 - `<machine-host>` is the SSH target for `yeet init`, such as
   `root@server.example`.
-- `<catch-host>` is the Tailscale/tsnet hostname yeet uses for RPC after catch
+- `<catch-host>` is the Tailscale/tsnet hostname yeet uses after catch
   starts.
 
 Use the machine host for installation. Use the catch host with `CATCH_HOST`,
@@ -40,8 +40,8 @@ yeet --help
 
 ## Prepare Tailscale access
 
-Catch uses an embedded tsnet node for RPC. That node must join your tailnet with
-a tag, such as `tag:catch`. Before the first install, make sure your tailnet
+Catch uses an embedded tsnet node. That node must join your tailnet with a tag,
+such as `tag:catch`. Before the first install, make sure your tailnet
 policy allows catch to use that tag.
 
 The usual setup is:
@@ -98,8 +98,8 @@ Advanced users can pass a preauthorized Tailscale auth key instead:
 yeet init --install-docker --install-vm-tools --ts-auth-key=<key> root@<machine-host>
 ```
 
-The secret or auth key belongs to the catch node. The resulting catch node must
-be tagged before catch accepts RPC.
+The secret or auth key belongs to the catch node. Catch accepts connections only
+after the node has the required tag.
 
 ## Confirm the install
 
@@ -165,7 +165,7 @@ Base host:
 Container payloads:
 
 - Docker on the host.
-- Docker's containerd snapshotter enabled. `yeet init` configures this during
+- Docker configured for local image pushes. `yeet init` handles this during
   catch install.
 
 VM payloads:
@@ -182,4 +182,4 @@ or fast VM disk clones. See [ZFS](/docs/concepts/zfs).
 
 Use `yeet init` unless you have a specific reason to install catch manually. If
 you do install catch yourself, see the [catch reference](/docs/cli/catch-cli)
-for daemon flags such as `--data-dir` and `--tsnet-host`.
+for catch flags such as `--data-dir` and `--tsnet-host`.

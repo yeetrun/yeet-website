@@ -13,7 +13,7 @@ mise install
 ### Run the dev server
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
@@ -22,8 +22,9 @@ Then open `http://localhost:3000` in your browser.
 ## Content
 
 - Docs live in `docs/` as MDX files.
-- Navigation is defined in `docs/nav.json`.
+- `docs/nav.json` defines navigation.
 - Site pages are in `src/pages/`.
+- Use `STYLEGUIDE.md` for public docs writing and information architecture.
 
 ## Build
 

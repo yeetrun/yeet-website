@@ -1,10 +1,10 @@
 ---
 title: catch Reference
-description: Catch daemon commands and common flags.
+description: Host-side catch commands and common flags.
 ---
 
-Catch runs on remote Linux hosts and receives requests from yeet. In normal
-use, install and update it with `yeet init`.
+Catch runs on remote Linux hosts and receives requests from yeet. For normal
+operation, install and update catch with `yeet init`.
 
 ## Usage
 
@@ -24,7 +24,7 @@ catch [flags] [install|version|is-catch]
   directory selected during install. Manual runs default to `data` under the
   current working directory.
 - `--tsnet-host`: catch tsnet hostname. Default: `catch`.
-- `--tsnet-port`: catch RPC port.
+- `--tsnet-port`: catch tsnet port.
 
 See [Data Layout](/docs/concepts/data-layout) for host storage and
 [Tailscale](/docs/concepts/tailscale) for tsnet setup.
@@ -49,8 +49,8 @@ CATCH_INSTALL_DOCKER=1
 ## When to run catch directly
 
 Most users should not need direct catch commands. Use direct catch invocation
-only when you are installing manually, checking the daemon version on the host,
-or debugging host service startup.
+only when you are installing manually, checking the catch version on the host,
+or debugging catch startup.
 
 Use [Installation](/docs/getting-started/installation) for the supported
 bootstrap path and [yeet Commands](/docs/cli/yeet-cli) for normal operations.

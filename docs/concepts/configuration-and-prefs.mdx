@@ -3,7 +3,8 @@ title: Configuration & Prefs
 description: Client preferences, project config, and environment variables.
 ---
 
-This page documents client and server configuration inputs.
+Use this page when you need to see where yeet stores client preferences and
+project defaults.
 
 ## Client prefs
 
@@ -21,9 +22,9 @@ Schema:
 }
 ```
 
-`defaultHost` is the **catch host** (Tailscale/tsnet hostname used for RPC) that
-yeet uses when no host is specified via `@<host>`, `--host`, or `yeet.toml`.
-See [Tailscale](/docs/concepts/tailscale) for details.
+`defaultHost` is the **catch host** (Tailscale/tsnet hostname) that yeet uses
+when you do not specify a host with `@<host>`, `--host`, or `yeet.toml`. See
+[Tailscale](/docs/concepts/tailscale) for details.
 
 Commands:
 
@@ -34,15 +35,13 @@ yeet prefs --save
 
 ## Project config (`yeet.toml`)
 
-When you run yeet from a project directory it can persist service defaults in a
-`yeet.toml` file. This is a convenience layer for the CLI (payloads + flags) and
-is not a mirror of catch internals.
+When you run yeet from a project directory, it can persist service defaults in
+a `yeet.toml` file.
 
 `yeet run --web` writes the same project config entries as the matching CLI
-path (`yeet run` or `yeet cron`). The browser form is only a local frontend for
-the same deployment paths, so payload paths, env files, service-root settings,
-ZFS flags, snapshot overrides, cron schedules, and payload args are saved in
-`yeet.toml` the same way.
+path (`yeet run` or `yeet cron`). Payload paths, env files, service-root
+settings, ZFS flags, snapshot overrides, cron schedules, and payload args are
+saved in `yeet.toml` the same way.
 
 Example:
 
@@ -73,14 +72,14 @@ args = ["-live"]
 
 Notes:
 
-- `payload` is stored relative to the `yeet.toml` directory when possible.
+- Yeet stores `payload` relative to the `yeet.toml` directory when possible.
 - `type` is optional; omit it (or set `run`) for `yeet run`, and set `cron` for
   `yeet cron`.
 - `args` stores run flags followed by payload args, with the `--` separator
-  removed. Yeet re-inserts `--` when needed to re-run the service (for cron this
-  is just the binary args after `--`).
+  removed. Yeet re-inserts `--` when needed to re-run the service. For cron,
+  these are the binary args after `--`.
 - `schedule` is the 5-field cron expression for `type = "cron"`.
-- `hosts` is used for host-scoped commands like `yeet status` with no args.
+- `hosts` controls host-scoped commands like `yeet status` with no args.
 
 ## Environment variables
 
@@ -88,10 +87,6 @@ Client:
 
 - `CATCH_HOST`: default target **catch host** (Tailscale/tsnet hostname).
   See [Tailscale](/docs/concepts/tailscale).
-
-Server:
-
-- None documented yet.
 
 ## Editor
 

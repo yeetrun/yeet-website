@@ -13,9 +13,8 @@ yeet cron <svc> ./job.sh "0 9 * * *"
 yeet cron <svc> ./job.sh "0 9 * * *" -- --job-arg foo
 ```
 
-Arguments after `--` are saved as payload args and replayed on future runs.
-Binary payloads uploaded by `cron` are zstd-compressed; catch auto-decompresses
-them on receipt.
+Yeet saves arguments after `--` as payload args and replays them on future
+runs.
 
 ## Update a job
 
@@ -67,5 +66,5 @@ yeet rm <svc>
 yeet rm --clean-data <svc>
 ```
 
-`--clean-data` removes the managed service data root in addition to uninstalling
-the timer and service units. Read the confirmation prompt before accepting.
+`--clean-data` removes the managed service data root in addition to the
+scheduled job. Read the confirmation prompt before accepting.

@@ -7,7 +7,7 @@ description: Short notes for yeet + catch releases.
 
 ### v0.8.9
 
-- VM startup now waits for the guest agent and SSH readiness signal before reporting the VM as ready, making first boot and rebuild flows less likely to race guest setup.
+- VM startup now waits until the guest is actually reachable, reducing first-boot and rebuild races.
 
 ## June 21, 2026
 
@@ -17,69 +17,69 @@ description: Short notes for yeet + catch releases.
 
 ### v0.8.7
 
-- VM guest kernel upgrades now work through the normal guest flow: install the new `yeet-vm-kernel` package or rebuild NixOS, reboot the VM, and catch syncs the selected kernel before Firecracker starts it again.
-- VM image metadata now preserves kernel provenance and compares image revisions more consistently, so catalog image updates and kernel-versioned image tags select the intended kernel build.
+- VM guest kernel upgrades now work through normal guest workflows: update the package or rebuild NixOS, reboot, and start the VM again.
+- Catalog VM image updates now select kernel-versioned images more consistently.
 - `yeet ip` and `yeet info` now keep user-connectable endpoints separate from runtime-only network addresses, making service networking output easier to act on.
 
 ## June 20, 2026
 
 ### v0.8.6
 
-- VM deploys now show the same compact progress style as other `yeet run` workflows, with timed stages, clearer waiting states, and more useful next-step commands when provisioning finishes or fails.
+- VM deploys now use the same compact progress style as other `yeet run` workflows, with clearer waiting states and next-step commands.
 - Interactive VM image prompts now pause the progress display cleanly, so image downloads and setup confirmations are easier to read and answer.
 
 ### v0.8.5
 
-- VMs with both service and LAN networking now prefer the LAN route for normal traffic and use a reachable LAN SSH path first, while the service network remains available for yeet management.
+- VMs with both service and LAN networking now prefer the LAN route for normal traffic while keeping the service network available for yeet management.
 - Service-network workloads keep public internet access while yeet blocks direct private-network and host traffic by default.
 - Service-network repair now preserves published ports and joined port mappings more reliably after catch or Docker network reconciliation.
 
 ### v0.8.4
 
 - `yeet copy` now accepts multiple sources, so shell-expanded globs and VM remote glob downloads work with the same last-argument-is-destination convention as scp and rsync.
-- `yeet run --web` now filters payload choices as you type and validates required Tailscale tags before deploy, making the guided flow faster to drive from the keyboard and clearer before submit.
-- VM networking and SSH are more predictable: VMs get a service-network gateway path, remote SSH commands preserve their argument boundaries, and `yeet info` reports missing services more clearly.
+- `yeet run --web` now filters payload choices as you type and validates required Tailscale tags before deploy.
+- VM networking, SSH commands, and missing-service errors are more predictable.
 
 ## June 19, 2026
 
 ### v0.8.3
 
-- Compose deploys no longer require a local Docker daemon when there are no local images to push, so `yeet run --web` can deploy from machines where the local Docker runtime is stopped.
+- Compose deploys no longer require a local Docker daemon when no local images need pushing.
 - Failed first-time web deploys now clean up staged placeholders, avoiding misleading "service already exists" errors on the next attempt.
-- ZFS-backed Compose deploys now keep uploaded env files under the selected service root, and LAN plus Tailscale services no longer fail startup because of a missing namespace resolver file.
+- ZFS-backed Compose deploys now keep uploaded env files under the selected service root, and LAN plus Tailscale services start more reliably.
 
 ### v0.8.2
 
 - VM service networking now routes traffic through the service bridge correctly, avoiding hangs when VMs reach yeet service-network apps by name or service IP.
-- Tailscale-exposed services now repair their sidecar networking after catch recreates a service network namespace, so services keep responding after netns repair, catch restarts, or host reboots.
+- Tailscale-exposed services now keep responding after service-network repair, catch restarts, and host reboots.
 
 ### v0.8.1
 
-- VM service networking is repaired automatically after catch restarts, host reboots, and VM setting changes, and `yeet ssh` now reaches VMs with both service and LAN networking through the VM's LAN address via catch.
+- VM service networking now recovers after catch restarts, host reboots, and VM setting changes.
 - VMs that shut themselves down from inside the guest are now detected as stopped more reliably, including Firecracker guests that report a halted state after `poweroff`.
-- `yeet vm images catalog` now shows the fields users need for choosing a VM payload without exposing empty kernel-policy details for managed catalog images.
+- `yeet vm images catalog` now shows clearer fields for choosing a VM payload.
 
 ## June 17, 2026
 
 ### v0.8.0
 
-- Added `yeet snapshots` recovery commands for ZFS-backed services and VMs, including manual recovery points, list and inspect views, clone-first recovery, in-place restore, protection from pruning, and full VM checkpoints.
-- `yeet run --web` now discovers ZFS roots from the selected host, fills predictable VM sizing defaults, and keeps VM network choices valid while still allowing service-network, LAN, or combined VM networking.
-- Service-network deployments now get yeet-managed DNS, and official VM images resolve through the published catalog so hosts can pick up catalog updates without a yeet binary release.
+- Added `yeet snapshots` recovery commands for ZFS-backed services and VMs.
+- `yeet run --web` now discovers ZFS roots, fills predictable VM defaults, and keeps VM network choices valid.
+- Service-network deployments now get yeet-managed DNS, and hosts can pick up catalog VM image updates without a yeet binary release.
 
 ## June 12, 2026
 
 ### v0.7.2
 
-- `yeet run --web` is now a workload-first new-service builder for Compose apps, VM catalog images, Dockerfiles, container images, binaries/scripts, and scheduled jobs, with a command preview that matches the deploy path.
-- The web builder now keeps common network, storage, and ZFS choices visible while showing workload-specific fields, including safer VM defaults and cleaner image-reference entry.
+- `yeet run --web` is now a workload-first builder for Compose apps, VMs, Dockerfiles, images, binaries, scripts, and scheduled jobs.
+- The web builder now keeps common network, storage, and ZFS choices visible while showing workload-specific fields.
 - `yeet logs <service>` now streams through a non-TTY path and handles client disconnects cleanly, avoiding inconsistent output and broken-pipe noise.
 
 ### v0.7.1
 
 - VM setup now fails earlier for malformed network modes, unsupported VM networking, invalid VLAN values, and macvlan settings that are missing LAN networking.
 - Failed VM provisioning cleans up new service roots more safely while preserving existing service-root data, including existing ZFS datasets.
-- `yeet upgrade` handles protected install directories more reliably, and VM image manifests now validate guest runtime metadata before use.
+- `yeet upgrade` handles protected install directories more reliably, and VM image imports now validate required guest settings before use.
 
 ## June 10, 2026
 
@@ -87,7 +87,7 @@ description: Short notes for yeet + catch releases.
 
 - `yeet upgrade` can now replace a protected local yeet binary through `sudo`, fixing self-upgrades from root-owned install directories.
 - VM creates and `yeet vm set` now reject unsupported VM network modes and LAN-only macvlan settings before provisioning or changing a service.
-- Imported local VM images now keep guest metadata correct: default users appear in `yeet vm images catalog`, metadata changes get distinct image IDs, and older imported refs still work.
+- Imported local VM images now show default users in `yeet vm images catalog`, track setting changes, and keep older image refs working.
 
 ## June 9, 2026
 
@@ -104,7 +104,7 @@ description: Short notes for yeet + catch releases.
 
 ### v0.6.14
 
-- Added `yeet vm images catalog` so catch hosts can list runnable VM payloads, including official and imported local images, before any image is cached.
+- Added `yeet vm images catalog` so catch hosts can list runnable VM payloads before downloading them.
 
 ### v0.6.13
 
@@ -117,15 +117,15 @@ description: Short notes for yeet + catch releases.
 ### v0.6.11
 
 - VM image downloads now retry transient GitHub fetch failures and identify yeet as the downloader, making new image rollouts more reliable.
-- VM SSH host-key repair now clears stale backup files before removing regenerated guest keys from yeet's known-hosts file.
+- VM SSH host-key repair now handles stale key backups more reliably.
 
 ### v0.6.10
 
-- Fixed SSH access for fresh `vm://nixos/26.05` VMs by writing per-user OpenSSH authorized-key metadata that NixOS consumes through normal key-file configuration.
+- Fixed SSH access for fresh `vm://nixos/26.05` VMs.
 
 ### v0.6.9
 
-- Improved `vm://nixos/26.05` SSH metadata permissions so yeet-written key files are readable by the guest OpenSSH configuration.
+- Improved `vm://nixos/26.05` SSH key permissions inside the guest.
 
 ### v0.6.8
 
@@ -141,7 +141,7 @@ description: Short notes for yeet + catch releases.
 
 - Added `vm://nixos/26.05` as an official Firecracker VM image alongside Ubuntu.
 - `yeet vm images` now lists, updates, and prunes official image families independently, including targeted updates such as `yeet vm images update vm://nixos/26.05`.
-- VM image manifests can declare the guest default user, system init path, and metadata driver so custom images can use the right guest setup model.
+- Custom VM images can now declare the guest user and startup model they need.
 
 ### v0.6.5
 
@@ -159,13 +159,13 @@ description: Short notes for yeet + catch releases.
 ### v0.6.2
 
 - `yeet init` now prompts for a Tailscale OAuth client secret, with `--ts-client-secret` for non-interactive catch enrollment as a tagged host.
-- Catch stores that OAuth secret for later `--net=ts` services and fails fast with policy guidance when the requested catch tag cannot be assigned.
+- Catch saves that OAuth secret for later `--net=ts` services and gives policy guidance when it cannot assign a requested tag.
 - The Tailscale guide now gives first-time users a clear setup checklist for `tagOwners`, OAuth owner tags, catch enrollment, and validation.
 
 ### v0.6.1
 
-- `yeet upgrade check` now refreshes the latest release for explicit checks, keeps dev-build rows compact, and `yeet upgrade` exits without prompting when nothing can be upgraded.
-- Catch now requires a tagged Tailscale identity for RPC, and first-run setup errors link to the Tailscale policy checklist when the catch node or service tags are not allowed by `tagOwners`.
+- `yeet upgrade check` now refreshes the latest release for explicit checks, keeps dev-build rows compact, and exits quietly when nothing needs an upgrade.
+- Catch now requires a tagged Tailscale identity and links to the Tailscale policy checklist when policy blocks a tag.
 - Tailscale docs now explain interactive catch bootstrap, unattended auth keys, and the separate OAuth setup used for `--net=ts` service tags.
 
 ### v0.6.0
@@ -181,7 +181,7 @@ description: Short notes for yeet + catch releases.
 
 ### v0.5.12
 
-- `yeet init` can bootstrap fresh Docker hosts with `--install-docker` and now configures Docker's containerd snapshotter before catch starts.
+- `yeet init` can bootstrap fresh Docker hosts with `--install-docker` and prepares Docker for local image pushes.
 - Remote catch installs now surface Tailscale login progress and support `--ts-auth-key` for unattended catch tsnet setup.
 - VM host readiness checks no longer prompt to install VM packages on hosts that cannot run VMs because KVM, TUN/TAP, or host architecture support is missing.
 
@@ -219,8 +219,8 @@ description: Short notes for yeet + catch releases.
 
 ### v0.5.4
 
-- Fresh Ubuntu VMs now boot with clean systemd status, avoiding failed firmware/update services and split `bin`/`sbin` taint.
-- `vm://ubuntu/26.04` now defaults to the v8 image with cleaner Firecracker boot arguments.
+- Fresh Ubuntu VMs now boot with clean systemd status.
+- `vm://ubuntu/26.04` now defaults to the v8 image with a cleaner boot profile.
 
 ## June 5, 2026
 
@@ -236,7 +236,7 @@ description: Short notes for yeet + catch releases.
 
 ### v0.5.1
 
-- Fixed a catch CPU spike after Tailscale-backed service updates by stopping the Tailscale monitor once it records the service stable ID.
+- Tailscale-backed service updates no longer leave catch using excess CPU.
 - Added dedicated manual pages for containers, binaries and scripts, VMs, cron jobs, and ZFS-backed service roots.
 
 ## June 4, 2026
@@ -258,7 +258,7 @@ description: Short notes for yeet + catch releases.
 
 - `yeet service set <service> -p ...` can now update Docker published ports after a service exists, while `--publish-reset` makes intentional replacements explicit.
 - `yeet run -p ...` and `yeet.toml` now use the same persistent published-port model as follow-up service changes.
-- `yeet info` now shows saved published-port mappings for services that use yeet-managed network namespaces.
+- `yeet info` now shows saved published-port mappings for services that use service networking.
 
 ### v0.4.2
 
@@ -274,14 +274,14 @@ description: Short notes for yeet + catch releases.
 ### v0.4.0
 
 - Added `yeet run --web`, a browser-based deployment form for creating new services from a local project checkout.
-- Web deployments now include host validation, project file picking, and the same first-run options as the CLI, including networking, env files, service roots, ZFS, snapshots, Tailscale, and LAN settings.
+- Web deployments now include host validation, project file picking, and the same first-run options as the CLI.
 - The website homepage and manual now show the web deploy flow alongside CLI deployment examples.
 
 ## May 28, 2026
 
 ### v0.3.3
 
-- Service-root migrations now rewrite optional systemd `EnvironmentFile=-...` paths, so moved binary services no longer keep reading env files from the old root.
+- Moved binary services now keep reading the right env files after service-root migrations.
 
 ## May 25, 2026
 
@@ -310,13 +310,13 @@ description: Short notes for yeet + catch releases.
 
 - `yeet docker update <svc...>` can update multiple compose services in one command, including mixed `svc@host` targets.
 - `yeet docker update --outdated` now reports skipped scan issues instead of treating them as clean no-update results.
-- Docker image update checks now include command stderr in scan errors, making registry and DNS failures visible.
+- Docker image update checks now include registry and DNS error details.
 
 ## May 10, 2026
 
 ### v0.2.9
 
-- `--net=lan` services now keep separate DHCP lease files, avoiding corrupt shared lease state when multiple services use LAN namespaces.
+- `--net=lan` services now keep separate DHCP leases, avoiding conflicts between services.
 - Remote sessions now close their stdin proxy reliably, preventing a rare hang during cleanup.
 
 ### v0.2.8
@@ -329,28 +329,26 @@ description: Short notes for yeet + catch releases.
 
 ### v0.2.7
 
-- Improved release reliability with broader automated checks across CLI routing, catch RPC, Docker, registry, TTY, installer, and service flows.
-- Added public development checks for test coverage, complexity, lint, and Go vulnerabilities.
+- Improved release reliability with broader automated checks across common service flows.
 
 ## May 2, 2026
 
 ### v0.2.6
 
-- Docker published ports on yeet-managed network namespaces now replay from catch state when catch starts.
+- Docker published ports on service networking now come back when catch starts.
 - Docker container restarts now keep yeet port forwarding in sync through Docker's external-connectivity callbacks.
-- Services with shared namespaces no longer clear each other's published-port rules during container churn.
+- Services that share networking no longer clear each other's published-port rules during container changes.
 
 ### v0.2.5
 
-- Docker startup prerequisites now avoid stop cascades when `catch` or yeet network units are refreshed.
-- Per-service Tailscale sidecars recover when LAN network namespaces are delayed during host boot.
-- Yeet refreshes the shared bridge namespace unit without interrupting an already-running namespace.
+- Docker services keep running more reliably when catch or yeet networking refreshes.
+- Per-service Tailscale networking recovers when LAN setup runs late during host boot.
 
 ### v0.2.4
 
 - Docker services on yeet-managed networks now come back more reliably after host reboots.
-- `catch` now installs Docker startup ordering so Docker waits for yeet's network plugin and service namespaces before restoring containers.
-- Existing hosts migrate their catch and network namespace systemd units during `yeet init` without forcing service redeploys.
+- `catch` now starts Docker in the right order for yeet-managed networking.
+- Existing hosts update their catch and networking units during `yeet init` without forcing service redeploys.
 
 ## April 12, 2026
 
@@ -376,9 +374,9 @@ description: Short notes for yeet + catch releases.
 
 ### v0.2.0
 
-- Docker services on `svc` now recover automatically when their named network namespace is recreated.
-- Yeet now reconciles service-netns port forwarding to the current Docker endpoint state, removing stale DNAT rules during container churn.
-- Docker image deploys on `svc` no longer try to start a missing primary systemd unit before bringing containers up.
+- Docker services on `svc` networking now recover automatically after network repair.
+- Yeet now removes stale port-forwarding rules during container changes.
+- Docker image deploys on `svc` now start more reliably.
 
 ## March 22, 2026
 

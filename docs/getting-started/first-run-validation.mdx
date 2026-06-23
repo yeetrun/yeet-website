@@ -3,8 +3,8 @@ title: First-Run Validation
 description: A practical smoke-test playbook for a fresh yeet + catch host.
 ---
 
-Use this playbook after `yeet init` on a fresh host. It checks the control
-plane first, then the payload paths that should work on a normal
+Use this playbook after `yeet init` on a fresh host. It checks the connection
+to catch first, then the payload paths that should work on a normal
 Debian/Ubuntu-style server. Run the optional KVM, LAN, and ZFS checks only when
 you plan to use those features.
 
@@ -28,11 +28,11 @@ yeet status
 
 If you have Tailscale installed locally, `yeet list-hosts` can also confirm the
 catch node is visible in your tailnet. It is optional for this playbook because
-normal yeet RPC uses embedded tsnet.
+normal yeet commands use embedded tsnet.
 
 If `yeet status` cannot connect, confirm `yeet init` stored a Tailscale OAuth
-client secret or catch-node auth key, and confirm the catch node is tagged. For
-repeatable setup, rerun init with the OAuth client secret:
+client secret or catch-node auth key, and confirm the catch node has the
+required tag. For repeatable setup, rerun init with the OAuth client secret:
 
 ```bash
 yeet init --install-docker --ts-client-secret=<secret> root@<machine-host>
@@ -50,8 +50,8 @@ changes before catch can use the tag you selected.
 
 ## 2) Smoke-test Docker image payloads
 
-This validates the most common path: Docker on the host, generated Compose,
-published host ports, service status, logs, and cleanup.
+This validates the most common path: Docker on the host, published host ports,
+service status, logs, and cleanup.
 
 ```bash
 yeet run -p 18080:80 yeet-smoke-web nginx:alpine
@@ -75,7 +75,8 @@ yeet rm --clean-data yeet-smoke-web
 `--clean-data` deletes the service data too, so read the confirmation prompt
 before accepting.
 
-If this fails, start with [Docker errors](/docs/operations/troubleshooting#docker-errors).
+If this fails, start with
+[Docker payloads fail](/docs/operations/troubleshooting#docker-payloads-fail).
 
 ## 3) Smoke-test script payloads
 
@@ -164,8 +165,8 @@ host, and run VM payloads on a KVM-capable machine. See [VMs](/docs/payloads/vms
 
 ## 6) Check optional host features only when needed
 
-LAN networking depends on the host being attached to a network where macvlan
-and DHCP make sense. A WAN-only VPS usually should skip this check.
+LAN networking requires a host attached to a network where macvlan and DHCP
+make sense. A WAN-only VPS usually should skip this check.
 
 ```bash
 yeet run yeet-smoke-lan nginx:alpine --net=lan

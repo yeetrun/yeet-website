@@ -1,11 +1,11 @@
 ---
 title: Tailscale
-description: How yeet uses Tailscale for RPC and per-service networking.
+description: How yeet uses Tailscale for host access and per-service networking.
 ---
 
 Yeet uses Tailscale in two places:
 
-- catch exposes RPC through an embedded tsnet node.
+- catch exposes host access through an embedded tsnet node.
 - Services can get their own Tailscale identity with `--net=ts`.
 
 You do not need the Tailscale client installed on your workstation for normal
@@ -14,8 +14,8 @@ such as `yeet list-hosts`.
 
 ## First-time host setup
 
-Catch must join your tailnet as a tagged node, usually `tag:catch`. User-owned
-catch nodes are rejected.
+Catch must join your tailnet as a tagged node, usually `tag:catch`. Catch
+rejects user-owned nodes.
 
 For a first host, use this order:
 
@@ -78,7 +78,7 @@ yeet init --install-docker --ts-auth-key=<key> root@<machine-host>
 ```
 
 The secret or auth key belongs to catch itself. If the resulting catch node is
-not tagged, catch refuses RPC.
+not tagged, catch refuses connections.
 
 ## Host naming
 
@@ -111,8 +111,8 @@ Tailscale identity:
 yeet run <svc> ./compose.yml --net=svc,ts --ts-tags=tag:app
 ```
 
-The OAuth client stored during catch setup must be allowed to assign every tag
-you pass with `--ts-tags`.
+Make sure the OAuth client saved during catch setup can assign every tag you
+pass with `--ts-tags`.
 
 Options:
 
@@ -123,7 +123,7 @@ Options:
 
 ## Tailscale commands for a service
 
-Run Tailscale commands inside a service network namespace:
+Run Tailscale commands for a service identity:
 
 ```bash
 yeet tailscale <svc> -- status
@@ -152,8 +152,8 @@ Expose a service over HTTPS on your tailnet:
 yeet ts <svc> serve --bg 3000
 ```
 
-Serve requires HTTPS to be enabled on the tailnet. With `--bg`, the Serve
-config persists across reboots.
+Serve requires tailnet HTTPS. With `--bg`, the Serve config persists across
+reboots.
 
 ## Cleanup
 

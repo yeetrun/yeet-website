@@ -7,6 +7,7 @@
     "build": "opennextjs-cloudflare build",
     "build:next": "npm run generate:search-assets && next build",
     "build:cloudflare": "opennextjs-cloudflare build && opennextjs-cloudflare populateCache local",
+    "generate:content-audit": "node ./scripts/generate-content-audit.mjs --completion reviewed",
     "generate:search-assets": "node ./scripts/generate-search-assets.mjs",
     "start": "next start",
     "preview:cloudflare": "npm run build:cloudflare && npx -y wrangler@latest dev",

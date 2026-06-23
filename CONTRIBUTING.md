@@ -9,3 +9,6 @@ This repository contains the documentation site for **yeet** and **catch**.
 - **New docs or feature request:** open a discussion in the main yeet repo first.
 
 Docs content lives in `docs/`. Site pages live in `src/pages/`.
+
+Use `STYLEGUIDE.md` before changing public docs, navigation, homepage copy, or
+release notes.

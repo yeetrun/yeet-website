@@ -35,18 +35,18 @@ the compact detection reference. For step-by-step usage, start with
 ## Binary
 
 - ELF or Mach-O binary.
-- Installed as a systemd service on the host.
+- Catch installs it as a systemd service on the host.
 - Use `yeet run <svc> ./bin/<svc>`.
 
 ## Script
 
 - Shebang file (e.g., `#!/usr/bin/env bash`).
-- Treated like a binary; installed as a systemd service.
+- Catch treats it like a binary and installs it as a systemd service.
 
 ## Docker Compose
 
 - Any YAML with a top-level `services:` key.
-- Installed as a docker compose service.
+- Catch installs it as a Docker Compose service.
 - Use `--pull` on `yeet run` when you want to refresh images; otherwise `run`
   reuses existing images.
 - See [Containers](/docs/payloads/containers).
@@ -54,8 +54,7 @@ the compact detection reference. For step-by-step usage, start with
 ## Docker image
 
 - If the payload looks like an OCI image ref (e.g. `nginx:latest`,
-  `ghcr.io/org/app:1.2.3`), yeet generates a compose file and catch pulls the
-  image on the host.
+  `ghcr.io/org/app:1.2.3`), catch pulls the image on the host.
 - For local images, use `yeet docker push <svc> <image>:<tag> --run`.
 - For Dockerfiles, use `yeet run <svc> ./Dockerfile` (builds for the host arch
   and pushes).
@@ -64,13 +63,13 @@ the compact detection reference. For step-by-step usage, start with
 ## TypeScript
 
 - `.ts` files are run via a Deno container.
-- Installed as a docker compose service (via Deno).
+- Catch runs it as a container-backed service.
 - See [Containers](/docs/payloads/containers).
 
 ## Python
 
 - `.py` files are run via a `uv` container image.
-- Installed as a docker compose service (via `uv`).
+- Catch runs it as a container-backed service.
 - See [Containers](/docs/payloads/containers).
 
 ## VM
@@ -80,14 +79,13 @@ the compact detection reference. For step-by-step usage, start with
 - Requires a Linux catch host with KVM available.
 - Uses yeet-owned VM image bundles published at
   `github.com/yeetrun/yeet-vm-images`.
-- Saved config uses `type = "vm"`.
 - `yeet init` checks the host for KVM, TUN/TAP, and required VM tooling; use
   `--install-vm-tools` on Debian/Ubuntu VM hosts.
 - See [VMs](/docs/payloads/vms).
 
 ## Zstd
 
-- Zstd-compressed binaries are detected and unpacked.
+- Yeet detects and unpacks Zstd-compressed binaries.
 
 ## Cron
 
@@ -96,7 +94,7 @@ the compact detection reference. For step-by-step usage, start with
 
 ## Notes
 
-- File type is detected by extension or content.
+- Yeet detects file type by extension or content.
 - Architecture must match the target host; mismatches fail early.
 - [ZFS](/docs/concepts/zfs) is storage backing for service roots and VM disks,
   not a service type.

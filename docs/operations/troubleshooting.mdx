@@ -33,7 +33,7 @@ yeet list-hosts
 See [Tailscale Setup](/docs/concepts/tailscale#first-time-host-setup) for the
 tailnet policy shape.
 
-## `yeet init` says catch must be tagged
+## `yeet init` says catch needs a tag
 
 Catch rejects user-owned tsnet nodes. It must join the tailnet with a tag-based
 identity.
@@ -79,8 +79,9 @@ hosts, install it during bootstrap:
 yeet init --install-docker root@<machine-host>
 ```
 
-If local image pushes do not show up on the host, confirm Docker's containerd
-snapshotter is enabled. `yeet init` configures this during catch install.
+If local image pushes do not show up on the host, rerun bootstrap with Docker
+setup enabled. `yeet init --install-docker` configures the Docker settings yeet
+needs during catch install.
 
 For Compose services:
 
@@ -92,7 +93,7 @@ yeet ssh -- docker ps
 
 See [Containers](/docs/payloads/containers) for update and image workflows.
 
-## Published port changes are rejected
+## Published port changes fail
 
 `yeet service set` protects the full published-port list. Include every mapping
 you want to keep:
@@ -119,9 +120,9 @@ yeet info <svc>
 yeet ip <svc>
 ```
 
-For `svc` networking, services should receive private service-network
-addresses. For `lan`, the host network must support macvlan and DHCP. A
-WAN-only VPS usually should not use `lan`.
+For `svc` networking, `yeet info` and `yeet ip` should show private
+service-network addresses. For `lan`, the host network must support macvlan and
+DHCP. A WAN-only VPS usually should not use `lan`.
 
 If the service was running before a network change, restart it:
 
@@ -222,8 +223,9 @@ Remote service paths are relative to the service data directory.
 
 ## Service type mismatch
 
-A service type is fixed after the first install. If you installed a service as
-Compose, you cannot later replace it with a binary using the same service name.
+Yeet fixes a service type after the first install. If you installed a service
+as Compose, you cannot later replace it with a binary using the same service
+name.
 
 Choose a new service name, or remove the old service first:
 

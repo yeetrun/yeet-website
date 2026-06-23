@@ -15,6 +15,6 @@
   <rect x="88" y="120" width="120" height="120" rx="32" fill="url(#accent)"/>
   <path d="M120 180h56l-18-18 8-8 32 26-32 26-8-8 18-18h-56z" fill="#fff"/>
   <text x="236" y="190" font-size="64" font-family="Arial, sans-serif" font-weight="700" fill="#0F1418">yeet</text>
-  <text x="236" y="250" font-size="28" font-family="Arial, sans-serif" fill="#3B4650">Homelab service manager over Tailscale RPC.</text>
+  <text x="236" y="250" font-size="28" font-family="Arial, sans-serif" fill="#3B4650">Homelab service manager over your tailnet.</text>
   <text x="236" y="310" font-size="22" font-family="Arial, sans-serif" fill="#3B4650">Docs, workflows, and CLI reference.</text>
 </svg>

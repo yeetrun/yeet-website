@@ -98,7 +98,8 @@ and service-root moves.
 ## Networking
 
 Use `--net=lan` when the service should request a LAN address. Use `svc` for
-the private service network and `ts` for Tailscale service netns behavior.
+the private service network and `ts` when the service needs its own Tailscale
+identity.
 
 ```bash
 yeet run <svc> ./compose.yml --net=lan
@@ -107,8 +108,7 @@ yeet run <svc> ./compose.yml --net=svc,ts
 
 See [Networking](/docs/concepts/networking) for mode details.
 See [DNS](/docs/concepts/dns) for service discovery between `svc` services,
-including how short names and `*.yeet.internal` names resolve inside service
-network namespaces.
+including short names and `*.yeet.internal` names.
 
 ## Inspect and clean up
 
@@ -125,10 +125,10 @@ under the managed service root. Read the confirmation prompt before accepting.
 
 ## Host requirements
 
-Docker hosts need Docker, Compose support, and the containerd snapshotter so
-pushed images show up locally. `yeet init` can install Docker on fresh
-Debian/Ubuntu hosts and configures the snapshotter during catch install. See
-[DNS](/docs/concepts/dns) for resolver behavior,
+Docker hosts need Docker with Compose support. For local image pushes, let
+`yeet init --install-docker` configure Docker during catch install.
+
+See [DNS](/docs/concepts/dns) for resolver behavior,
 [Installation](/docs/getting-started/installation) for host setup, and
 [Workflows](/docs/operations/workflows) for common update flows. ZFS is
 optional; see [ZFS](/docs/concepts/zfs) if you want dataset-backed service

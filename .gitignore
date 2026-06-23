@@ -40,6 +40,7 @@ yarn-error.log*
 .dev.vars
 public/robots.txt
 public/sitemap.xml
+sitemap.csv
 
 # typescript
 *.tsbuildinfo

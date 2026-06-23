@@ -16,9 +16,6 @@ GOOS=linux GOARCH=amd64 go build -o ./bin/<svc> ./cmd/<svc>
 yeet run <svc> ./bin/<svc>
 ```
 
-Yeet uploads binary payloads compressed with zstd, and catch auto-decompresses
-them on receipt.
-
 ## Scripts
 
 Scripts need a shebang and executable-compatible contents for the host.
@@ -28,7 +25,8 @@ yeet run <svc> ./script.sh
 yeet run <svc> ./script.sh -- --app-flag value
 ```
 
-Arguments after `--` are saved as payload args and replayed on future runs.
+Yeet saves arguments after `--` as payload args and replays them on future
+runs.
 
 ## Updates
 
@@ -70,8 +68,8 @@ yeet env set <svc> LOG_LEVEL=debug
 yeet copy ./config.yml <svc>:config/config.yml
 ```
 
-When `--env-file` is provided during `yeet run`, yeet stores the env file path
-in `yeet.toml` and re-uploads it on future runs.
+When you pass `--env-file` during `yeet run`, yeet stores the env file path in
+`yeet.toml` and re-uploads it on future runs.
 
 ```bash
 yeet run --env-file=prod.env <svc> ./bin/<svc>

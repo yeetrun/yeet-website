@@ -9,8 +9,8 @@ host or plan service roots.
 
 ## Data directory
 
-The catch data directory is controlled by `catch --data-dir`. When yeet
-installs catch, it starts the service with an explicit host data directory.
+Use `catch --data-dir` to set the catch data directory. When yeet installs
+catch, it starts the service with an explicit host data directory.
 Manual catch runs default to a `data` directory under the current working
 directory.
 
@@ -23,7 +23,7 @@ directory.
   tsnet/
 ```
 
-Use [catch reference](/docs/cli/catch-cli) for daemon flags.
+Use [catch reference](/docs/cli/catch-cli) for catch flags.
 
 ## Service roots
 
@@ -62,8 +62,8 @@ Inside a service root, the common directories are:
 
 ## Moving roots
 
-`yeet run` can set the root for a new service. Move an existing service with
-`yeet service set` while the service is stopped:
+`yeet run` can set the root for a new service. Stop an existing service before
+moving its root with `yeet service set`:
 
 ```bash
 yeet stop <svc>
