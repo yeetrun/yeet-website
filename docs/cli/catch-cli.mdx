@@ -20,7 +20,9 @@ catch [flags] [install|version|is-catch]
 
 ## Common flags
 
-- `--data-dir`: base directory for catch state. Default: `./data`.
+- `--data-dir`: base directory for catch state. Installed catch uses the data
+  directory selected during install. Manual runs default to `data` under the
+  current working directory.
 - `--tsnet-host`: catch tsnet hostname. Default: `catch`.
 - `--tsnet-port`: catch RPC port.
 
