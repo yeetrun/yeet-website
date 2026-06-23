@@ -3,196 +3,156 @@ title: VMs
 description: Create and manage Firecracker-backed Linux VM services.
 ---
 
-VM payloads create long-lived Linux guests managed by yeet. They are useful
-when a workload needs a full guest OS or stronger isolation than a container.
+Use a VM payload when a workload needs a long-lived Linux guest, its own init
+system, or stronger isolation than a container.
 
-The official VM catalog is loaded from `yeet-vm-images` at runtime. Use
-`yeet vm images catalog` to see the supported `vm://...` families for the
-selected catch host. Examples include:
-
-- `vm://ubuntu/26.04` for Ubuntu 26.04.
-- `vm://nixos/26.05` for NixOS 26.05.
-
-Official images include the guest pieces yeet expects for normal workflows:
-SSH, `rsync` for `yeet copy`, yeet metadata integration, and terminal support
-for `TERM=xterm-ghostty`.
+VM payloads require a Linux catch host with KVM. If you are setting up a host
+for the first time, run the container smoke test before starting here.
 
 ## Create a VM
 
-`svc` networking is the default for VM payloads:
+List the official catalog:
+
+```bash
+yeet vm images catalog
+```
+
+Create an Ubuntu VM:
 
 ```bash
 yeet run <vm> vm://ubuntu/26.04
 yeet ssh <vm>
 ```
 
-To create a NixOS VM instead, use the NixOS payload:
+Create a NixOS VM:
 
 ```bash
 yeet run <vm> vm://nixos/26.05
 yeet ssh <vm>
 ```
 
-`yeet run` creates the VM service. It is not the update path for an existing
-VM with the same name. To change CPU, memory, disk size, or networking after
-creation, stop the VM and use `yeet vm set`.
+`yeet run` creates the VM service. It is not the update path for an existing VM
+with the same name. Use `yeet vm set` for supported changes, or remove and
+recreate the VM when you want a fresh guest.
 
-Use `lan` when the VM should request an address on your LAN through DHCP:
-
-```bash
-yeet run <vm> vm://ubuntu/26.04 --net=lan
-yeet ssh <vm>
-```
-
-For LAN-only VMs, `yeet ssh <vm>` connects directly to the guest's LAN IP.
-`lan` is the catch host's LAN, not necessarily your workstation's LAN. When
-you want a VM to appear on the host LAN but still keep a catch-managed fallback,
-use both networks:
-
-```bash
-yeet run <vm> vm://ubuntu/26.04 --net=svc,lan
-yeet ssh <vm>
-```
-
-With `svc`, `yeet ssh <vm>` proxies through catch to the VM's private
-management IP. With `svc,lan`, yeet uses the LAN IP when your workstation can
-reach it and falls back to the catch proxy when it cannot. Use
-`yeet ssh --force-proxy <vm>` to force the proxy path for a VM that otherwise
-would be reached directly. In `svc,lan` mode, the VM uses the LAN interface as
-its default route for normal outbound traffic while keeping the service network
-for yeet-managed names and management access.
-
-VMs with a `svc` interface use yeet DNS by default. From the guest, other
-services and VMs on the service network resolve by short name, such as `web`,
-or by fully qualified `*.yeet.internal` names, such as `web.yeet.internal`.
-For `svc,lan` VMs, the yeet DNS link is scoped to yeet names so the LAN
-interface can still provide DNS for normal external lookups. See
-[DNS](/docs/concepts/dns) for the resolver address, record behavior, and how
-VM names map to `svc` management IPs.
-
-Override the default shape when needed:
+Override the starting shape when needed:
 
 ```bash
 yeet run <vm> vm://ubuntu/26.04 --vcpus=4 --memory=4g --disk=128g
 ```
 
+## Choose VM networking
+
+`svc` networking is the default. It gives yeet a private management path to the
+guest:
+
+```bash
+yeet run <vm> vm://ubuntu/26.04 --net=svc
+```
+
+Use `lan` when the VM should request a LAN address through DHCP:
+
+```bash
+yeet run <vm> vm://ubuntu/26.04 --net=lan
+```
+
+Use `svc,lan` when the VM should be reachable on the host LAN and still keep a
+catch-managed fallback path:
+
+```bash
+yeet run <vm> vm://ubuntu/26.04 --net=svc,lan
+```
+
+With `svc,lan`, yeet uses the LAN IP when your workstation can reach it and
+falls back to the catch proxy when it cannot. Force the proxy path with:
+
+```bash
+yeet ssh --force-proxy <vm>
+```
+
+See [Networking](/docs/concepts/networking) and [DNS](/docs/concepts/dns) for
+service-network names and LAN behavior.
+
+## Connect and copy files
+
+Open an interactive shell:
+
+```bash
+yeet ssh <vm>
+```
+
+Run one command:
+
+```bash
+yeet ssh <vm> -- uname -a
+```
+
+Stream the serial console for boot diagnostics:
+
+```bash
+yeet vm console <vm>
+```
+
+Detach from the console by pressing Enter, then typing `~.`. The VM keeps
+running.
+
+Copy files with VM endpoints:
+
+```bash
+yeet copy ./app <vm>:~/app
+yeet copy ./configs/*.yml <vm>:~/configs/
+yeet copy <vm>:"/var/log/*.log" ./logs/
+yeet copy --force-proxy ./configs/ <vm>:~/configs/
+```
+
+Ubuntu VMs default to the `ubuntu` user. NixOS VMs default to the `nixos` user.
+
 ## Change an existing VM
 
-Stop a VM before changing CPU, memory, disk size, or networking:
+Stop the VM before changing CPU, memory, disk size, or networking:
 
 ```bash
 yeet stop <vm>
 yeet vm set <vm> --vcpus=6 --memory=6g
 yeet vm set <vm> --disk=128g
-yeet vm set <vm> --net=lan
+yeet vm set <vm> --net=svc,lan
 yeet start <vm>
 ```
 
-CPU and memory changes update the Firecracker config used on the next start.
-Disk changes are grow-only: yeet expands the raw disk file or ZFS ZVOL, runs an
-ext4 check, and grows the root filesystem. Shrinking disks and live resize are
-not supported.
+Disk changes are grow-only. Shrinking disks and live resize are not supported.
 
-Network changes replace the VM's network interfaces while the VM is stopped.
-Use `--net=svc`, `--net=lan`, or a comma-separated list such as
-`--net=svc,lan`. For LAN networking, `--macvlan-parent`, `--macvlan-vlan`, and
-`--macvlan-mac` follow the same rules as VM creation.
+For VLAN-tagged LAN networking:
 
-For VLAN-tagged LAN networking, pass `--net=lan --macvlan-vlan=<id>`. yeet uses
-standard Linux VLAN and bridge devices: it creates its own VLAN path when it can,
-or uses an existing Linux bridge for that VLAN if the host already has one.
+```bash
+yeet stop <vm>
+yeet vm set <vm> --net=svc,lan --macvlan-parent=<iface> --macvlan-vlan=<id>
+yeet start <vm>
+```
 
 ## Host requirements
 
-VM payloads require a Linux catch host with KVM available. During `yeet init`,
-catch checks for KVM, TUN/TAP, and required VM tooling such as `qemu-img`,
-`zstd`, `e2fsck`, `resize2fs`, `mount`, `umount`, and `ip`. On Debian/Ubuntu
-hosts with the required VM devices available, use
-`yeet init --install-vm-tools root@<machine-host>` to install missing VM
-packages.
+VM payloads require:
 
-ZFS is optional unless you create VMs with `--zfs`. See
-[ZFS](/docs/concepts/zfs) for the shared dataset and snapshot model.
+- x86_64/amd64 Linux.
+- KVM at `/dev/kvm`.
+- TUN/TAP at `/dev/net/tun`.
+- `qemu-img`, `zstd`, `e2fsck`, `resize2fs`, `mount`, `umount`, and `ip`.
 
-## ZFS-backed VM disks
+On Debian/Ubuntu hosts with KVM and TUN/TAP available, install missing VM tools
+during bootstrap:
 
 ```bash
-yeet run <vm> vm://ubuntu/26.04 --service-root=tank/vms/<vm> --zfs
+yeet init --install-vm-tools root@<machine-host>
 ```
 
-For ZFS-backed VMs, the first VM created on a pool for an image version prepares
-a shared image base on that pool. Later VMs on the same pool and image version
-clone that shared base instead of writing the root filesystem again.
-
-Use ZFS-backed VMs when you want fast repeated VM creates on the same pool or
-storage-level VM disk management. Raw VM disks still work without ZFS.
-
-Growing a ZFS-backed VM disk grows the VM ZVOL and then the guest ext4
-filesystem. `yeet vm set <vm> --disk=<size>` still requires the VM to be
-stopped and still refuses shrink requests.
-
-## VM snapshots and restore
-
-ZFS-backed VMs use the same recovery point lifecycle as other ZFS-backed
-services. Use `yeet snapshots create <vm>` to create manual VM recovery
-points:
-
-```bash
-yeet snapshots create <vm>
-yeet snapshots create <vm> --comment "before package upgrade"
-yeet snapshots create <vm> --full --comment "checkpoint before risky change"
-```
-
-The default command snapshots the VM ZVOL. If the VM is running, catch pauses
-the Firecracker VM, snapshots the ZVOL, then resumes it. `--full` also writes
-Firecracker state and memory checkpoint files for advanced recovery workflows.
-Manual VM snapshots require snapshots to be enabled for the VM service.
-`--full` is VM-only and requires the VM to be running.
-
-Use the top-level snapshot commands to find and inspect VM disk recovery
-points:
-
-```bash
-yeet snapshots list <vm>
-yeet snapshots inspect <vm> <snapshot>
-```
-
-Clone a VM disk snapshot when you want to inspect the recovered disk through a
-separate stopped VM service before changing the original:
-
-```bash
-yeet snapshots clone <vm> <snapshot> <new-vm>
-yeet info <new-vm>
-```
-
-Restore the original VM disk in place with disk mode:
-
-```bash
-yeet snapshots restore <vm> <snapshot> --mode=disk --stop --yes
-```
-
-`--mode=disk` is the default. If the VM is running, pass `--stop` so yeet can
-stop it before disk restore. Add `--start` when the VM should start again
-after the disk restore succeeds.
-
-For a full checkpoint, restore the same recovery point with `--mode=full`:
-
-```bash
-yeet snapshots restore <vm> <snapshot> --mode=full --stop --yes
-```
-
-Full restore resumes the VM from Firecracker state and memory. It is stricter
-than disk restore: the VM must still use the same zvol path, CPU and memory
-shape, Firecracker binary, and network device names that were present when the
-checkpoint was captured.
-
-Manual VM snapshots use the same retention policy fields as other yeet
-snapshots: `--snapshots`, `--snapshot-keep-last`, and `--snapshot-max-age`.
-Docker-style snapshot events do not apply to VMs.
+Many VPS providers do not expose nested virtualization. Use containers,
+binaries, scripts, and cron jobs on those hosts, and run VMs on a KVM-capable
+machine.
 
 ## Image cache
 
-VM image bundles are cached per catch host.
+Official VM images are cached per catch host. A missing image downloads
+automatically on the first VM create.
 
 ```bash
 yeet vm images catalog
@@ -202,144 +162,123 @@ yeet vm images update vm://nixos/26.05
 yeet vm images prune --dry-run
 ```
 
-`yeet vm images catalog` shows the VM payload names supported by the selected
-catch host before any image is cached, including official remote catalog
-families and imported local images. A missing image is downloaded automatically
-on the first VM create.
+`yeet vm images update` refreshes official image families for future VM
+creates. It does not rewrite existing VM disks.
 
-`yeet vm images` shows host cache state. `yeet vm images update` refreshes
-official image families from their stable latest manifests; pass a specific
-payload, such as `vm://ubuntu/26.04` or `vm://nixos/26.05`, to refresh only
-that family. Refreshing the cache picks up new image versions for future VM
-creates, does not rewrite existing VM disks, and automatically removes old
-unreferenced image versions when it is safe. When creating a VM with a stale
-cached image, interactive runs prompt by default; non-interactive runs require
-`--image-policy=update` or `--image-policy=cached`.
+When creating a VM with a stale cached image, interactive runs prompt by
+default. For non-interactive runs, choose explicitly:
 
-`yeet vm images prune --dry-run` shows what cleanup would remove. Run
-`yeet vm images prune` to review the same plan and confirm removal, or add
-`--yes` to skip the prompt.
+```bash
+yeet run <vm> vm://ubuntu/26.04 --image-policy=update
+yeet run <vm> vm://ubuntu/26.04 --image-policy=cached
+```
 
-## Local VM images
+Preview cleanup before removing cached image data:
 
-Import a local rootfs bundle onto a catch host, then run it by name:
+```bash
+yeet vm images prune --dry-run
+```
+
+## ZFS-backed VM disks
+
+ZFS is optional. Use it when you want storage-level recovery points or faster
+repeated VM creates on the same pool:
+
+```bash
+yeet run <vm> vm://ubuntu/26.04 --service-root=tank/vms/<vm> --zfs
+```
+
+For ZFS-backed VMs, yeet can clone a shared image base on the same pool instead
+of writing the root filesystem again. Raw VM disks work without ZFS.
+
+See [ZFS](/docs/concepts/zfs) for dataset, snapshot, and cleanup behavior.
+
+## VM snapshots and restore
+
+Create a manual recovery point:
+
+```bash
+yeet snapshots create <vm>
+yeet snapshots create <vm> --comment "before package upgrade"
+```
+
+List and inspect recovery points:
+
+```bash
+yeet snapshots list <vm>
+yeet snapshots inspect <vm> <snapshot>
+```
+
+Clone first when you want to inspect a recovered disk without changing the
+original VM:
+
+```bash
+yeet snapshots clone <vm> <snapshot> <new-vm>
+yeet info <new-vm>
+```
+
+Restore the original VM disk in place:
+
+```bash
+yeet snapshots restore <vm> <snapshot> --mode=disk --stop --yes
+```
+
+`--mode=disk` is the default. Add `--start` when the VM should start again
+after restore.
+
+Full VM checkpoints are available for advanced recovery:
+
+```bash
+yeet snapshots create <vm> --full --comment "checkpoint before risky change"
+yeet snapshots restore <vm> <snapshot> --mode=full --stop --yes
+```
+
+Use disk restore unless you specifically need to resume from a Firecracker
+checkpoint.
+
+## Import a local VM image
+
+Use local images when you have built your own root filesystem bundle and want
+catch to cache it by name:
 
 ```bash
 yeet vm images import lab/ubuntu ./dist/my-vm
 yeet run devbox vm://lab/ubuntu
+```
+
+The import directory must contain `rootfs.ext4` or `rootfs.ext4.zst`. If it
+also contains a yeet VM `manifest.json`, yeet preserves the guest metadata from
+that manifest. Re-importing the same image name affects new VMs only; existing
+VMs keep the image version they were created with.
+
+Remove an imported image:
+
+```bash
 yeet vm images rm lab/ubuntu --yes
 ```
 
-A local bundle is a directory containing `rootfs.ext4` or `rootfs.ext4.zst`.
-If the directory also contains a yeet VM `manifest.json`, yeet preserves the
-guest boot capability metadata from that manifest. Rootfs-only bundles use
-yeet's managed kernel and Firecracker from the current Ubuntu VM image. To test
-a local kernel, include `vmlinux` in the bundle and import with
-`--allow-local-kernel`:
-
-```bash
-yeet vm images import kernel/test ./dist/my-vm --allow-local-kernel
-```
-
-Imported image names are catch-host global. Re-importing the same name updates
-the ref for new VMs; existing VMs keep the exact imported content version they
-were created with.
-
-For non-Ubuntu custom images, include a manifest that declares fields such as
-`default_user`, `guest_system_init`, and `metadata_driver`. NixOS bundles should
-use `metadata_driver: "nixos"` so yeet writes data under `/etc/yeet-vm` and lets
-the guest's NixOS module own system configuration. The default user must be a
-valid Linux user name, `guest_system_init` must be an absolute path without
-spaces or `..`, and `metadata_driver` must be `ubuntu` or `nixos`.
-
-Custom images own their guest userspace. Install and configure the pieces you
-want yeet workflows to use: an SSH server that accepts yeet-managed
-`authorized_keys`, `rsync` for `yeet copy`, and terminal definitions such as
-`xterm-ghostty` when your operators use Ghostty or another terminal with a
-specific `TERM` value.
-
-## Boot and readiness
-
-When `yeet run` starts a VM, it waits for the guest to report SSH readiness and
-an IPv4 address before printing the next `yeet ssh` command.
-
-```bash
-yeet ssh <vm>
-yeet vm console <vm>
-```
-
-Use `yeet ssh <vm>` for an interactive guest shell. Use `yeet vm console <vm>`
-for serial output and boot diagnostics. For yeet-managed VM aliases in
-`~/.yeet/known_hosts`, `yeet ssh <vm>` repairs a stale host key and retries
-once after a VM is recreated. Yeet does not edit normal `~/.ssh/known_hosts`
-entries.
-
-Detach from an active console by pressing Enter, then typing `~.`. The VM keeps
-running.
-
-Before opening a VM SSH session, yeet prints the selected path to stderr, such
-as proxying through the catch host or connecting directly to the guest LAN IP.
-
-## Copy Files
-
-Use `yeet copy` with a VM endpoint to sync files into or out of the guest:
-
-```bash
-yeet copy ./app devbox:~/app
-yeet copy ./configs/*.yml devbox:~/configs/
-yeet copy devbox:"/var/log/*.log" ./logs/
-yeet copy devbox:/var/log/cloud-init.log ./logs/
-yeet copy --force-proxy ./configs/ devbox:~/configs/
-```
-
-VM copy uses rsync over the same direct or proxied SSH path as `yeet ssh`.
-Multiple sources and quoted guest globs follow rsync conventions, so use a
-directory destination such as `devbox:~/configs/` or an existing local
-directory.
-
-Ubuntu VMs default to the `ubuntu` user. NixOS VMs default to the `nixos`
-user. Both have passwordless sudo in the official images.
-
-Ubuntu metadata injection writes yeet-managed `.profile` and `.bashrc` blocks
-for the default user, including `~/.local/bin` on `PATH`, `XDG_RUNTIME_DIR`
-when systemd creates it, and color-friendly Ubuntu shell behavior. User content
-outside the managed blocks is preserved.
-
-NixOS metadata injection is data-only: yeet writes host name, authorized keys,
-and network files under `/etc/yeet-vm`, and the NixOS module in the image owns
-the systemd, user, sudo, SSH, and networking configuration. Use normal NixOS
-configuration and `nixos-rebuild` for guest changes.
-
-## Kernel and init
-
-Official VM images use a yeet-managed Firecracker kernel and init shim. Guest
-package upgrades do not manage the boot kernel, bootloader, initrd, or init
-shim. Updating that boot path comes from a newer yeet VM image bundle.
-
-The official images include built-in TUN, IPv6, nftables, conntrack, conntrack
-marks, and NAT/masquerade support, plus firewall userspace tools, so
-guest-installed router and VPN services can manage their own firewall and
-routing state. Tailscale is not preinstalled.
-
-The fast Ubuntu VM image does not support snap packages. Use container payloads
-for workloads that need snap-like packaging behavior. NixOS VMs should be
-customized the Nix way through NixOS modules and `nixos-rebuild`.
-
 ## Cleanup
+
+Uninstall the VM service but keep its disk:
 
 ```bash
 yeet rm <vm>
+```
+
+Delete the guest disk too:
+
+```bash
 yeet rm --clean-data <vm>
 ```
 
-Use `--clean-data` when you want to delete the guest disk too. For ZFS-backed
-VMs, cleanup removes the VM clone and service data, not the shared image base.
+For ZFS-backed VMs, cleanup removes the VM clone and service data. It does not
+remove shared image bases that future VMs can reuse.
 
 ## Related docs
 
 - [Installation](/docs/getting-started/installation) covers host bootstrap.
-- [ZFS](/docs/concepts/zfs) covers dataset-backed roots, snapshots, and VM
-  disk clones.
 - [Networking](/docs/concepts/networking) covers `svc`, `lan`, and `ts`.
-- [Workflows](/docs/operations/workflows) has a compact VM workflow.
-- [yeet CLI](/docs/cli/yeet-cli) lists VM flags and commands.
+- [DNS](/docs/concepts/dns) covers service-network names.
+- [ZFS](/docs/concepts/zfs) covers dataset-backed roots, snapshots, and VM disk
+  clones.
+- [Workflows](/docs/operations/workflows) has compact daily recipes.

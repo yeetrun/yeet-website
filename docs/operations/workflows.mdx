@@ -3,294 +3,146 @@ title: Workflows
 description: Common deploy and update flows for yeet.
 ---
 
-These are the core workflows used day-to-day. All examples use placeholders.
+Use this page when you know what you want to do and need the command shape. For
+payload-specific details, use the linked payload guide.
 
-## Deploy a compose stack (most common)
+## Deploy with the web form
 
-For the full container guide, see [Containers](/docs/payloads/containers).
+Use the guided flow for a first deploy or when you do not want to remember the
+flags:
+
+```bash
+yeet run --web
+yeet run --web <svc>
+yeet run --web <svc> ./compose.yml
+```
+
+The form saves the same service config to `yeet.toml` that the CLI uses.
+Runtime errors appear in the browser and local terminal so you can edit and
+retry without restarting the command.
+
+## Deploy a compose stack
 
 ```bash
 yeet run <svc> ./compose.yml
-```
-
-Inspect the service:
-
-```bash
 yeet info <svc>
-yeet ip <svc>
+yeet logs -f <svc>
 ```
 
-Use `--net=lan` when the service should request a LAN address through macvlan
-and your host network supports it:
-
-```bash
-yeet run <svc> ./compose.yml --net=lan
-```
-
-After your first run, yeet writes a `yeet.toml` in the project directory. You
-can then re-run with just the service:
+After the first successful deploy, rerun the saved service from the directory
+that contains `yeet.toml`:
 
 ```bash
 yeet run <svc>
 ```
 
-For a guided new-service deploy, run `yeet run --web` from the project
-directory. The web flow keeps the browser form alive until a deploy succeeds.
-Runtime errors appear in the browser terminal and the local terminal, and you
-can edit the form and retry without restarting `yeet run --web`.
+Use [Containers](/docs/payloads/containers) for Compose, Dockerfiles, images,
+Python, and TypeScript payloads.
 
-Update later (compose services; `update` pulls images and recreates
-containers):
+## Run a public image
 
 ```bash
-yeet run <svc> ./compose.yml          # redeploy config, reuse existing images
-yeet run --pull <svc> ./compose.yml   # pull latest + redeploy
-yeet run --force <svc> ./compose.yml  # redeploy even if no changes are detected
-yeet docker outdated       # check for image updates without changing containers
-yeet docker pull <svc>     # prefetch images without restarting
-yeet docker update <svc...> # pull + recreate containers (restart)
-yeet docker update --outdated # update compose services that have image updates
+yeet run -p 8080:80 <svc> nginx:alpine
+yeet status <svc>
 ```
 
-## Create a VM
-
-For the full VM guide, see [VMs](/docs/payloads/vms).
-
-Use a `vm://` payload when you want a long-lived Linux guest managed by yeet:
+Replace the full published-port list later with `service set`:
 
 ```bash
-yeet run <vm> vm://ubuntu/26.04
-yeet ssh <vm>
+yeet service set <svc> -p 80:80 -p 443:443
+yeet service set <svc> --publish-reset -p 443:443
 ```
 
-VM creates are one-time operations for a service name. Use `yeet vm set` for
-supported VM changes after creation; remove and recreate the VM when you want a
-fresh guest from an image.
+## Push a local image
 
-Official catalog examples include Ubuntu and NixOS:
+Use this when you already built a container image on your workstation:
 
 ```bash
-yeet run <vm> vm://nixos/26.05
+yeet docker push <svc> <local-image>:<tag> --run
 ```
 
-VM payloads require a Linux catch host with KVM. During `yeet init`, catch
-checks the host for KVM, TUN/TAP, and the required VM tooling (`qemu-img`,
-`zstd`, `e2fsck`, `resize2fs`, `mount`, `umount`, and `ip`). On Debian/Ubuntu
-hosts with the required VM devices available, pass `--install-vm-tools` to
-install missing VM packages with `apt-get`. ZFS is optional; use `--zfs` only
-when you want ZFS-backed VM disks.
-
-Use `lan` when the VM should get a LAN address through DHCP:
-
-```bash
-yeet run <vm> vm://ubuntu/26.04 --net=lan
-```
-
-Use `svc,lan` when the VM should be on the catch host's LAN and still have a
-private yeet management path for SSH. In this mode, the VM's normal outbound
-traffic uses the LAN route while yeet management traffic stays available on the
-service network:
-
-```bash
-yeet run <vm> vm://ubuntu/26.04 --net=svc,lan
-```
-
-Image bundles are cached per host:
-
-```bash
-yeet vm images catalog
-yeet vm images
-yeet vm images update
-yeet vm images update vm://nixos/26.05
-yeet vm images prune --dry-run
-yeet vm console <vm>
-```
-
-`yeet run` downloads the image automatically on the first VM create and waits
-for the guest readiness marker before returning. `yeet vm console <vm>` streams
-the serial console for boot diagnostics; detach by pressing Enter, then typing
-`~.`. The official VM catalog is loaded from `yeet-vm-images` at runtime, and
-`yeet vm images catalog` lists the VM payloads the selected catch host can run,
-even before any image is cached.
-`yeet vm images update` refreshes all official image families and removes old
-unreferenced image versions when it is safe; pass a specific `vm://` payload to
-refresh one family. Use `yeet vm images prune --dry-run` to preview manual
-cleanup. Remove a VM disk with:
-
-```bash
-yeet rm --clean-data <vm>
-```
-
-Change VM resources after creation by stopping the VM first:
-
-```bash
-yeet stop <vm>
-yeet vm set <vm> --vcpus=6 --memory=6g --disk=128g
-yeet vm set <vm> --net=lan
-yeet start <vm>
-```
-
-Disk changes are grow-only. ZFS-backed VMs grow the VM ZVOL and then the guest
-ext4 filesystem.
-
-## Set or move a service root
-
-Use `--service-root` to choose where a new service lives on the catch host:
-
-```bash
-yeet run vaultwarden ./compose.yml --service-root=/srv/apps/vaultwarden
-yeet run vaultwarden ./compose.yml --service-root=tank/apps/vaultwarden --zfs
-```
-
-The path is absolute on the catch host. The parent directory (`/srv/apps` in
-this example) must already exist; yeet can create the final service directory.
-Each service root contains `bin`, `run`, `env`, and `data`.
-
-For ZFS-backed service roots, pass `--zfs` and use the dataset name as
-`--service-root`; catch resolves the dataset mountpoint and stores both the
-dataset identity and the resolved filesystem path.
-See [ZFS](/docs/concepts/zfs) for dataset, snapshot, and VM clone behavior.
-
-If the dataset does not exist, catch runs plain `zfs create <dataset>`. Parent
-datasets must already exist. If the dataset already exists or its mountpoint
-already contains files, catch prints a warning and deploys into it.
-
-`yeet run` can set the initial root, but it cannot move an existing service. To
-move a service, stop it first, then use `yeet service set`:
-
-```bash
-yeet stop vaultwarden
-yeet service set vaultwarden --service-root=/mnt/fast/vaultwarden --copy
-yeet service set vaultwarden --service-root=tank/apps/vaultwarden --zfs --copy
-```
-
-Use `--copy` to copy the old root into the new root, or `--empty` to create a
-new empty root:
-
-```bash
-yeet service set vaultwarden --service-root=/mnt/fast/vaultwarden --empty
-yeet service set vaultwarden --service-root=tank/apps/vaultwarden --zfs --empty
-```
-
-`yeet service set` leaves the old root in place. Non-interactive migrations
-must pass either `--copy` or `--empty`. For the migration examples above,
-`/mnt/fast` must already exist.
-
-If the migration command was run outside the directory that contains the
-service's `yeet.toml`, update the local replay config afterward:
-
-```bash
-yeet service sync vaultwarden --config ~/yeet-services/yeet.toml
-```
-
-The file passed with `--config` must already exist and contain the service
-entries you want to update.
-
-For a config file with several services on the selected host:
-
-```bash
-yeet service sync --all --config ~/yeet-services/yeet.toml
-```
-
-## Configure ZFS snapshots
-
-ZFS-backed service roots get yeet-managed snapshots before redeploys, Docker
-image updates, and ZFS-backed service-root migrations. First deploys are
-skipped. The built-in default is enabled and required, keeps 5 yeet-created
-snapshots, and prunes yeet-created snapshots older than 7 days.
-
-Show or change catch-wide defaults:
-
-```bash
-yeet snapshots defaults show
-yeet snapshots defaults set --enabled=false
-yeet snapshots defaults set --enabled=true --keep-last=5 --max-age=7d
-yeet snapshots defaults set --events=run,docker-update --required=false
-```
-
-Override one service:
-
-```bash
-yeet service set vaultwarden --snapshots=off
-yeet service set vaultwarden --snapshots=on --snapshot-keep-last=3 --snapshot-max-age=72h
-yeet service set vaultwarden --snapshot-events=run,docker-update
-yeet service set vaultwarden --snapshots=inherit
-```
-
-Snapshot-only `yeet service set` commands do not require the service to be
-stopped. Service-root moves still require the service to be stopped. The catch
-DB is the live source of truth; run `yeet service sync <svc>` to mirror
-per-service snapshot overrides back into `yeet.toml`.
-For the complete ZFS model, see [ZFS](/docs/concepts/zfs).
-
-## Clone-first recovery
-
-When you are unsure what a recovery point contains, clone it into a new service
-first and inspect the clone:
-
-```bash
-yeet snapshots clone <svc> <snapshot> <svc>-recover
-yeet info <svc>-recover
-```
-
-After you verify the clone, either copy the recovered data out or restore the
-original service in place:
-
-```bash
-yeet snapshots restore <svc> <snapshot> --stop --yes
-```
-
-In-place restore creates a pre-restore recovery point before changing ZFS
-state. Use `--start` if the original service should start again after restore.
-
-## Build from a Dockerfile and run
+## Build from a Dockerfile
 
 ```bash
 yeet run <svc> ./Dockerfile
+yeet logs -f <svc>
 ```
 
-## Deploy a binary
+## Deploy a binary or script
 
-For host service details, see [Binaries & Scripts](/docs/payloads/binaries).
+Build binaries for the catch host architecture before deploying:
 
 ```bash
 GOOS=linux GOARCH=amd64 go build -o ./bin/<svc> ./cmd/<svc>
 yeet run <svc> ./bin/<svc>
 ```
 
-## Run a registry image or push a local image (less common)
-
-Pull a public image on the catch host:
+For scripts:
 
 ```bash
-yeet run <svc> nginx:latest
+yeet run <svc> ./script.sh
+yeet run <svc> ./script.sh -- --app-flag value
 ```
 
-Push a local image instead (for custom builds):
+Use [Binaries & Scripts](/docs/payloads/binaries) for environment and file
+setup.
+
+## Run a cron job
 
 ```bash
-yeet docker push <svc> <local-image>:<tag> --run
+yeet cron <svc> ./job.sh "0 9 * * *"
+yeet cron <svc> ./job.sh "0 9 * * *" -- --job-arg foo
+yeet logs -f <svc>
 ```
+
+Use [Cron Jobs](/docs/payloads/cron-jobs) for timer behavior and update flow.
+
+## Create a VM
+
+```bash
+yeet run <vm> vm://ubuntu/26.04
+yeet ssh <vm>
+```
+
+VM payloads require a KVM-capable Linux catch host. Use NixOS when you want
+that image family:
+
+```bash
+yeet run <vm> vm://nixos/26.05
+```
+
+Use [VMs](/docs/payloads/vms) for host requirements, image cache commands,
+networking, file copy, and recovery.
 
 ## Update a service
 
-For binaries or compose files, just re-run `yeet run` with the new payload. For
-compose images, add `--pull` (or use `yeet docker update <svc...>`) when you
-want to refresh selected services. Use `svc@host` for individual targets that
-should run on a specific host, such as `yeet docker update web api@catch-b
-worker`. Use `yeet docker update --outdated` to batch-refresh only compose
-services reported by `yeet docker outdated`; scan errors are printed as skipped
-rows so they are not mistaken for clean no-update results.
-
-When a service already has a `yeet.toml` entry, a payload-only redeploy reuses
-the saved run options and changes only the payload. You do not need to restate
-the original network, tags, service root, snapshot, or payload args.
+For binaries, scripts, Dockerfiles, and Compose files, update the local payload
+and rerun:
 
 ```bash
+yeet run <svc> ./compose.yml
 yeet run <svc> ./bin/<svc>
 ```
 
-## Stage then commit
+For Compose image refreshes:
+
+```bash
+yeet run --pull <svc> ./compose.yml
+yeet docker outdated
+yeet docker update <svc>
+yeet docker update --outdated
+```
+
+Use `--force` when you want to redeploy even if yeet detects no payload or
+config change:
+
+```bash
+yeet run --force <svc> ./compose.yml
+```
+
+## Stage before applying
+
+Use staging when you want to upload and inspect a payload before applying it:
 
 ```bash
 yeet stage <svc> ./bin/<svc>
@@ -298,58 +150,121 @@ yeet stage <svc> show
 yeet stage <svc> commit
 ```
 
-## Edit config or env
+Discard the staged payload:
 
 ```bash
-yeet edit <svc>          # compose or systemd units
-yeet env edit <svc>       # env file
-yeet env copy|cp <svc> ./app.env
+yeet stage <svc> clear
+```
+
+## Edit env, config, or files
+
+```bash
+yeet edit <svc>
+yeet env edit <svc>
+yeet env copy <svc> ./app.env
 yeet env set <svc> PORT=8080 LOG_LEVEL=debug
-yeet env set <svc> LOG_LEVEL=     # unset
-```
-
-## Copy files into a service
-
-```bash
-yeet copy ./app.env <svc>:
 yeet copy ./config.yml <svc>:config/config.yml
-yeet copy ./configs/ <svc>:config/
 ```
 
-## Run a cron job
-
-For timer behavior and update flow, see [Cron Jobs](/docs/payloads/cron-jobs).
+For VM guests, copy to the VM endpoint:
 
 ```bash
-yeet cron <svc> ./job.sh "0 9 * * *" -- --job-arg foo
+yeet copy ./configs/ <vm>:~/configs/
+yeet copy <vm>:"/var/log/*.log" ./logs/
 ```
 
-## Tail logs
+## Choose networking
+
+Use host ports when you only need a host-level TCP port:
 
 ```bash
-yeet logs -f <svc>
+yeet run -p 8080:80 <svc> nginx:alpine
 ```
 
-## Multi-host usage
-
-Here, `<host>` refers to the **catch host** (Tailscale/tsnet hostname), not the
-SSH machine host. See [Tailscale](/docs/concepts/tailscale).
-
-Set the host per command:
+Use `svc` for the private service network, `ts` for a Tailscale service node,
+and `lan` for a LAN address on hosts where macvlan and DHCP make sense:
 
 ```bash
-CATCH_HOST=<host> yeet status
+yeet run <svc> ./compose.yml --net=svc
+yeet run <svc> ./compose.yml --net=svc,ts
+yeet run <svc> ./compose.yml --net=lan
 ```
 
-Or use `@host`:
+See [Networking](/docs/concepts/networking) before using `lan` on a new host.
+
+## Move a service root
+
+Set the root at first deploy:
 
 ```bash
-yeet status@<host>
-yeet run <svc>@<host> ./compose.yml
+yeet run <svc> ./compose.yml --service-root=/srv/apps/<svc>
+yeet run <svc> ./compose.yml --service-root=tank/apps/<svc> --zfs
 ```
 
-Or save it:
+Move an existing service while it is stopped:
 
 ```bash
-yeet prefs --host=<host> --save
+yeet stop <svc>
+yeet service set <svc> --service-root=/srv/apps/<svc> --copy
+yeet start <svc>
 ```
+
+Use `--empty` instead of `--copy` when you want a new empty root. See
+[ZFS](/docs/concepts/zfs) for dataset-backed roots and snapshots.
+
+## Recover data
+
+List recovery points:
+
+```bash
+yeet snapshots list <svc>
+yeet snapshots inspect <svc> <snapshot>
+```
+
+Clone first when you want to inspect recovered data safely:
+
+```bash
+yeet snapshots clone <svc> <snapshot> <svc>-recover
+yeet info <svc>-recover
+```
+
+Restore in place when you are ready:
+
+```bash
+yeet snapshots restore <svc> <snapshot> --stop --yes
+```
+
+See [ZFS](/docs/concepts/zfs) for snapshot defaults, retention, and VM recovery.
+
+## Target a host
+
+Here, `<catch-host>` is the catch tsnet hostname, not the SSH machine host.
+
+```bash
+CATCH_HOST=<catch-host> yeet status
+yeet --host=<catch-host> status
+yeet status@<catch-host>
+yeet run <svc>@<catch-host> ./compose.yml
+```
+
+Save a default host:
+
+```bash
+yeet prefs --host=<catch-host> --save
+```
+
+## Remove a service
+
+Uninstall the service but keep its data:
+
+```bash
+yeet rm <svc>
+```
+
+Remove the service data too:
+
+```bash
+yeet rm --clean-data <svc>
+```
+
+Read the confirmation prompt before deleting data.

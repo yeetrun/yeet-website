@@ -1,79 +1,79 @@
 ---
 title: Payloads
-description: What yeet can run and where to start.
+description: Choose what to run with yeet.
 ---
 
-A payload is what you pass to `yeet run`, `yeet stage`, or `yeet cron`. Yeet
-detects the payload type, ships what needs to be shipped, and asks catch to
-install it on the target host.
+A payload is the thing you give to `yeet run`, `yeet stage`, or `yeet cron`.
+Choose the guide that matches what you already have.
 
 <CardLinks
   cards={[
     {
       title: "Containers",
-      description: "Docker Compose files, Dockerfiles, image refs, and container-backed Python or TypeScript apps.",
+      description: "Compose files, Dockerfiles, image refs, Python files, and TypeScript files.",
       href: "/docs/payloads/containers",
     },
     {
       title: "Binaries & Scripts",
-      description: "Host systemd services from local Linux binaries or shebang scripts.",
+      description: "One long-running host process from a local executable or shebang script.",
       href: "/docs/payloads/binaries",
     },
     {
       title: "VMs",
-      description: "Long-lived Linux guests using Firecracker, KVM, and yeet-managed VM images.",
+      description: "Long-lived Linux guests for workloads that need a full OS or stronger isolation.",
       href: "/docs/payloads/vms",
     },
     {
       title: "Cron Jobs",
-      description: "Scheduled jobs installed as systemd timer units on the catch host.",
+      description: "Scheduled jobs installed as systemd timers on the catch host.",
       href: "/docs/payloads/cron-jobs",
     },
   ]}
 />
 
-## Choose a payload
+## Quick chooser
 
-- Use [Containers](/docs/payloads/containers) for Compose stacks, Dockerfiles,
-  public image refs, local images, Python apps, and TypeScript apps.
-- Use [Binaries & Scripts](/docs/payloads/binaries) for one long-running host
-  process that does not need a container.
-- Use [VMs](/docs/payloads/vms) when the workload needs a full Linux guest or
-  stronger isolation than a container.
-- Use [Cron Jobs](/docs/payloads/cron-jobs) for scheduled host jobs.
+| You have | Start with |
+| --- | --- |
+| `compose.yml` | [Containers](/docs/payloads/containers#compose-stacks) |
+| Public image, such as `nginx:alpine` | [Containers](/docs/payloads/containers#docker-images) |
+| Local Dockerfile | [Containers](/docs/payloads/containers#dockerfiles) |
+| Local container image | [Containers](/docs/payloads/containers#docker-images) |
+| Linux binary | [Binaries & Scripts](/docs/payloads/binaries#binaries) |
+| Shell script or other shebang file | [Binaries & Scripts](/docs/payloads/binaries#scripts) |
+| Scheduled job | [Cron Jobs](/docs/payloads/cron-jobs) |
+| Linux guest | [VMs](/docs/payloads/vms) |
 
 ## Common flow
+
+Most services follow this loop:
 
 ```bash
 yeet run <svc> <payload>
 yeet logs -f <svc>
-yeet restart <svc>
-yeet rm <svc>
+yeet status <svc>
 ```
 
-After the first successful deploy, yeet writes the service configuration to
-`yeet.toml`. For an existing service, a payload-only redeploy reuses saved run
-options such as network mode, tags, service root, snapshots, and payload args.
+After the first successful deploy, yeet writes service config to `yeet.toml`.
+For an existing service, a payload-only redeploy reuses saved options such as
+network mode, tags, service root, snapshot settings, and payload args.
 
-## ZFS-backed roots
+## Optional storage and networking
 
-ZFS is optional, but it is useful for services that need named datasets,
-pre-change snapshots, or fast repeated VM creates on the same pool.
+Use the payload guide first. Then add storage or networking options when the
+service needs them:
 
 ```bash
+yeet run <svc> ./compose.yml --net=svc,ts
 yeet run <svc> ./compose.yml --service-root=tank/apps/<svc> --zfs
-yeet run <vm> vm://ubuntu/26.04 --service-root=tank/vms/<vm> --zfs
 ```
 
-See [ZFS](/docs/concepts/zfs) for the shared model across payload types.
+See [Networking](/docs/concepts/networking) for `svc`, `ts`, and `lan`. See
+[ZFS](/docs/concepts/zfs) for dataset-backed service roots and snapshots.
 
 ## Related docs
 
-- [Service Types](/docs/concepts/service-types) explains detection rules and
-  high-level install behavior.
-- [ZFS](/docs/concepts/zfs) covers ZFS-backed service roots, snapshots, and VM
-  disk clones.
 - [Workflows](/docs/operations/workflows) shows common deploy and update flows.
-- [Networking](/docs/concepts/networking) covers `svc`, `lan`, and `ts`.
-- [Configuration & Prefs](/docs/concepts/configuration-and-prefs) covers
-  `yeet.toml`, `CATCH_HOST`, and saved preferences.
+- [Service Types](/docs/concepts/service-types) explains payload detection.
+- [How Commands Work](/docs/cli/cli-overview) explains host targeting and
+  argument routing.

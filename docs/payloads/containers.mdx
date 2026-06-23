@@ -34,7 +34,7 @@ yeet run <svc> nginx:latest
 yeet run -p 8000:8000 <svc> ghcr.io/org/app:latest
 ```
 
-For local images, push to the internal registry and run in one step:
+For local images, push to yeet's host-side registry and run in one step:
 
 ```bash
 yeet docker push <svc> <local-image>:<tag> --run
@@ -43,7 +43,7 @@ yeet docker push <svc> <local-image>:<tag> --run
 ## Dockerfiles
 
 Dockerfile payloads are built locally for the host architecture, pushed to the
-internal registry, then installed on the catch host.
+catch host, then installed there.
 
 ```bash
 yeet run <svc> ./Dockerfile
@@ -121,15 +121,13 @@ yeet rm <svc>
 ```
 
 Use `yeet rm --clean-data <svc>` only when you also want to remove service data
-under the managed service root.
+under the managed service root. Read the confirmation prompt before accepting.
 
 ## Host requirements
 
 Docker hosts need Docker, Compose support, and the containerd snapshotter so
 pushed images show up locally. `yeet init` can install Docker on fresh
-Debian/Ubuntu hosts and configures the snapshotter during catch install. Docker
-daemon DNS remains under the host operator's control; yeet adds service
-discovery per workload when the service uses `--net=svc`. See
+Debian/Ubuntu hosts and configures the snapshotter during catch install. See
 [DNS](/docs/concepts/dns) for resolver behavior,
 [Installation](/docs/getting-started/installation) for host setup, and
 [Workflows](/docs/operations/workflows) for common update flows. ZFS is

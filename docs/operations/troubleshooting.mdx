@@ -3,147 +3,140 @@ title: Troubleshooting
 description: Common failures and how to fix them.
 ---
 
-## Cannot connect to host
+Start with the symptom you see. If this is a fresh host, run
+[First-Run Validation](/docs/getting-started/first-run-validation) after fixing
+the first connection problem.
 
-- Confirm the catch tsnet node is authenticated and tagged. If you have
-  Tailscale installed locally, `yeet list-hosts` can also confirm tagged catch
-  nodes are visible.
-- Override host: `CATCH_HOST=<host> yeet status`.
-- See [Tailscale](/docs/concepts/tailscale) for tailnet setup details.
-- For a step-by-step fresh-host check, run
-  [First-Run Validation](/docs/getting-started/first-run-validation).
+## yeet cannot reach catch
+
+Confirm you are targeting the catch hostname, not the SSH machine hostname:
+
+```bash
+CATCH_HOST=<catch-host> yeet status
+yeet --host=<catch-host> status
+```
+
+Then check:
+
+- The catch tsnet node exists in Tailscale.
+- The node has a tag such as `tag:catch`.
+- Your device or admin tag can reach the catch tag on TCP port `41548`.
+- The catch service is running on the host.
+
+If you have the Tailscale CLI installed locally, this can help confirm the
+tagged node is visible:
+
+```bash
+yeet list-hosts
+```
+
+See [Tailscale Setup](/docs/concepts/tailscale#first-time-host-setup) for the
+tailnet policy shape.
 
 ## `yeet init` says catch must be tagged
 
-Catch uses an embedded tsnet node for RPC. That node must use a tag-based
-Tailscale identity, such as `tag:catch`; user-owned catch nodes are rejected.
+Catch rejects user-owned tsnet nodes. It must join the tailnet with a tag-based
+identity.
 
-First, make sure your tailnet policy allows the catch tag. In Tailscale terms,
-`tagOwners` must allow the actor doing enrollment to assign the catch tag. Your
-existing ACLs or grants can stay in your own style, but they must allow your
-admin device or admin tag to reach the catch tag on TCP port `41548`. For the
-recommended OAuth flow, that usually means an owner tag such as `tag:yeet` owns
-`tag:catch`, and the OAuth client has the owner tag.
-
-Then rerun init. A plain rerun is valid and will prompt for a Tailscale OAuth
-client secret if enrollment is needed:
+Fix the Tailscale policy first, then rerun init:
 
 ```bash
 yeet init root@<machine-host>
 ```
 
-For repeatable setup, pass an OAuth client secret that can mint auth keys for
-the server tags your tailnet policy expects:
+For repeatable setup, pass an OAuth client secret that can assign the catch
+tag:
 
 ```bash
 yeet init --install-docker --ts-client-secret=<secret> root@<machine-host>
 ```
 
-Advanced users can create a preauthorized Tailscale auth key for the catch node
-and pass it directly:
+Advanced users can pass a preauthorized Tailscale auth key instead:
 
 ```bash
 yeet init --install-docker --ts-auth-key=<key> root@<machine-host>
 ```
 
-See [Tailscale](/docs/concepts/tailscale) for the policy checklist.
+## `yeet init` got a different catch hostname
 
-## Architecture mismatch
+Tailscale assigned a suffix such as `catch-1` because another device already
+owns the requested hostname.
 
-- `yeet run` will fail if the binary arch does not match the host.
-- Build with `GOOS=linux GOARCH=<arch>`.
+Use the assigned catch host:
 
-## Docker errors
-
-- Docker compose services require Docker on the host.
-- On Debian/Ubuntu-style hosts,
-  `yeet init --install-docker root@<machine-host>` can install Docker during
-  bootstrap.
-- `yeet init` configures Docker's containerd snapshotter during catch install
-  so pushed local images are visible to the host Docker daemon. For manual catch
-  installs, confirm `/etc/docker/daemon.json` contains:
-
-```json
-{
-  "features": {
-    "containerd-snapshotter": true
-  }
-}
+```bash
+yeet --host=catch-1 status
 ```
 
-- If a netns-backed compose service becomes unreachable after networking
-  changes, catch will now reconcile that service at startup by recreating the
-  compose project when it detects stale docker endpoint wiring for the current
-  service netns. Check the catch logs for a message saying it recreated the
-  service during netns reconciliation.
-- For published compose ports inside `svc`, yeet now owns the service-netns
-  DNAT chains directly. If you suspect stale port forwarding, inspect the
-  service netns and expect to see `YEET_PREROUTING` and `YEET_OUTPUT` as the
-  active chains rather than old direct `OUTPUT ... DNAT` rules.
-- If you need to force the same repair manually, restart the service through
-  yeet or restart the service's `yeet-<svc>-ns.service` unit and let catch
-  reconcile it on the next start.
+Or remove the stale/conflicting Tailscale device and rerun `yeet init`.
+
+## Docker payloads fail
+
+Container payloads require Docker on the catch host. On Debian/Ubuntu-style
+hosts, install it during bootstrap:
+
+```bash
+yeet init --install-docker root@<machine-host>
+```
+
+If local image pushes do not show up on the host, confirm Docker's containerd
+snapshotter is enabled. `yeet init` configures this during catch install.
+
+For Compose services:
+
+```bash
+yeet info <svc>
+yeet logs <svc>
+yeet ssh -- docker ps
+```
+
+See [Containers](/docs/payloads/containers) for update and image workflows.
 
 ## Published port changes are rejected
 
-If `yeet service set <svc> -p 443:443` says the change would remove existing
-mappings, yeet is protecting the current complete publish list. Include every
-mapping you want to keep:
+`yeet service set` protects the full published-port list. Include every mapping
+you want to keep:
 
 ```bash
 yeet service set web -p 80:80 -p 443:443
 ```
 
-To replace the list or clear all published ports, acknowledge that with
-`--publish-reset`:
+To replace the list or clear it, use `--publish-reset`:
 
 ```bash
 yeet service set web --publish-reset -p 443:443
 yeet service set web --publish-reset
 ```
 
-Use `yeet info web` to see the live published ports before changing them.
+Use `yeet info web` before changing ports.
 
-## `svc` network firewall issues
+## Service networking does not work
 
-- New Debian and Ubuntu hosts should prefer native `nft`.
-- `iptables-nft` is the compatibility path.
-- `iptables-legacy` should only appear as a fallback compatibility mode.
-- Check that the yeet-owned firewall objects exist:
+First confirm the service has the network mode you expect:
 
 ```bash
-sudo nft list table ip yeet
-sudo iptables-nft -S YEET_FORWARD
-sudo iptables-nft -t nat -S YEET_POSTROUTING
+yeet info <svc>
+yeet ip <svc>
 ```
 
-- On legacy hosts, replace `iptables-nft` with `iptables-legacy`.
-- The forward rules should allow `192.168.100.0/24`, reject representative
-  non-public IPv4 ranges such as `10.0.0.0/8`, `100.64.0.0/10`, and
-  `192.168.0.0/16`, then allow remaining public IPv4 egress.
-- Verify forwarding is enabled on the host:
+For `svc` networking, services should receive private service-network
+addresses. For `lan`, the host network must support macvlan and DHCP. A
+WAN-only VPS usually should not use `lan`.
+
+If the service was running before a network change, restart it:
 
 ```bash
-sysctl net.ipv4.ip_forward
+yeet restart <svc>
 ```
 
-- If the yeet namespace service needs to rebuild networking state, restart it:
-
-```bash
-sudo systemctl restart yeet-ns.service
-```
-
-- `catch` now runs host-level netns reconciliation in the background, so
-  `yeet status` should return promptly after `catch` restarts. If `catch`
-  shutdown or restart appears hung, inspect `journalctl -u catch` for the
-  underlying docker or netns command that failed to exit.
+See [Networking](/docs/concepts/networking) before changing modes on a shared
+host.
 
 ## Yeet DNS names do not resolve
 
-Yeet DNS only publishes names for services and VMs with `svc` networking. The
-catch-owned resolver listens at `192.168.100.1:53` inside the service network.
+Yeet DNS only publishes names for services and VMs using `svc` networking.
 
-Check the resolver directly:
+Check the resolver from a service or VM on the service network:
 
 ```bash
 dig @192.168.100.1 <svc> A +short
@@ -151,79 +144,91 @@ dig @192.168.100.1 <svc>.yeet.internal A +short
 ```
 
 If the query returns nothing, confirm `yeet info <svc>` shows a service-network
-IP and that `catch` plus `yeet-dns.service` are active. See
-[DNS](/docs/concepts/dns) for the full service discovery model.
+IP. See [DNS](/docs/concepts/dns) for records and resolver behavior.
 
 ## VM payloads do not start
 
-VMs require an x86_64 Linux catch host with KVM available at `/dev/kvm`,
-TUN/TAP at `/dev/net/tun`, and the required VM filesystem/networking tools.
-Many VPS providers do not expose nested virtualization, so `yeet init` may warn
-that VM payloads are unavailable even though containers work.
-
-Check host capability:
+VMs require a KVM-capable Linux catch host. Check the host:
 
 ```bash
+yeet ssh -- sh -lc '
 test -e /dev/kvm && echo kvm=yes || echo kvm=no
 test -e /dev/net/tun && echo tun=yes || echo tun=no
 for c in qemu-img zstd e2fsck resize2fs mount umount ip; do
   command -v "$c" >/dev/null && echo "$c=yes" || echo "$c=no"
 done
+'
 ```
 
-If KVM is missing, use container, binary, or cron payloads on that host and run
-VM payloads on a KVM-capable machine.
-
-If KVM and TUN/TAP are present but VM tools are missing on a Debian/Ubuntu host,
-rerun init with `--install-vm-tools`:
+If KVM is missing, use containers, binaries, scripts, and cron jobs on that
+host. If KVM and TUN/TAP exist but tools are missing on Debian/Ubuntu, rerun
+init with VM tools:
 
 ```bash
 yeet init --install-vm-tools root@<machine-host>
 ```
 
-## `yeet init` says Tailscale assigned a different catch hostname
+See [VMs](/docs/payloads/vms) for image cache and console diagnostics.
 
-This means another tailnet device already owns the requested catch hostname, so
-Tailscale assigned a suffix such as `catch-1`.
+## Binary architecture mismatch
 
-- Use the assigned catch host with `--host=catch-1` or `CATCH_HOST=catch-1`.
-- Or remove the stale/conflicting Tailscale device and rerun `yeet init`.
+Build binaries for the catch host architecture:
 
-## catch joined Tailscale but `yeet status` fails
+```bash
+GOOS=linux GOARCH=amd64 go build -o ./bin/<svc> ./cmd/<svc>
+yeet run <svc> ./bin/<svc>
+```
 
-If the error says the catch Tailscale node must be tagged, the host joined as a
-user-owned device. Fix `tagOwners`, tag the catch node, and rerun `yeet init`;
-or use a preauthorized auth key that assigns your catch server tag, such as
-`tag:catch`.
+Use the host's actual architecture when it is not amd64.
 
-If the node is tagged but traffic still times out, check the tailnet policy.
-Tailscale ACLs or grants must allow your laptop or admin tag to reach the catch
-tag on RPC port 41548.
+## `edit` fails without a TTY
 
-## `edit` fails without TTY
+`yeet edit` and `yeet env edit` launch an editor. Run them from an interactive
+shell.
 
-- `yeet edit` needs a TTY to launch `$EDITOR`.
-- Run from a real shell, not a non-interactive session.
+## Staged changes are confusing
 
-## Clearing staged changes
+Inspect the staged payload:
 
-- Use `stage show` to inspect, then `stage clear` to discard staged changes.
+```bash
+yeet stage <svc> show
+```
+
+Apply it:
+
+```bash
+yeet stage <svc> commit
+```
+
+Or discard it:
+
+```bash
+yeet stage <svc> clear
+```
 
 ## `copy` destination errors
 
-- One side must be a remote `svc:` or `svc:path`.
-- Remote paths are relative to the service data dir (`data/`).
-- `yeet copy` defaults to rsync-like `-avz` behavior (archive/recursive,
-  verbose, compress).
-- Use a trailing slash on the source to copy directory contents (rsync-style).
-- Absolute paths are rejected.
+One side of a copy must be remote, such as `<svc>:path` or `<vm>:path`.
 
-## Status output
+Examples:
 
-- Use `--format=json` or `--format=json-pretty` if the table is not useful.
+```bash
+yeet copy ./config.yml <svc>:config/config.yml
+yeet copy ./configs/ <svc>:config/
+yeet copy <vm>:"/var/log/*.log" ./logs/
+```
+
+Remote service paths are relative to the service data directory.
 
 ## Service type mismatch
 
-- A service's type is fixed after first install.
-- If you installed as docker compose, you cannot later install a binary with
-  the same name.
+A service type is fixed after the first install. If you installed a service as
+Compose, you cannot later replace it with a binary using the same service name.
+
+Choose a new service name, or remove the old service first:
+
+```bash
+yeet rm <svc>
+```
+
+Use `--clean-data` only when you also want to delete the service data.

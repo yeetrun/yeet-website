@@ -5,8 +5,8 @@ description: A practical smoke-test playbook for a fresh yeet + catch host.
 
 Use this playbook after `yeet init` on a fresh host. It checks the control
 plane first, then the payload paths that should work on a normal
-Debian/Ubuntu-style server. Optional host capabilities such as KVM, LAN
-macvlan, and ZFS are checked separately.
+Debian/Ubuntu-style server. Run the optional KVM, LAN, and ZFS checks only when
+you plan to use those features.
 
 All examples use disposable service names. If you have more than one catch
 host, set `CATCH_HOST=<catch-host>` or pass `--host=<catch-host>` so every
@@ -71,6 +71,9 @@ Then remove the disposable service:
 ```bash
 yeet rm --clean-data yeet-smoke-web
 ```
+
+`--clean-data` deletes the service data too, so read the confirmation prompt
+before accepting.
 
 If this fails, start with [Docker errors](/docs/operations/troubleshooting#docker-errors).
 
