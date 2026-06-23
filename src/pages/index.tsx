@@ -179,16 +179,16 @@ yeet run <svc> ./compose.yml`}</code>
               </p>
             </div>
             <div className={s.featureCard}>
-              <h3>catch daemon</h3>
-              <p>Installs, runs, and monitors services on each host.</p>
+              <h3>catch on each host</h3>
+              <p>Runs services, streams logs, and reports status.</p>
             </div>
             <div className={s.featureCard}>
-              <h3>catchrpc</h3>
-              <p>JSON-RPC + streaming exec/events over your tailnet.</p>
+              <h3>Tailnet RPC</h3>
+              <p>Connects yeet to catch through embedded Tailscale nodes.</p>
             </div>
             <div className={s.featureCard}>
-              <h3>Internal registry</h3>
-              <p>Push local images once, run them on the host immediately.</p>
+              <h3>Local image push</h3>
+              <p>Ships local container images to the host before running them.</p>
             </div>
           </div>
         </SectionWrapper>

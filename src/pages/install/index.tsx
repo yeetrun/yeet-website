@@ -79,8 +79,11 @@ export default function InstallPage({ docsNavTree }: InstallPageProps) {
                 <code>{`curl -fsSL https://yeetrun.com/install.sh | sh -s -- --nightly`}</code>
               </CodeBlock>
               <P className={s.note}>
-                For source builds and dev setup, see the{" "}
-                <Link href="/docs/development">Development docs</Link>.
+                For host setup details and upgrade commands, see the{" "}
+                <Link href="/docs/getting-started/installation">
+                  installation guide
+                </Link>
+                .
               </P>
             </section>
 

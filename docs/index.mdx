@@ -1,13 +1,11 @@
 ---
 title: Yeet Docs
-description: A focused user manual for the yeet + catch homelab workflow.
+description: A focused user manual for installing yeet, bootstrapping catch, and running services.
 ---
 
-> [!NOTE]
-> Yeet is opinionated homelab infrastructure tooling. It expects Linux/systemd
-> hosts, Tailscale/tsnet RPC, and root-managed host services; within that model,
-> the release path is intended to be installable on a fresh Ubuntu/Debian-style
-> host with SSH access.
+Yeet deploys services from your workstation to Linux hosts running catch. Start
+with the shortest path, then use the task guides when you need a specific
+payload or operational workflow.
 
 ## Start here
 
@@ -16,115 +14,93 @@ description: A focused user manual for the yeet + catch homelab workflow.
   columnsWhenSmall={1}
   links={[
     { text: "Quick Start", href: "/docs/getting-started/quick-start" },
-    { text: "Tailscale Setup", href: "/docs/concepts/tailscale#first-time-host-setup", theme: "neutral" },
-    { text: "Installation", href: "/docs/getting-started/installation", theme: "neutral" },
-    { text: "First-Run Validation", href: "/docs/getting-started/first-run-validation" },
-    { text: "Payloads", href: "/docs/payloads", theme: "neutral" },
+    { text: "Install yeet and catch", href: "/docs/getting-started/installation", theme: "neutral" },
+    { text: "Validate a Host", href: "/docs/getting-started/first-run-validation" },
+    { text: "Common Workflows", href: "/docs/operations/workflows", theme: "neutral" },
   ]}
 />
 
-> [!TIP]
-> If you use an AI coding tool that supports `npx skills`, see
-> [Installation](/docs/getting-started/installation) for the optional `yeet`
-> agent skill install.
-
-## Documentation map
+## Choose your task
 
 <CardLinks
   cards={[
     {
-      title: "First-Run Validation",
-      description: "Smoke-test a fresh host across containers, host services, cron, and VM capability.",
-      href: "/docs/getting-started/first-run-validation",
-    },
-    {
-      title: "Architecture",
-      description: "How yeet and catch work together over Tailscale RPC.",
-      href: "/docs/concepts/architecture",
-    },
-    {
-      title: "Networking",
-      description: "Network modes, service IPs, and tailscale options.",
-      href: "/docs/concepts/networking",
-    },
-    {
-      title: "DNS",
-      description: "Service discovery for services and VMs on the private service network.",
-      href: "/docs/concepts/dns",
-    },
-    {
-      title: "Tailscale First-Time Setup",
-      description: "Set up tagOwners, grants, and the OAuth client secret catch needs during init.",
-      href: "/docs/concepts/tailscale#first-time-host-setup",
-    },
-    {
-      title: "Payloads",
-      description: "Guides for containers, VMs, binaries, scripts, and cron jobs.",
+      title: "Deploy a service",
+      description: "Run a compose file, Dockerfile, image, binary, script, cron job, or VM.",
       href: "/docs/payloads",
     },
     {
-      title: "Service Types",
-      description: "Payload detection and install behavior reference.",
-      href: "/docs/concepts/service-types",
+      title: "Operate a service",
+      description: "Update, restart, tail logs, edit config, stage changes, and copy files.",
+      href: "/docs/operations/workflows",
     },
     {
-      title: "Configuration & Prefs",
-      description: "Client preferences, yeet.toml, and environment variables.",
-      href: "/docs/concepts/configuration-and-prefs",
+      title: "Target the right host",
+      description: "Understand machine hosts, catch hosts, CATCH_HOST, and svc@host syntax.",
+      href: "/docs/cli/cli-overview",
     },
     {
-      title: "Yeet CLI",
-      description: "Full command reference for yeet.",
-      href: "/docs/cli/yeet-cli",
+      title: "Set up Tailscale",
+      description: "Prepare the tailnet policy catch needs for its tagged tsnet node.",
+      href: "/docs/concepts/tailscale",
     },
     {
-      title: "Catch CLI",
-      description: "Catch flags and RPC surface overview.",
-      href: "/docs/cli/catch-cli",
+      title: "Choose networking",
+      description: "Pick host ports, service networking, Tailscale networking, or LAN mode.",
+      href: "/docs/concepts/networking",
     },
     {
-      title: "Data Layout",
-      description: "On-host storage structure and service directories.",
-      href: "/docs/concepts/data-layout",
+      title: "Run VMs",
+      description: "Create Firecracker-backed guests and manage images, resources, files, and recovery.",
+      href: "/docs/payloads/vms",
     },
     {
-      title: "ZFS",
-      description: "ZFS-backed service roots, snapshots, and VM disk clones.",
+      title: "Use recovery points",
+      description: "Use ZFS service roots, snapshots, clone-first recovery, and VM restore.",
       href: "/docs/concepts/zfs",
     },
     {
-      title: "Troubleshooting",
-      description: "Common failure modes and fixes.",
+      title: "Fix a problem",
+      description: "Start with common connection, Docker, networking, VM, and removal failures.",
       href: "/docs/operations/troubleshooting",
-    },
-    {
-      title: "Development",
-      description: "Local dev setup and build/test commands.",
-      href: "/docs/development",
-    },
-    {
-      title: "FAQ",
-      description: "Short answers to common questions.",
-      href: "/docs/faq",
     },
   ]}
 />
 
-## How yeet runs
+## Reference
 
-- Catch runs on each host, and yeet runs from your workstation.
-- Services and VMs are deployed over Tailscale RPC with explicit network modes
-  (see [Tailscale](/docs/concepts/tailscale)).
-- Host targeting and defaults are driven by `CATCH_HOST` and `yeet.toml`.
+Use reference pages after you know the workflow you want.
 
-## Conventions
+<CardLinks
+  cards={[
+    {
+      title: "yeet commands",
+      description: "Client command reference grouped by workflow.",
+      href: "/docs/cli/yeet-cli",
+    },
+    {
+      title: "catch reference",
+      description: "Daemon flags, commands, and RPC surface.",
+      href: "/docs/cli/catch-cli",
+    },
+    {
+      title: "Configuration and prefs",
+      description: "Project config, client prefs, and environment variables.",
+      href: "/docs/concepts/configuration-and-prefs",
+    },
+    {
+      title: "Data layout",
+      description: "Where catch stores service data, configs, generations, and snapshots.",
+      href: "/docs/concepts/data-layout",
+    },
+  ]}
+/>
 
-- `<svc>` means a service name.
-- `<machine-host>` means the SSH target you use with `yeet init`
-  (`root@server.example` or another sudo-capable user).
-- `<catch-host>` means the catch tsnet hostname used by `CATCH_HOST`, `--host`,
-  and `svc@host` after catch is installed.
-- Some examples use `<host>` when the surrounding section makes the host type
-  clear.
-- `<file>` means a local file path.
-- Code blocks are intended to be copy-pasteable.
+## Terms
+
+- `<machine-host>` is the SSH target you pass to `yeet init`, such as
+  `root@server.example`.
+- `<catch-host>` is the tsnet hostname yeet uses after catch is installed. Use
+  it with `CATCH_HOST`, `--host`, or `<svc>@<catch-host>`.
+- `<svc>` is a service name.
+- `<file>` is a local file path.

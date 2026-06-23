@@ -3,33 +3,30 @@ title: Quick Start
 description: Fastest path to a working yeet + catch install.
 ---
 
-This is the TL;DR path to a working install. It assumes you have a Linux host
-with systemd and SSH access. You do not need Tailscale installed on either
-machine; yeet uses an embedded tsnet client for RPC. See
-[Tailscale](/docs/concepts/tailscale) for details.
+Use this path for the first successful deploy. It installs yeet locally,
+bootstraps catch on one Linux host, then runs a disposable container.
 
 ## Before you start
 
-- A Linux/systemd host you can SSH into from your workstation.
-- Tailscale admin access for first-time tailnet setup: catch must join with a
-  tag such as `tag:catch`, and the OAuth client secret must be allowed by
-  `tagOwners`. Follow
-  [Tailscale First-Time Host Setup](/docs/concepts/tailscale#first-time-host-setup)
-  once per tailnet.
-- Docker does not have to be preinstalled on Debian/Ubuntu-style hosts;
-  interactive `yeet init` can ask to install it.
-- VM payloads require KVM. Skip VMs until after your first container deploy if
-  you are unsure whether the host supports them.
+You need:
 
-## 1) Install yeet locally
+- A Linux host with systemd and SSH access.
+- Tailscale admin access for the first catch enrollment.
+- A tag, such as `tag:catch`, that catch can use in your tailnet policy.
 
-Release install (recommended):
+You do not need Tailscale installed on your workstation. yeet uses an embedded
+tsnet client for RPC.
+
+Skip VMs for the first run unless you already know the host has KVM. You can
+validate VM support after the container smoke test.
+
+## 1) Install yeet on your workstation
 
 ```bash
 curl -fsSL https://yeetrun.com/install.sh | sh
 ```
 
-Nightly build:
+To install the nightly build instead:
 
 ```bash
 curl -fsSL https://yeetrun.com/install.sh | sh -s -- --nightly
@@ -37,40 +34,46 @@ curl -fsSL https://yeetrun.com/install.sh | sh -s -- --nightly
 
 ## 2) Bootstrap catch on a host
 
-Use SSH to install the catch service on a remote host:
+Run this from your workstation:
 
 ```bash
 yeet init root@<machine-host>
 ```
 
-If Docker is missing on a Debian/Ubuntu-style host, interactive `yeet init`
-can ask to install it. If the catch tsnet node needs first login, `yeet init`
-prompts for a Tailscale OAuth client secret so it can enroll catch with a tag
-such as `tag:catch`.
+`<machine-host>` is the SSH target. If you use a non-root user, yeet runs the
+remote install with sudo.
 
-If you use a non-root user, yeet will invoke sudo on the remote.
+During first setup, `yeet init` may ask for a Tailscale OAuth client secret so
+catch can join the tailnet with a tag such as `tag:catch`. If your tailnet
+policy is not ready yet, follow
+[Tailscale Setup](/docs/concepts/tailscale#first-time-host-setup), then rerun
+`yeet init`.
 
-After install, `yeet run <svc>@<catch-host>` uses the **catch host**
-(Tailscale/tsnet hostname), not the SSH machine host. See
-[Tailscale](/docs/concepts/tailscale).
+If Docker is missing on a Debian/Ubuntu-style host, interactive `yeet init` can
+ask to install it.
 
-For unattended installs, VM host tooling, or direct auth-key setup, see
-[Installation](/docs/getting-started/installation).
+## 3) Confirm yeet can reach catch
 
-## 3) Sanity check
+After `yeet init`, commands target the catch hostname, not the SSH machine
+hostname. If yeet saved a default host, these should work:
 
 ```bash
 yeet version
 yeet status
 ```
 
-For a fuller post-install smoke test across containers, host services, cron,
-VM capability, and optional LAN/ZFS support, see
-[First-Run Validation](/docs/getting-started/first-run-validation).
+For multiple hosts, pass the catch hostname explicitly:
 
-## 4) Deploy something
+```bash
+yeet --host=<catch-host> status
+```
 
-Start with a disposable container:
+See [How Commands Work](/docs/cli/cli-overview) if `root@<machine-host>`,
+`<catch-host>`, and `<svc>@<host>` are still unclear.
+
+## 4) Deploy a disposable service
+
+Start with a small container:
 
 ```bash
 yeet run -p 18080:80 hello nginx:alpine
@@ -78,31 +81,26 @@ yeet status hello
 yeet logs hello
 ```
 
-If the host is reachable from your browser, open `http://<machine-host>:18080`.
-Or check from the host itself:
+Check the published port from the host:
 
 ```bash
 yeet ssh -- curl -fsS http://127.0.0.1:18080/ >/dev/null
 ```
 
-## 5) Observe and iterate
-
-```bash
-yeet logs -f hello
-yeet restart hello
-```
-
-Re-run the same `yeet run` command to roll a new generation. For an existing
-service, a payload-only redeploy reuses the saved run options from `yeet.toml`
-and changes only the payload.
-
-When you are done with the disposable service, remove it:
+## 5) Remove the disposable service
 
 ```bash
 yeet rm --clean-data hello
 ```
 
-Next, pick the payload guide that matches what you want to run:
-[Containers](/docs/payloads/containers), [VMs](/docs/payloads/vms),
-[Binaries and Scripts](/docs/payloads/binaries), [Cron Jobs](/docs/payloads/cron-jobs),
-or [ZFS](/docs/concepts/zfs).
+`--clean-data` deletes the service data too, so read the confirmation prompt
+before accepting.
+
+## Next steps
+
+- Run the [First-Run Validation](/docs/getting-started/first-run-validation)
+  playbook if this is a new host.
+- Open [Workflows](/docs/operations/workflows) for day-to-day deploy and update
+  commands.
+- Open [Payload Guides](/docs/payloads) to choose containers, binaries, scripts,
+  cron jobs, or VMs.

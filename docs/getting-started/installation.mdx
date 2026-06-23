@@ -3,26 +3,24 @@ title: Installation
 description: Install yeet locally and bootstrap catch on a remote host.
 ---
 
-This is an opinionated homelab setup. The install flow assumes:
+Install yeet on your workstation, then use `yeet init` to install catch on a
+Linux host you control.
 
-- A Linux host with systemd.
-- SSH access to that host.
-- You can reach the host from your laptop (LAN or tailnet). You do **not** need
-  Tailscale installed locally; yeet embeds tsnet for RPC. See
-  [Tailscale](/docs/concepts/tailscale).
+## Host names
 
-## Host terminology
+Yeet uses two host names during setup:
 
-- **machine host (SSH)**: the host you connect to for
-  `yeet init root@<machine-host>`.
-- **catch host (Tailscale/tsnet)**: the hostname that `yeet` targets for RPC
-  (`CATCH_HOST`, `--host`, `@<host>`). After install, this is the tsnet name
-  advertised by catch (default `catch` or `--tsnet-host`). See
-  [Tailscale](/docs/concepts/tailscale).
+- `<machine-host>` is the SSH target for `yeet init`, such as
+  `root@server.example`.
+- `<catch-host>` is the Tailscale/tsnet hostname yeet uses for RPC after catch
+  starts.
+
+Use the machine host for installation. Use the catch host with `CATCH_HOST`,
+`--host`, and `<svc>@<catch-host>` after installation.
 
 ## Install yeet
 
-Release install (recommended):
+Release install:
 
 ```bash
 curl -fsSL https://yeetrun.com/install.sh | sh
@@ -34,17 +32,92 @@ Nightly build:
 curl -fsSL https://yeetrun.com/install.sh | sh -s -- --nightly
 ```
 
-From the repo root (source build):
+Confirm the CLI is available:
 
 ```bash
-go build ./cmd/yeet
+yeet --help
 ```
 
-Or install globally:
+## Prepare Tailscale access
+
+Catch uses an embedded tsnet node for RPC. That node must join your tailnet with
+a tag, such as `tag:catch`. Before the first install, make sure your tailnet
+policy allows catch to use that tag.
+
+The usual setup is:
+
+- A `tagOwners` entry that lets your OAuth client assign `tag:catch`.
+- ACLs or grants that let your workstation reach tagged catch nodes.
+- A Tailscale OAuth client secret with the `auth_keys` scope.
+
+Follow [Tailscale Setup](/docs/concepts/tailscale#first-time-host-setup) if the
+tailnet policy is not ready yet.
+
+## Bootstrap catch
+
+Run this from your workstation:
 
 ```bash
-go install ./cmd/yeet
+yeet init root@<machine-host>
 ```
+
+During an interactive install, yeet can ask before installing missing
+Debian/Ubuntu packages. It can also ask for the Tailscale OAuth client secret
+when catch needs to join the tailnet.
+
+If you use a non-root SSH user, yeet runs the remote install with sudo.
+
+## Install host packages during bootstrap
+
+For container payloads on a Debian/Ubuntu-style host, let yeet install Docker:
+
+```bash
+yeet init --install-docker root@<machine-host>
+```
+
+For VM payloads on a KVM-capable host, install Docker and VM tools:
+
+```bash
+yeet init --install-docker --install-vm-tools root@<machine-host>
+```
+
+Use `--install-vm-tools` only on hosts that expose KVM and TUN/TAP. Many VPS
+providers do not expose nested virtualization.
+
+## Run unattended setup
+
+For repeatable setup, pass the Tailscale OAuth client secret:
+
+```bash
+yeet init --install-docker --install-vm-tools --ts-client-secret=<secret> root@<machine-host>
+```
+
+Advanced users can pass a preauthorized Tailscale auth key instead:
+
+```bash
+yeet init --install-docker --install-vm-tools --ts-auth-key=<key> root@<machine-host>
+```
+
+The secret or auth key belongs to the catch node. The resulting catch node must
+be tagged before catch accepts RPC.
+
+## Confirm the install
+
+After bootstrap, confirm yeet can reach catch:
+
+```bash
+yeet version
+yeet status
+```
+
+If this is not your default catch host, pass it explicitly:
+
+```bash
+yeet --host=<catch-host> status
+```
+
+Then run the [First-Run Validation](/docs/getting-started/first-run-validation)
+playbook to test the payload types this host should support.
 
 ## Upgrade yeet and catch
 
@@ -60,211 +133,53 @@ Upgrade both from verified GitHub release assets:
 yeet upgrade
 ```
 
-In a project with multiple catch hosts in `yeet.toml`, scan and upgrade all of
-them explicitly:
+If a project has multiple catch hosts in `yeet.toml`, check and upgrade each
+one:
 
 ```bash
 yeet upgrade check --all
 yeet upgrade --all
 ```
 
-To reinstall the latest public release even when a component is already current,
-newer, or currently a source/dev build:
+To reinstall the latest public release even when a component already looks
+current, newer, or locally built:
 
 ```bash
 yeet upgrade --all --force
 ```
 
-To install a specific public release instead of latest, select the tag
-explicitly. Use `--force` when that would reinstall or downgrade a component:
+To install a specific public release, select the tag:
 
 ```bash
 yeet upgrade --all --version v0.6.1 --force
 ```
 
-Interactive commands may show a short update notice when a newer public release
-is available. The notice is advisory: normal commands do not depend on GitHub
-being reachable.
+## Host requirements
 
-`yeet upgrade check --all` scans hosts from the current project and default
-host. It does not scan the entire tailnet.
+Base host:
 
-Source builds are not self-updated by default. Use `yeet upgrade --force` to
-replace them with the selected public release, or update with your normal source
-workflow, such as `git pull` followed by `go build ./cmd/yeet`.
+- Linux with systemd.
+- SSH access from your workstation.
+- A catch tag allowed by your Tailscale policy.
 
-### Agent skill (optional)
+Container payloads:
 
-If you use an AI coding tool that supports `npx skills`, you can install
-optional guidance for `yeet` and `catch` workflows:
+- Docker on the host.
+- Docker's containerd snapshotter enabled. `yeet init` configures this during
+  catch install.
 
-```bash
-npx skills add yeetrun/skills --skill yeet
-```
+VM payloads:
 
-This adds instructions and troubleshooting help for supported AI coding tools.
-It does **not** install the `yeet` CLI binary itself.
+- x86_64/amd64 Linux.
+- KVM at `/dev/kvm`.
+- TUN/TAP at `/dev/net/tun`.
+- `qemu-img`, `zstd`, `e2fsck`, `resize2fs`, `mount`, `umount`, and `ip`.
 
-## Install catch on a host
-
-`yeet init` installs `catch` on the remote host. When run from the repo it
-builds locally and uploads the binary; when run from a released yeet it
-downloads the latest stable release from GitHub before installing.
-
-Use `--nightly` to install the nightly build instead of the latest stable
-release.
-
-```bash
-yeet init root@<machine-host>
-```
-
-If Docker is missing on a Debian/Ubuntu-style host, interactive `yeet init`
-can ask to install it. If Tailscale enrollment is needed, `yeet init` prompts
-for a Tailscale OAuth client secret.
-
-For repeatable or non-interactive setup, pass the install choices directly:
-
-```bash
-yeet init --install-docker root@<machine-host>
-yeet init --install-docker --install-vm-tools root@<machine-host>
-```
-
-Use `--install-vm-tools` on KVM-capable hosts that should run VM payloads.
-
-Catch uses an embedded Tailscale node for RPC, and that node must be tagged.
-Before first setup, make sure your Tailscale policy allows the catch tag you
-plan to use, such as `tag:catch`. The OAuth client secret should have the
-`auth_keys` scope and be allowed by `tagOwners` to assign `tag:catch`, either
-directly or through an owner tag such as `tag:yeet`. The Tailscale guide shows
-the first-time policy snippet. For non-interactive installs, pass it with:
-
-```bash
-yeet init --install-docker --install-vm-tools --ts-client-secret=<secret> root@<machine-host>
-```
-
-Advanced users can instead create a preauthorized Tailscale auth key that
-assigns the catch server tag and pass it with:
-
-```bash
-yeet init --install-docker --install-vm-tools --ts-auth-key=<key> root@<machine-host>
-```
-
-The OAuth secret or auth key is for the catch host itself. The resulting catch
-node must be tagged before catch will accept RPC. If your tailnet policy
-separates catch hosts by cluster or location, include the tags that policy
-expects. For example, one group might use `tag:catch`, while another uses
-`tag:other-catch`; admin devices can be granted access to either group through
-Tailscale ACLs or grants.
-
-Or use the mise task:
-
-```bash
-mise run init-host -- root@<machine-host>
-```
-
-Notes:
-
-- If you pass a non-root user, yeet will run the install with sudo on the
-  remote.
-- The catch service runs as root.
-- `yeet init` configures Docker's containerd snapshotter during catch install
-  so pushed images are visible to the host Docker daemon.
-- `--install-vm-tools` installs VM filesystem tooling on Debian/Ubuntu hosts
-  that expose KVM and TUN/TAP.
-- For a first interactive setup, start with bare `yeet init
-  root@<machine-host>` and answer the prompts. Use `--install-docker`,
-  `--install-vm-tools`, or `--ts-client-secret` when you want unattended or
-  repeatable bootstrap.
-
-After bootstrap, use [First-Run Validation](/docs/getting-started/first-run-validation)
-to prove the host can run the payload types you care about.
-
-## Docker requirements (internal registry)
-
-Yeet’s internal registry expects Docker to use the containerd snapshotter so
-pushed images show up locally (no pull needed). `yeet init` configures this
-automatically during catch install. For manual catch installs or
-troubleshooting, ensure the host has this in `/etc/docker/daemon.json`:
-
-```json
-{
-  "features": {
-    "containerd-snapshotter": true
-  }
-}
-```
-
-Then restart Docker:
-
-```bash
-systemctl restart docker
-```
-
-## VM host requirements
-
-VM payloads such as `vm://ubuntu/26.04` and `vm://nixos/26.05` require a Linux
-catch host with:
-
-- x86_64/amd64 architecture.
-- KVM available at `/dev/kvm`.
-- TUN/TAP available at `/dev/net/tun`.
-- VM disk, image, and network tools: `qemu-img`, `zstd`, `e2fsck`, `resize2fs`,
-  `mount`, `umount`, and `ip`.
-
-During `yeet init`, catch checks those requirements and prints warnings for
-missing host capabilities. On Debian/Ubuntu hosts with the required VM devices
-available, pass `--install-vm-tools` to install the missing VM packages:
-`qemu-utils`, `zstd`, `e2fsprogs`, `util-linux`, and `iproute2`.
-
-ZFS is optional. Install and configure ZFS only if you want dataset-backed
-service roots, ZFS snapshots, or VMs with `--zfs`; raw VM disks work without
-it. If ZFS is present, `udevadm` is required for ZFS-backed VM disk setup. See
-[ZFS](/docs/concepts/zfs) for how yeet uses datasets and snapshots.
-
-## Development toolchain (optional)
-
-If you plan to work on yeet from source, install the toolchain via mise:
-
-```bash
-curl https://mise.run | sh
-echo 'eval "$(mise activate zsh)"' >> ~/.zshrc
-```
-
-Swap `zsh` for your shell (bash/fish/etc.) if needed.
-
-From the repo root, install the pinned tools from `.mise.toml`:
-
-```bash
-mise install
-```
+ZFS is optional. Use it when you want dataset-backed service roots, snapshots,
+or fast VM disk clones. See [ZFS](/docs/concepts/zfs).
 
 ## Manual catch install
 
-If you want to install without yeet:
-
-1) Build `catch` for the target architecture.
-2) Copy it to the host.
-3) Run `./catch install` on the host.
-
-Example (from the repo root):
-
-```bash
-GOOS=linux GOARCH=amd64 go build -o catch ./cmd/catch
-scp catch root@<machine-host>:
-ssh root@<machine-host> ./catch install
-```
-
-## Catch flags and environment
-
-See the [Catch CLI](/docs/cli/catch-cli) for detailed flags. Common settings:
-
-- `--data-dir` to control where state is stored on the host.
-- `--tsnet-host` for RPC connectivity.
-
-## Client defaults
-
-`yeet` stores prefs in `~/.yeet/prefs.json`. You can override at runtime with:
-
-```bash
-CATCH_HOST=<host> yeet status
-```
+Use `yeet init` unless you have a specific reason to install catch manually. If
+you do install catch yourself, see the [catch reference](/docs/cli/catch-cli)
+for daemon flags such as `--data-dir` and `--tsnet-host`.
