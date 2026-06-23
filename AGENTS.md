@@ -6,6 +6,8 @@ commits the updated submodule pointer.
 
 ## Local Rules
 
+- Use `STYLEGUIDE.md` as the writing and information-architecture baseline for
+  public docs work.
 - Update docs when user-facing CLI commands, flags, workflows, or behavior
   change.
 - Keep screenshots and referenced images current when UI, homepage, or
