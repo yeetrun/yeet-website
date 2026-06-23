@@ -1,744 +1,393 @@
 ---
-title: yeet CLI
+title: yeet Commands
 description: Client-side command reference for yeet.
 ---
 
-This is the client-side command reference. Most commands are forwarded to
-catch. Use the sections below to find commands by task rather than by a raw
-alphabetical list.
+Use this page as a command index. For full generated help, run the command with
+`--help-llm`.
 
-## Host terminology
+```bash
+yeet --help-llm
+yeet run --help-llm
+yeet vm images --help-llm
+```
 
-Yeet uses "host" in two different ways:
-
-- **catch host (Tailscale/tsnet)**: the hostname that `yeet` targets for RPC.
-  This is what `CATCH_HOST`, `--host`, and `@<host>` refer to.
-- **machine host (SSH)**: the SSH target you use with `yeet init` (for
-  installing catch). Example:
-  `yeet init --install-docker root@<machine-host>`.
-
-After `yeet init`, catch will advertise a tsnet hostname (default `catch` or
-`--tsnet-host`). That tsnet name is the **catch host** you use for `yeet run`,
-`yeet status`, etc.
-
-See [Tailscale](/docs/concepts/tailscale) for how RPC and tailnet addressing
-work.
+For recipes, start with [Workflows](/docs/operations/workflows).
 
 ## Global flags
 
-- `--host=<host>`: target host (overrides prefs).
-- `--service=<svc>`: force the service name.
+These flags work across commands:
+
+- `--host=<catch-host>`: target a catch host. Also set by `CATCH_HOST`.
+- `--service=<svc>`: force a service name when a command can infer one.
 - `--tty`: force TTY mode for remote commands.
 - `--no-tty`: disable TTY mode for remote commands.
-- `--progress=<mode>`: progress output mode (`auto`, `tty`, `plain`, `quiet`).
+- `--progress=auto|tty|plain|quiet`: choose progress output.
 
-Host scoping shortcuts:
+Host shortcuts:
 
-- `yeet <command>@<host>` for host-only commands (e.g. `events@host`).
-- `yeet <command> <svc>@<host>` to target a service on a specific host.
+```bash
+yeet status@<catch-host>
+yeet run <svc>@<catch-host> ./compose.yml
+```
 
-Note: Binary payloads uploaded by `run`, `stage`, and `cron` are
-zstd-compressed; catch auto-decompresses on receipt.
+See [How Commands Work](/docs/cli/cli-overview) for service selection and
+argument routing.
 
-## Deploy and update services
+## Deploy
 
-### run
+### `run`
 
-Install or update a service based on the payload:
-
-- Binary or script -> systemd service
-- Docker Compose file -> docker compose service
-- TypeScript file -> docker compose service using a container runtime
-- Python file -> docker compose service using a container runtime
-- Docker image ref (`nginx:latest`, `ghcr.io/org/app:latest`) -> pulled on the
-  catch host and installed
-- `Dockerfile` -> built locally for the remote platform, pushed to the
-  internal registry, then installed
-- `vm://ubuntu/26.04` -> Ubuntu VM service on KVM-capable hosts
-- `vm://nixos/26.05` -> NixOS VM service on KVM-capable hosts
-
-Examples:
+Install or update a service from a payload:
 
 ```bash
 yeet run --web
-yeet run --web <svc>
-yeet run --web <svc> ./compose.yml
-yeet run <svc>@<host> ./compose.yml
 yeet run <svc> ./compose.yml
-yeet run <svc> ./compose.yml --net=lan
-yeet run --pull <svc> ./compose.yml
-yeet run --force <svc> ./compose.yml
-yeet run --env-file=prod.env <svc> ./compose.yml
-yeet run vaultwarden ./compose.yml --service-root=/srv/apps/vaultwarden
-yeet run vaultwarden ./compose.yml --service-root=tank/apps/vaultwarden --zfs
-yeet run vaultwarden ./compose.yml --snapshots=off
-yeet run <svc> vm://ubuntu/26.04
-yeet run <svc> vm://nixos/26.05
-yeet run <svc> vm://ubuntu/26.04 --net=lan
+yeet run -p 8080:80 <svc> nginx:alpine
 yeet run <svc> ./Dockerfile
 yeet run <svc> ./bin/<svc> -- --app-flag value
-yeet run <svc> ghcr.io/org/app:latest
-yeet run -p 8000:8000 <svc> ./server.py
+yeet run <vm> vm://ubuntu/26.04
 ```
 
-`-p`/`--publish` publishes host ports for python/TypeScript/Dockerfile payloads
-and registry image refs (e.g. `-p 8000:8000`). Yeet stores those mappings in
-`yeet.toml` and replays them on future runs. If you provide a new publish list
-on a later run, include every existing mapping you want to keep or pass
-`--publish-reset` to acknowledge replacement. For docker compose payloads,
-define ports in the compose file, then use `yeet service set -p` for follow-up
-changes.
+Common flags:
 
-When stdout is a terminal, `run` uses the full TTY progress UI (spinners, live
-updates). Pipe output for plain text. Use `--progress=plain` (or
-`--progress=quiet`) for POSIX-friendly scripted output.
+- `--web`: open the local guided deploy form.
+- `--pull`: pull fresh images for Compose and image payloads.
+- `--force`: redeploy even when no payload or config change is detected.
+- `-p HOST:CONTAINER`: publish host ports for generated Compose payloads.
+- `--publish-reset`: replace or clear the saved published-port list.
+- `--net=svc|ts|lan|svc,ts|svc,lan`: choose network modes.
+- `--service-root=<path-or-dataset>`: choose the initial service root.
+- `--zfs`: treat `--service-root` as a ZFS dataset.
+- `--snapshots=on|off|inherit`: override service snapshot policy.
+- `--env-file=<path>`: upload an environment file before deploy.
+- `--vcpus`, `--memory`, `--disk`: set initial VM resources.
+- `--image-policy=prompt|update|cached`: choose stale VM image behavior.
 
-### Web new-service builder
+Related guides:
 
-`yeet run --web` opens a localhost-only browser UI for creating a new service.
-It is a faster way to build the first deploy command when you want to choose a
-workload type, network mode, storage root, ZFS dataset, or VM catalog image
-without writing every flag by hand.
+- [Payloads](/docs/payloads)
+- [Workflows](/docs/operations/workflows)
+- [Networking](/docs/concepts/networking)
+- [ZFS](/docs/concepts/zfs)
 
-Supported workload types:
+### `stage`
 
-- Compose app.
-- Virtual machine from the yeet VM image catalog.
-- Dockerfile.
-- Container image.
-- Binary or script.
-- Scheduled job with a five-field cron expression.
-
-The web builder is for new services only. Existing service changes still use
-the normal CLI commands such as `yeet run`, `yeet service set`, `yeet vm set`,
-`yeet cron`, `yeet logs`, and `yeet status`.
-
-Network and storage controls are visible in the builder because they are common
-first-deploy choices. VM deploys default to `svc` networking, and `svc,lan` is
-the recommended choice when you want LAN presence plus a reliable yeet-managed
-SSH path. VM deploys also show the vCPU, memory, and disk values catch will use
-for the selected host, so the preview is the command yeet will submit. ZFS mode
-changes the service-root field from a filesystem path to a dataset name; for
-VMs, that field is the parent dataset that will hold the VM zvols. When the
-selected catch host supports the current web-run RPC, the builder checks for
-mounted ZFS filesystems and suggests likely dataset roots. Pick a root to fill
-the service dataset path, or enter the dataset name manually if you already know
-where it should live.
-
-```bash
-yeet run --web
-yeet run --web <svc>
-yeet run --web <svc> ./compose.yml
-```
-
-After you click Deploy, yeet opens a compact read-only terminal in the browser
-that mirrors the local terminal output. Successful deploys tell you to close
-the tab and return to the terminal. Failed deploys keep the form open so you can
-adjust fields and try again.
-
-If a `yeet.toml` exists (or after your first `run`), you can omit the payload:
-
-```bash
-yeet run <svc>
-yeet run <svc> --force
-```
-
-Yeet will expand the stored payload + args for that service.
-
-For an existing service, you can also provide only a new payload:
-
-```bash
-yeet run <svc> ./compose.yml
-```
-
-Yeet reuses the saved run options from `yeet.toml` and updates just the
-payload. If you pass new run args, saved `--net` and `--ts-tags` are still
-carried forward unless you explicitly provide different values, which is
-rejected after the initial deploy.
-
-If you want to run a local image instead of pulling from a registry, use
-`yeet docker push --run`:
-
-```bash
-yeet docker push <svc> <local-image>:<tag> --run
-```
-
-Run flags:
-
-- `--web`: open a local new-service builder for a guided first deployment.
-- `--pull`: for docker compose/image payloads, pull latest images on deploy.
-  Without this, `run` reuses existing images.
-- `--force`: redeploy even when yeet detects no payload/env/arg changes.
-- `--service-root=/abs/path`: choose the initial service root on the catch host.
-  The path must be absolute and the parent directory must already exist. `run`
-  cannot move an existing service to a different root; use `yeet service set`
-  for that.
-- `--zfs`: treat `--service-root` as a ZFS dataset name. Catch accepts an
-  existing dataset or runs plain `zfs create <dataset>`, resolves its
-  mountpoint, and uses that path as the service root. Parent datasets must
-  already exist. If the dataset already exists or its mountpoint already
-  contains files, catch prints a warning and deploys into it.
-
-For ZFS-backed service roots, pass `--zfs` and use the dataset name as
-`--service-root`; catch resolves the dataset mountpoint and stores both the
-dataset identity and the resolved filesystem path.
-See [ZFS](/docs/concepts/zfs) for dataset-backed service roots, snapshots, and
-VM disk clones.
-
-- `--snapshots=on|off|inherit`: override the service snapshot policy saved in
-  catch and `yeet.toml`. `inherit` clears the service override and uses the
-  catch default.
-- `--snapshot-keep-last=<n|inherit>`: keep at most this many yeet-created
-  snapshots for the service.
-- `--snapshot-max-age=<duration|inherit>`: prune yeet-created snapshots older
-  than this age. Durations accept Go-style values such as `72h`, plus day
-  values such as `7d`.
-- `--snapshot-required=<bool|inherit>`: decide whether a failed pre-change
-  snapshot aborts the operation.
-- `--snapshot-events=<list|inherit>`: comma-separated events that should create
-  snapshots. Supported events are `run`, `docker-update`, and
-  `service-root-migration`.
-- `--net=<list>`: network modes (`ts`, `svc`, `lan`). Comma-separated.
-- `--ts-ver=<ver>`: tailscale version for service netns.
-- `--ts-exit=<node>`: tailscale exit node.
-- `--ts-tags=<tag>`: tailscale tags (repeatable or comma-separated).
-- `--ts-auth-key=<key>`: tailscale auth key for service netns.
-- `--macvlan-parent=<iface>`: parent interface for `lan`.
-- `--macvlan-vlan=<vlan>`: VLAN id for `lan`.
-- `--macvlan-mac=<mac>`: MAC address for `lan`.
-- `--vcpus=<n>`: override the default VM vCPU count for `vm://` payloads.
-- `--memory=<size>`: override the default VM memory size for `vm://` payloads.
-  Sizes accept suffixes such as `m` and `g`.
-- `--disk=<size>`: override the default VM disk size for `vm://` payloads.
-- `--image-policy=prompt|update|cached`: choose stale VM image cache behavior
-  for `vm://` payloads. Interactive runs prompt by default. Non-interactive
-  runs fail on stale cache unless you set `update` or `cached`.
-- `--restart=<bool>`: currently unused.
-- `--env-file=<path>`: upload an env file before deploying the payload.
-
-Official VM images use a yeet-managed kernel and init shim for Firecracker
-direct boot. Kernel and init updates are delivered by publishing a new yeet VM
-image bundle and updating the host image cache. The fast Ubuntu image does not
-support snap packages; NixOS guests should be customized through normal NixOS
-modules and `nixos-rebuild`.
-
-During `yeet init`, catch checks the host for KVM, TUN/TAP, and required VM
-tooling. On Debian/Ubuntu hosts with the required VM devices available,
-interactive installs can offer to install missing VM packages. ZFS is optional
-unless you create VMs with `--zfs`.
-
-When `--env-file` is provided (or `yeet env copy` is used), yeet stores the env
-file path in `yeet.toml` and re-uploads it on future runs.
-
-See [Tailscale](/docs/concepts/tailscale) for setup, netns behavior, and Serve
-examples.
-
-For compose services, `yeet docker update <svc...>` also pulls and recreates
-containers.
-
-### stage
-
-Stage a change without installing it yet.
-
-Examples:
+Upload a payload without applying it:
 
 ```bash
 yeet stage <svc> ./bin/<svc>
-yeet stage <svc> --net=ts --ts-tags=tag:app
 yeet stage <svc> show
 yeet stage <svc> commit
+yeet stage <svc> clear
 ```
 
-Notes:
+### `cron`
 
-- `stage show` prints the staged config.
-- `stage clear` removes staged changes without applying them.
-- `stage commit` applies the staged version.
-
-Stage flags match `run` flags (see above).
-
-### cron
-
-Install a cron job from a file. The cron expression must have 5 fields.
+Install or update a scheduled job:
 
 ```bash
+yeet cron <svc> ./job.sh "0 9 * * *"
 yeet cron <svc> ./job.sh "0 9 * * *" -- --job-arg foo
-```
-
-If a `yeet.toml` exists (or after your first `cron`), you can omit the payload
-and cron expression:
-
-```bash
 yeet cron <svc>
 ```
 
-When stdout is a terminal, `cron` uses the full TTY progress UI (spinners, live
-updates). Use `--progress=plain` (or `--progress=quiet`) for POSIX-friendly
-scripted output.
+Use [Cron Jobs](/docs/payloads/cron-jobs) for timer behavior.
 
-## Service control and status
+## Observe And Control
 
-### status
+### `status`
 
-Show service status.
+Show host or service status:
 
 ```bash
 yeet status
-yeet status <svc> --format=json
+yeet status <svc>
+yeet status <svc>@<catch-host>
 ```
 
-Notes:
+### `info`
 
-- With no `<svc>`, yeet uses `yeet.toml` host list (if present) and queries
-  each host.
-- Use `<svc>@<host>` to disambiguate services that exist on multiple hosts.
-- Table output always includes the `HOST` column, even for single-host queries.
-- Cron services (installed via `yeet cron`) show `TYPE` as `cron`.
-- Services show `TYPE` as `binary`, `typescript`, or `python` when detected;
-  otherwise `service` or `docker` based on the underlying service type.
-- For docker compose services in the no-`<svc>` view, containers are summarized
-  into a single `CONTAINERS` column and the status shows running/stopped/partial
-  counts.
-
-### logs
-
-Tail service logs.
-
-- `-f`/`--follow`: follow logs.
-- `-n`/`--lines`: number of lines (default `-1`).
-
-### start
-
-Start a service.
-
-### stop
-
-Stop a service.
-
-### restart
-
-Restart a service.
-
-### enable
-
-Enable autostart for a service (systemd-backed services only).
-
-### disable
-
-Disable autostart for a service (systemd-backed services only).
-
-### info
-
-Show detailed service information collected from both the local `yeet.toml` and
-the remote catch host.
+Show detailed service information:
 
 ```bash
 yeet info <svc>
-yeet info <svc>@<host>
 yeet info <svc> --format=json
 ```
 
-Plain output is grouped by section (host, service, VM details when present,
-client config, server config, network, runtime, images) and the Network section
-includes published ports when catch reports them. Use `--format=json` or
-`--format=json-pretty` for machine-readable output with structured port
-mappings.
+### `logs`
 
-### service generations
+Show service logs:
 
-Show the deployed generation state for one service:
+```bash
+yeet logs <svc>
+yeet logs -f <svc>
+```
+
+### `start`, `stop`, `restart`
+
+Control a service:
+
+```bash
+yeet start <svc>
+yeet stop <svc>
+yeet restart <svc>
+```
+
+### `enable`, `disable`
+
+Enable or disable autostart for systemd-backed services:
+
+```bash
+yeet enable <svc>
+yeet disable <svc>
+```
+
+### `events`
+
+Show catch events:
+
+```bash
+yeet events
+yeet events@<catch-host>
+```
+
+## Remove
+
+### `remove` / `rm`
+
+Remove a service:
+
+```bash
+yeet rm <svc>
+```
+
+Remove service data too:
+
+```bash
+yeet rm --clean-data <svc>
+```
+
+Useful flags:
+
+- `--yes`: skip prompts. This does not imply `--clean-data`.
+- `--clean-config`: delete the local `yeet.toml` entry.
+- `--clean-data`: delete service data, including VM guest disks.
+
+Read confirmation prompts carefully before deleting data.
+
+## Config, Env, And Files
+
+### `edit`
+
+Open the current service config in `$EDITOR`:
+
+```bash
+yeet edit <svc>
+```
+
+### `env show`, `env edit`, `env copy`, `env set`
+
+Inspect and manage a service env file:
+
+```bash
+yeet env show <svc>
+yeet env edit <svc>
+yeet env copy <svc> ./app.env
+yeet env set <svc> PORT=8080 LOG_LEVEL=debug
+yeet env set <svc> LOG_LEVEL=
+```
+
+### `copy` / `cp`
+
+Copy files between local paths and service data or VM guests:
+
+```bash
+yeet copy ./config.yml <svc>:config/config.yml
+yeet copy ./configs/ <svc>:config/
+yeet copy ./configs/*.yml <vm>:~/configs/
+yeet copy <vm>:"/var/log/*.log" ./logs/
+yeet copy --force-proxy ./configs/ <vm>:~/configs/
+```
+
+Regular service endpoints are relative to the service data directory. VM
+endpoints target the guest filesystem.
+
+### `prefs`
+
+Show or save client preferences:
+
+```bash
+yeet prefs
+yeet prefs --host=<catch-host> --save
+```
+
+## Services
+
+### `service generations`
+
+Show generation state:
 
 ```bash
 yeet service generations <svc>
-yeet service generations <svc> --format=json
 ```
 
-Service generations track deployed definitions and install artifacts. They are
-not VM disk snapshots, memory checkpoints, or persistent data recovery points.
-Use snapshot commands when you need storage recovery.
+Generations track deployed definitions and install artifacts. They are not
+storage snapshots.
 
-### service rollback
+### `service rollback`
 
-Move a non-VM service back to its previous deployed definition generation:
+Roll a non-VM service back to the previous deployed generation:
 
 ```bash
 yeet service rollback <svc>
 ```
 
-VM services do not support generation rollback. Use
-`yeet snapshots restore <vm> <snapshot>` for VM disk recovery.
+For VM disk recovery, use snapshots.
 
-### remove
+### `service set`
 
-Remove a service. `yeet` attempts to stop the service and clean up files, but
-will still remove the service from the database even if cleanup fails. Any
-stop/cleanup failures are printed as warnings.
-
-Alias: `rm`.
-
-Flags:
-
-- `-y`/`--yes`: skip removal prompts. This does not imply `--clean-data`.
-- `--clean-config`: delete the `yeet.toml` entry for the service. Without this
-  flag, yeet prompts to keep or remove the local config after the service is
-  removed.
-- `--clean-data`: delete service data, including VM guest disks. Without this
-  flag, interactive removals ask whether to delete data and default to no;
-  non-interactive removals preserve `data/`.
-
-For scripted cleanup of disposable services, pass both `--yes` and
-`--clean-data` when you want prompts skipped and data deleted.
-
-### service set
-
-Change service settings that require an explicit migration.
+Change settings that require an explicit service update:
 
 ```bash
-yeet service set vaultwarden --service-root=/mnt/fast/vaultwarden --copy
-yeet service set vaultwarden --service-root=tank/apps/vaultwarden --zfs --copy
-yeet service set vaultwarden --service-root=/mnt/fast/vaultwarden --empty
-yeet service set vaultwarden --service-root=tank/apps/vaultwarden --zfs --empty
-yeet service set vaultwarden -p 80:80 -p 443:443
-yeet service set vaultwarden --publish-reset -p 443:443
-yeet service set vaultwarden --publish-reset
-yeet service set vaultwarden --snapshots=off
-yeet service set vaultwarden --snapshots=on --snapshot-keep-last=3 --snapshot-max-age=72h
-yeet service set vaultwarden --snapshots=inherit
+yeet service set <svc> -p 80:80 -p 443:443
+yeet service set <svc> --publish-reset -p 443:443
+yeet service set <svc> --service-root=/srv/apps/<svc> --copy
+yeet service set <svc> --service-root=tank/apps/<svc> --zfs --copy
+yeet service set <svc> --snapshots=off
+yeet service set <svc> --snapshots=inherit
 ```
 
-Without `--zfs`, `--service-root` is an absolute filesystem path on the catch
-host. The parent directory (`/mnt/fast` in these examples) must already exist;
-yeet can create the final service directory.
+Move service roots while the service is stopped. Use `--copy` to copy the old
+root or `--empty` to create a fresh root.
 
-With `--zfs`, `--service-root` is a ZFS dataset name. Catch accepts an existing
-dataset or runs plain `zfs create <dataset>`, resolves its mountpoint, and uses
-that path as the service root. Parent datasets must already exist. If the
-dataset already exists or its mountpoint already contains files, catch prints a
-warning and deploys into it.
+### `service sync`
 
-The root contains `bin`, `run`, `env`, and `data`.
-
-Use `yeet service set` to move an existing service root. The service must be
-stopped first, and the old root is left in place. Non-interactive migrations
-must choose one mode:
-
-- `--copy`: copy the old root into the new root.
-- `--empty`: create a new empty root.
-
-`yeet service set` also changes per-service snapshot overrides. Snapshot-only
-changes do not require the service to be stopped; service-root moves still do.
-Use `--snapshots=inherit` to clear the whole service snapshot override, or set
-individual fields to `inherit` with flags such as
-`--snapshot-keep-last=inherit`.
-
-`-p`/`--publish` changes the complete desired published-port list for a compose
-service. If the current list contains `80:80`, then
-`yeet service set vaultwarden -p 443:443` fails because it would remove `80:80`.
-Keep existing mappings by including them in the command, or pass
-`--publish-reset` to replace or clear the list intentionally.
-
-### service sync
-
-Pull catch-owned service settings into an existing local `yeet.toml` entry.
-Syncable settings include `service_root`, `service_root_zfs`, `ports`, and
-snapshot override fields such as `snapshots`, `snapshot_keep_last`,
-`snapshot_max_age`, `snapshot_required`, and `snapshot_events`.
+Sync live service settings back into an existing `yeet.toml` entry:
 
 ```bash
-yeet service sync vaultwarden
-yeet service sync vaultwarden --config ~/yeet-services/yeet.toml
-yeet service sync --all --config ~/yeet-services/yeet.toml
+yeet service sync <svc>
+yeet service sync --all
+yeet service sync <svc> --config ./yeet.toml
 ```
 
-Use this after a live service is changed from another directory or another
-machine. The catch DB is the source of truth for live state; `yeet.toml` is the
-TOML replay recipe. Sync updates matching existing entries only and does not
-import every service from catch. The file passed with `--config` must already
-exist and contain the service entries you want to update.
+## Docker
 
-### vm set
+### `docker outdated`
 
-Change VM resources or networking while the VM is stopped.
+Check Compose services for upstream image updates without changing containers:
 
 ```bash
-yeet stop devbox
-yeet vm set devbox --vcpus=6 --memory=6g --disk=128g
-yeet vm set devbox --net=lan
-yeet start devbox
+yeet docker outdated
+yeet docker outdated <svc>
+yeet docker outdated --format=json
 ```
 
-CPU and memory changes update the Firecracker config used on the next start.
-Disk changes are grow-only and update the raw disk file or ZFS ZVOL before
-growing the guest ext4 filesystem. Network changes use the same `--net` and
-`--macvlan-*` flags as `yeet run vm://...`.
+### `docker pull`
 
-### snapshots list
-
-Use snapshots to recover persistent service-root state or VM disks:
+Prefetch images for a Compose service without restarting:
 
 ```bash
-yeet snapshots list [svc]
-yeet snapshots inspect <svc> <snapshot>
-yeet snapshots create <svc> [--comment=TEXT] [--full]
-yeet snapshots clone <svc> <snapshot> <new-svc>
-yeet snapshots restore <svc> <snapshot> [--stop] [--start] [--yes] [--mode=disk|full] [--generation=current|snapshot]
-yeet snapshots protect <svc> <snapshot>
-yeet snapshots unprotect <svc> <snapshot>
-yeet snapshots rm <svc> <snapshot> [--yes]
+yeet docker pull <svc>
 ```
 
-List yeet recovery points:
+### `docker update`
 
-Usage: `yeet snapshots list [svc] [--format=table|json|json-pretty]`.
+Pull images and recreate Compose containers:
 
 ```bash
-yeet snapshots list
+yeet docker update <svc>
+yeet docker update <svc-a> <svc-b>@<catch-host>
+yeet docker update --outdated
+```
+
+### `docker push`
+
+Push a local image to the catch host:
+
+```bash
+yeet docker push <svc> <local-image>:<tag> --run
+```
+
+## VMs
+
+### `vm images`
+
+Show catalog and cache state, update image bundles, import local images, or
+prune old cache entries:
+
+```bash
+yeet vm images catalog
+yeet vm images
+yeet vm images update
+yeet vm images update vm://nixos/26.05
+yeet vm images import lab/ubuntu ./dist/my-vm
+yeet vm images rm lab/ubuntu --yes
+yeet vm images prune --dry-run
+```
+
+Use [VMs](/docs/payloads/vms) for the full VM image workflow.
+
+### `vm set`
+
+Change VM resources or networking while the VM is stopped:
+
+```bash
+yeet stop <vm>
+yeet vm set <vm> --vcpus=6 --memory=6g --disk=128g
+yeet vm set <vm> --net=svc,lan
+yeet start <vm>
+```
+
+### `vm console`
+
+Stream a VM serial console:
+
+```bash
+yeet vm console <vm>
+```
+
+Detach by pressing Enter, then typing `~.`.
+
+## Snapshots
+
+Snapshots are yeet recovery points for ZFS-backed service roots and VM disks.
+
+### Common flow
+
+```bash
 yeet snapshots list <svc>
-yeet snapshots list <svc> --format=json
-yeet snapshots list <svc> --format=json-pretty
-```
-
-Without `<svc>`, yeet lists recovery points for all supported services on the
-selected catch host. Table output is the default. Use `--format=json` or
-`--format=json-pretty` when you need structured output for scripts.
-
-### snapshots inspect
-
-Inspect one recovery point:
-
-Usage:
-`yeet snapshots inspect <svc> <snapshot> [--format=table|json|json-pretty]`.
-
-```bash
 yeet snapshots inspect <svc> <snapshot>
-yeet snapshots inspect <svc> <snapshot> --format=json
-yeet snapshots inspect <svc> <snapshot> --format=json-pretty
-```
-
-`<snapshot>` can be the full ZFS snapshot name, the short yeet snapshot name,
-or an unambiguous prefix of the short name. Inspect before deleting or
-protecting a point so you know which service, dataset, event, mode, retention
-state, and comment it carries.
-
-### snapshots create
-
-Create a manual recovery point:
-
-Usage: `yeet snapshots create <svc> [--comment=TEXT] [--full]`.
-
-```bash
-yeet snapshots create <svc>
-yeet snapshots create <svc> --comment="before upgrade"
-yeet snapshots create <vm> --full --comment="checkpoint before risky change"
-```
-
-Manual recovery point creation requires snapshots to be enabled for the
-service. For non-VM services, the service root must also be ZFS-backed. For
-VMs, yeet snapshots the VM disk; `--full` is VM-only, requires the VM to be
-running, and also writes Firecracker state and memory checkpoint files for
-advanced recovery workflows.
-
-### snapshots clone
-
-Clone a recovery point into a new service without changing the original:
-
-Usage: `yeet snapshots clone <svc> <snapshot> <new-svc>`.
-
-```bash
-yeet snapshots clone <svc> <snapshot> <new-svc>
-yeet info <new-svc>
-```
-
-Use clones when you want to inspect a snapshot or recover files before
-mutating the original service. Recovery clones are created stopped. The
-`--start` flag is reserved for a future clone flow and is refused by this
-release.
-
-### snapshots restore
-
-Restore the original service or VM disk from a recovery point:
-
-Usage:
-`yeet snapshots restore <svc> <snapshot> [--stop] [--start] [--yes] [--mode=disk|full] [--generation=current|snapshot]`.
-
-```bash
+yeet snapshots create <svc> --comment "before upgrade"
+yeet snapshots clone <svc> <snapshot> <svc>-recover
 yeet snapshots restore <svc> <snapshot> --stop --yes
-yeet snapshots restore <svc> <snapshot> --stop --yes --start
-yeet snapshots restore <svc> <snapshot> --generation=snapshot --stop --yes
 ```
 
-Use `--stop` when the service is running and must be stopped before restore.
-Use `--yes` for non-interactive restores and `--start` when the service should
-start after the restore succeeds. The default restore mode is `--mode=disk`,
-which restores a ZFS service root or VM disk. Use `--mode=full` for a full VM
-checkpoint created with `yeet snapshots create <vm> --full`; yeet restores the
-zvol first, then loads Firecracker state and memory and resumes the VM. Full
-restore is an in-place operation for the same VM service and requires the VM's
-shape, Firecracker binary, disk path, and network device names to remain
-compatible.
-
-For service-root recovery points that recorded a generation, the default
-`--generation=current` keeps the current deployed definition. Pass
-`--generation=snapshot` only when you also want to restore the deployed
-definition associated with that snapshot.
-
-### snapshots protect
-
-Protect a recovery point from automatic retention pruning:
-
-Usage: `yeet snapshots protect <svc> <snapshot>`.
-
-```bash
-yeet snapshots protect <svc> <snapshot>
-```
-
-Protected points stay out of automatic pruning. A protected point must be
-unprotected before it can be removed.
-
-### snapshots unprotect
-
-Allow a recovery point to be pruned or removed:
-
-Usage: `yeet snapshots unprotect <svc> <snapshot>`.
-
-```bash
-yeet snapshots unprotect <svc> <snapshot>
-```
-
-Use this when a previously protected point no longer needs to be kept.
-
-### snapshots rm
-
-Remove a yeet recovery point:
-
-Usage: `yeet snapshots rm <svc> <snapshot> [--yes]`.
-
-```bash
-yeet snapshots rm <svc> <snapshot>
-yeet snapshots rm <svc> <snapshot> --yes
-```
-
-Without `--yes`, yeet asks for confirmation. Protected recovery points are not
-removed until you run `yeet snapshots unprotect <svc> <snapshot>`.
-
-### snapshots defaults
-
-Show or change catch-wide snapshot defaults:
+### Other snapshot commands
 
 ```bash
 yeet snapshots defaults show
-yeet snapshots defaults set --enabled=false
 yeet snapshots defaults set --enabled=true --keep-last=5 --max-age=7d
-yeet snapshots defaults set --events=run,docker-update --required=false
+yeet snapshots protect <svc> <snapshot>
+yeet snapshots unprotect <svc> <snapshot>
+yeet snapshots rm <svc> <snapshot>
 ```
 
-Snapshot defaults apply to ZFS-backed service roots. The built-in default is
-enabled and required, keeps 5 yeet-created snapshots, prunes yeet-created
-snapshots older than 7 days, and snapshots before `run`, `docker-update`, and
-`service-root-migration` events. Per-service overrides are managed with
-`yeet service set`.
-
-## Config, env, and files
-
-### env show
-
-Print the current env file for a service. Use `--staged` to inspect the staged
-env file.
-
-### env edit
-
-Edit the env file for a service.
-
-### env copy
-
-Upload a local env file. Alias: `env cp`.
-
-Also stores the env file path in `yeet.toml` for future runs.
-
-### env set
-
-Set one or more env keys (creates the env file if missing). Use `KEY=` (or
-`KEY=""`) to unset a key.
-
-### edit
-
-Open the current config for editing in `$EDITOR` (defaults to vim).
-
-- `--config` edits the service JSON (limited; not implemented for
-  docker/systemd content).
-- `--ts` is reserved.
-- `--restart` is currently unused.
-
-### copy
-
-Copy files between local paths and a remote endpoint. Like `scp` and `rsync`,
-every operand except the last is a source and the last operand is the
-destination. When copying multiple sources, the destination must be a
-directory, such as `svc:dir/`, `devbox:~/configs/`, or an existing local
-directory.
-
-For regular services, `svc:path` targets the service `data/` directory and
-supports exact service-data paths or directories, not remote globs. For VM
-services, `vm:path` targets the VM guest filesystem and uses rsync over the
-same transport as `yeet ssh`. Quoted remote globs such as
-`devbox:"/var/log/*.log"` are VM-only. By default, `yeet copy` behaves like
-`rsync -avz` (archive + verbose + compress). Alias: `cp`.
-
-Examples:
+For VM full checkpoints:
 
 ```bash
-# Local -> remote (data dir root)
-yeet copy ./app.env svc:
-
-# Local -> remote (explicit destination file)
-yeet copy ./config.yml svc:config/config.yml
-
-# Local dir contents -> remote dir (rsync-style)
-yeet copy ./configs/ svc:config/
-
-# Multiple local sources -> VM guest dir
-yeet copy ./configs/*.yml devbox:~/configs/
-
-# Remote -> local
-yeet copy svc:config ./config
-
-# Local -> VM guest
-yeet copy ./app devbox:~/app
-yeet copy ./nginx.conf devbox:/etc/nginx/nginx.conf
-
-# VM guest -> local
-yeet copy devbox:"/var/log/*.log" ./logs/
-yeet copy devbox:/var/log/cloud-init.log ./logs/
-
-# Force the catch proxy path for VM copy
-yeet copy --force-proxy ./configs/ devbox:~/configs/
+yeet snapshots create <vm> --full --comment "checkpoint before risky change"
+yeet snapshots restore <vm> <snapshot> --mode=full --stop --yes
 ```
 
-Notes:
+Use [ZFS](/docs/concepts/zfs) for snapshot defaults, retention, clone-first
+recovery, and VM restore behavior.
 
-- `-a` is archive mode (includes recursion and metadata preservation).
-- `-z` compresses the transfer stream.
-- VM copy uses rsync into the guest filesystem and requires `rsync` locally and
-  in the guest. Official yeet VM images include it; custom images should
-  install it.
-- `--force-proxy` applies only to VM endpoints and mirrors
-  `yeet ssh --force-proxy`.
-- VM endpoints allow absolute guest paths. Regular service endpoints remain
-  relative to service `data/` and do not expand remote globs.
-- Output mirrors rsync's file list and summary format.
-- A trailing slash on the source copies directory contents (rsync-style).
-- A trailing slash on the destination forces directory semantics.
-- Regular service-data transfers are staged and moved into place only after
-  completion. VM endpoint transfers use direct rsync.
+## Connect And Debug
 
-## Connect and debug
+### `ssh`
 
-### ssh
-
-Open an SSH session to the **catch host** over the tailnet/tsnet address. If
-you pass a regular service name, the session starts in that service's data
-directory (`<data-dir>/services/<svc>/data`). If the service is a VM,
-`yeet ssh <svc>` connects to the VM guest instead.
+Open SSH to the catch host, a service data directory, or a VM guest:
 
 ```bash
 yeet ssh
@@ -748,232 +397,57 @@ yeet ssh -- uname -a
 yeet ssh <svc> -- ls -la
 ```
 
-Notes:
+For regular services, `yeet ssh <svc>` starts in that service's data directory.
+For VM services, it connects to the guest.
 
-- `yeet ssh` targets the **catch host**, not the machine host you used for
-  `yeet init`.
-- `yeet ssh <svc>` resolves the host from `<svc>@<host>`, `--host`,
-  `CATCH_HOST`, or `yeet.toml` service entries. For regular services, it drops
-  into the service data dir. For VM services, it connects to the guest.
-- Catch-host SSH and regular service SSH connect over Tailscale/tsnet, so you
-  can firewall port 22 on public/LAN interfaces and still reach the catch host
-  via your tailnet. VM SSH depends on the VM network mode described below.
-- For catch-host SSH and regular services, if catch reports an install user,
-  that user is used for SSH; otherwise your SSH defaults apply. For VM services,
-  yeet uses the VM-reported user or defaults to `ubuntu` unless you pass an SSH
-  user option.
-- SSH options can be passed before the service name (e.g.,
-  `yeet ssh -i ~/.ssh/id_ed25519 <svc>`).
-- Use `--` to pass a remote command. For regular services, the command runs
-  from the service directory. For VM services, the command runs in the guest's
-  default SSH session context.
-- For VM services with `svc`, yeet proxies SSH through the catch host to the
-  VM's private management IP. For LAN-only VMs, yeet connects directly to the
-  guest LAN IP.
-- For VMs with `svc,lan`, yeet uses the LAN IP when your workstation can reach
-  it, then falls back to the catch-host proxy path.
-- Use `--force-proxy` to skip the LAN probe and force the catch-host proxy path
-  for a VM.
-- For yeet-managed VM aliases in `~/.yeet/known_hosts`, `yeet ssh <vm>` repairs
-  a stale VM host key and retries once after a VM is recreated. Yeet does not
-  edit normal `~/.ssh/known_hosts` entries.
+### `ip`
 
-### vm images
-
-Show available VM images and manage the VM image cache on the selected catch
-host:
+Show connectable service or VM IP endpoints:
 
 ```bash
-yeet vm images catalog
-yeet vm images
-yeet vm images ls
-yeet vm images --format=json
-yeet vm images update
-yeet vm images update vm://nixos/26.05
-yeet vm images prune --dry-run
-yeet vm images prune
-yeet vm images import <name> <bundle-dir>
-yeet vm images import <name> <bundle-dir> --allow-local-kernel
-yeet vm images rm <name> --yes
+yeet ip <svc>
 ```
 
-`yeet vm images catalog` lists the runnable VM payload names supported by the
-selected catch host before any image is cached. Official families come from the
-remote `yeet-vm-images` catalog at runtime; examples include
-`vm://ubuntu/26.04` and `vm://nixos/26.05`. The catalog output also includes
-imported local image refs.
+### `tailscale` / `ts`
 
-`yeet vm images` and `yeet vm images ls` show the host file-cache state for
-official VM image families, old cache entries that are still in use or
-prunable, and any imported local image refs. `yeet vm images update` downloads
-and verifies the latest official image bundles from the stable latest manifests
-used for future VM creates, then removes old unreferenced cache entries when it
-is safe. New image versions are picked up through those manifests rather than a
-yeet release. Pass a specific payload, such as `vm://ubuntu/26.04` or
-`vm://nixos/26.05`, to refresh one image family. A missing image is downloaded
-automatically on the first VM create. Existing VMs are not rebuilt or modified.
-
-`yeet vm images prune --dry-run` previews cleanup. `yeet vm images prune` asks
-for confirmation before removing prunable entries; `--yes` skips that prompt.
-
-`yeet vm images import <name> <bundle-dir>` uploads a local bundle containing
-`rootfs.ext4` or `rootfs.ext4.zst` and stores it as `vm://<name>` on the catch
-host. If the bundle includes a yeet VM `manifest.json`, yeet preserves its
-guest boot capability metadata. Rootfs-only imports use yeet's managed kernel
-and Firecracker; add `--allow-local-kernel` only when the bundle includes
-`vmlinux`. Non-Ubuntu bundles should include a manifest with the right
-`default_user`, `guest_system_init`, and `metadata_driver`. The default user
-must be a valid Linux user name, `guest_system_init` must be an absolute path
-without spaces or `..`, and `metadata_driver` must be `ubuntu` or `nixos`.
-Custom image rootfs contents should include the guest tools you expect to use,
-such as SSH, `rsync` for `yeet copy`, and terminal definitions for operator
-`TERM` values such as `xterm-ghostty`. Remove an imported ref with
-`yeet vm images rm <name> --yes`.
-
-For ZFS-backed VMs, the first create on a pool and image version prepares a
-shared ZFS image base. Later VMs on the same pool clone that base, so normal
-creates skip the base-image write.
-See [ZFS](/docs/concepts/zfs) for cleanup and shared-base behavior.
-
-### vm console
-
-Stream the serial console output for a VM service:
+Set up Tailscale OAuth for the catch host or run Tailscale commands inside a
+service network namespace:
 
 ```bash
-yeet vm console <svc>
-```
-
-Use this when the guest is booting, when SSH is not available yet, or when the
-VM has no reported SSH address. Use `yeet ssh <svc>` for an interactive guest
-shell.
-
-Detach from an active console by pressing Enter, then typing `~.`. The VM keeps
-running.
-
-### events
-
-Subscribe to events. Use `--all` for global events.
-
-`yeet events@<host>` is shorthand for subscribing to all events on that host.
-
-## Networking and Tailscale
-
-### ip
-
-Show the service IP (only meaningful when `--net=svc` was used).
-
-### tailscale setup
-
-Interactive setup for the catch host's Tailscale OAuth client secret using
-`yeet tailscale --setup` (alias: `yeet ts --setup`). The CLI walks you through
-creating a Tailscale OAuth client with an owner tag, such as `tag:yeet`, that
-can assign the service tags you plan to use with `--net=ts`, then stores the
-`tskey-client-...` secret on the target host. Use `--client-secret` to skip the
-prompt.
-
-See [Tailscale](/docs/concepts/tailscale) for the full setup flow and related
-flags.
-
-### tailscale (service netns)
-
-Run tailscale commands inside the service netns.
-
-```bash
-yeet tailscale <svc> -- serve --bg 8080
-yeet tailscale <svc> -- debug daemon-logs
+yeet tailscale --setup
+yeet tailscale <svc> -- status
+yeet ts <svc> serve --bg 3000
 yeet ts <svc> update
-yeet ts <svc> update 1.95.112
-yeet ts <svc> update --version=1.95.112
 ```
 
-Alias: `yeet ts <svc> -- ...`.
+Use [Tailscale](/docs/concepts/tailscale) for tag and OAuth setup.
 
-Notes:
+## Host Setup And Upgrade
 
-- `yeet ts <svc> update` uses a yeet-managed updater (not the official
-  `tailscale update` self-update path).
-- It asks for confirmation before upgrading.
-- To force the official subcommand behavior, use:
-  `yeet ts <svc> -- update`.
+### `init`
 
-See [Tailscale](/docs/concepts/tailscale) for Serve/TLS details.
-
-## Images and compose maintenance
-
-### docker outdated
-
-Checks Docker compose services for upstream image updates without pulling images,
-recreating containers, or restarting services.
+Install or update catch on a machine host over SSH:
 
 ```bash
-yeet docker outdated
-yeet docker outdated <svc>
-yeet docker outdated <svc>@<host>
-yeet docker outdated --format=json
-yeet docker outdated --format=json-pretty
+yeet init root@<machine-host>
+yeet init --install-docker root@<machine-host>
+yeet init --install-docker --install-vm-tools root@<machine-host>
+yeet init --ts-client-secret=<secret> root@<machine-host>
+yeet init --ts-auth-key=<key> root@<machine-host>
 ```
 
-Default output shows only update, unknown, and error rows. Up-to-date containers
-are omitted. The table output is compact and hides raw digests; use
-`--format=json` or `--format=json-pretty` when you need exact running and
-upstream image digests.
+Use [Installation](/docs/getting-started/installation) for the full bootstrap
+flow.
 
-### docker pull
+### `upgrade`
 
-Prefetch images for a compose service without restarting.
-
-### docker update
-
-Pull images and recreate containers (restart) for compose services installed
-from compose files.
-
-```bash
-yeet docker update <svc>
-yeet docker update <svc-a> <svc-b>
-yeet docker update <svc-a> <svc-b>@<host>
-yeet docker update --outdated
-yeet --host=yeet-prod docker update --outdated
-```
-
-Explicit service arguments update each requested compose service. A target like
-`svc@host` pins that service to one host; unqualified services use `--host`, a
-single matching `yeet.toml` service host, or the default catch host. When more
-than one target is updated, each update prints a short host/service marker
-before streaming the normal compose update output.
-
-`--outdated` is a host-wide batch mode: it checks compose services for update
-rows, deduplicates by service, and updates only services with available image
-updates. Unknown or error rows are reported as skipped scan issues after
-running any updateable services, and the batch exits nonzero when scan issues
-remain. It does not take service arguments; use explicit services for selected
-updates.
-
-### docker push
-
-Push a local image into the internal registry.
-
-- `--run`: tag image as `run`.
-- `--all-local`: push all local images for the service matching remote OS/arch.
-
-## Upgrade yeet and catch
-
-### `yeet upgrade`
-
-Check for updates:
+Check and install public yeet/catch releases:
 
 ```bash
 yeet upgrade check
 yeet upgrade check --all
-yeet upgrade check --json
-```
-
-Upgrade:
-
-```bash
 yeet upgrade
 yeet upgrade --all
-yeet upgrade --host catch-a
-yeet upgrade --yes
 yeet upgrade --all --force
 yeet upgrade --all --version v0.6.1 --force
 ```
@@ -981,95 +455,40 @@ yeet upgrade --all --version v0.6.1 --force
 `--all` uses the current project's `yeet.toml` plus the default host. It does
 not scan the entire tailnet.
 
-`--version <tag>` selects a public GitHub release instead of latest. `--force`
-reinstalls the selected release even when the current component is already at
-that version, newer than that version, or a source/dev build.
+### `version`
 
-## Host setup and discovery
-
-### init
-
-Install or update catch on a remote host via SSH.
+Show the catch server version for the selected host:
 
 ```bash
-yeet init --install-docker root@<machine-host>
+yeet version
 ```
 
-For VM-capable hosts, add VM tooling installation:
+### `list-hosts`
+
+List tailnet hosts matching tags:
 
 ```bash
-yeet init --install-docker --install-vm-tools root@<machine-host>
+yeet list-hosts
 ```
 
-If omitted, `init` uses the current `CATCH_HOST` value.
+This command uses the local Tailscale client for discovery. Normal yeet RPC does
+not require a local Tailscale client.
 
-Note: the `root@<machine-host>` here is the **machine host** you can reach over
-SSH. It is not the catch/tsnet host you target for `yeet run` or `yeet status`.
+## Host Mounts
 
-Run `init` from the yeet source repo (it builds `./cmd/catch`). If you are in a
-different repo, clone `github.com/yeetrun/yeet` and run it from there.
+### `mount`
 
-If you omit the SSH user, `init` will try to use the install user reported by
-catch (recorded during the last install). If unavailable, SSH defaults apply.
-If catch reports an install host, `init` will prefer that host for SSH.
-
-In interactive terminals, `init` will prompt to accept the SSH host key if
-needed. For non-interactive runs, pre-populate `~/.ssh/known_hosts`.
-
-On hosts without Docker, interactive `init` prompts to install Docker. For a
-fresh Debian/Ubuntu-style host, prefer `--install-docker`; use bare
-`yeet init root@<machine-host>` when Docker is already installed or you only
-plan to run non-container payloads. During catch install, yeet also configures
-Docker's containerd snapshotter so pushed images are visible to the host Docker
-daemon.
-
-On hosts that expose KVM and TUN/TAP, `--install-vm-tools` installs the
-Debian/Ubuntu packages required for VM payloads.
-
-If the catch tsnet node needs first login, `init` prompts for a Tailscale OAuth
-client secret while the remote install runs. The catch node must end up tagged,
-such as `tag:catch`; user-owned catch nodes are rejected. For non-interactive
-setup, pass the OAuth client secret with `--ts-client-secret=<secret>`.
-Advanced users can pass a preauthorized Tailscale auth key for the catch node
-with `--ts-auth-key=<key>`.
-
-When stdout is a terminal, `init` uses the full TTY progress UI (spinners, live
-updates). Pipe output for plain text. Use `--progress=plain` (or
-`--progress=quiet`) for POSIX-friendly scripted output.
-
-### list-hosts
-
-List tailnet hosts matching tags (default `tag:catch`). This command uses the
-local Tailscale client for discovery, so it is optional for normal yeet RPC.
-
-### prefs
-
-Show or save client preferences.
-
-### version
-
-Show the catch server version for the current host.
-
-### mount
-
-Mount a network filesystem on the host (global, not per-service). If no args
-are given, it lists mounts.
+Mount a network filesystem on the host. With no arguments, list mounts:
 
 ```bash
 yeet mount host:/export data-share --type=nfs --opts=defaults
-yeet mount             # list mounts
+yeet mount
 ```
 
-### umount
+### `umount`
 
-Unmount a mount by name.
+Unmount by mount name:
 
 ```bash
 yeet umount data-share
 ```
-
-## Misc
-
-### skirt
-
-Hidden easter egg.

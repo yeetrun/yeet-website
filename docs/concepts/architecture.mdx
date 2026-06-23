@@ -1,55 +1,89 @@
 ---
-title: Architecture
+title: How yeet Works
 description: How yeet and catch work together over Tailscale RPC.
 ---
 
-Yeet is the client. Catch is the server. Both live in this repo, and catch runs
-on your homelab hosts.
+Yeet has two parts:
 
-## Components
+- `yeet` runs on your workstation.
+- `catch` runs on each Linux host you manage.
 
-- **yeet**: CLI that packages payloads and issues RPC calls.
-- **catch**: daemon that installs, runs, and monitors services and VMs.
-- **catchrpc**: JSON-RPC + WebSocket layer for exec/events.
-- **internal registry**: Docker registry served by catch for image pushes.
-- **VM image cache**: host-local cache for yeet-owned Firecracker VM bundles.
+You use `yeet init` once per host to install catch. After that, yeet talks to
+catch over Tailscale/tsnet RPC and asks it to install, update, inspect, and
+remove services.
 
-## How a deploy works
+## Deploy flow
 
-1) Yeet detects the payload type.
-2) Yeet streams the payload over RPC.
-3) Catch writes artifacts under the service directory.
-4) Catch installs or updates the service (systemd, docker compose, or VM).
-5) Catch publishes events for status/config changes.
+When you run `yeet run <svc> <payload>`:
+
+1. yeet detects the payload type.
+2. yeet ships the payload or deployment recipe to catch.
+3. catch writes the service files under the service root.
+4. catch installs or updates the service as systemd, Docker Compose, a cron
+   timer, or a VM service.
+5. yeet streams status, logs, and events back to your terminal.
+
+For the command path, start with [Workflows](/docs/operations/workflows). For
+payload detection, see [Service Types](/docs/concepts/service-types).
+
+## Host targeting
+
+Setup uses the SSH machine host:
+
+```bash
+yeet init root@<machine-host>
+```
+
+Normal commands use the catch host:
+
+```bash
+CATCH_HOST=<catch-host> yeet status
+yeet --host=<catch-host> status
+yeet run <svc>@<catch-host> ./compose.yml
+```
+
+See [How Commands Work](/docs/cli/cli-overview) for host targeting and
+argument routing.
+
+## Service state
+
+Catch owns the live service state on the host. A local `yeet.toml` stores the
+replay recipe for your project: payload path, host, network mode, service root,
+snapshot settings, cron schedule, and payload args.
+
+If live state changes from another checkout, sync it back:
+
+```bash
+yeet service sync <svc>
+```
 
 ## Generations and staging
 
-- Each service has versions (generations).
-- `stage` uploads artifacts without applying them.
-- `stage commit` installs the staged generation.
-- `rollback` moves back one generation (if available).
+Each service can have generations. A new deploy creates a new generation, and
+rollback can return to the previous one when a previous generation is available.
 
-## Networking
+Use staging when you want to upload a payload before applying it:
 
-Services can run in `host`, `ts`, `svc`, or `lan` network modes. See
-[Networking](/docs/concepts/networking) for details and
-[Tailscale](/docs/concepts/tailscale) for how RPC and service netns are wired.
+```bash
+yeet stage <svc> ./bin/<svc>
+yeet stage <svc> show
+yeet stage <svc> commit
+```
 
-## Authorization
+## Network model
 
-RPC access is gated by Tailscale identity:
+Services can use host ports, the private service network, a Tailscale service
+node, the host LAN, or combinations of those modes. VMs use the service network
+by default for management.
 
-- Catch must run as a tagged Tailscale node, such as `tag:catch`.
-- Tailnet ACLs or grants decide which users, devices, and tagged nodes can
-  reach catch RPC.
-- Untagged, user-owned catch nodes are rejected; catch is server
-  infrastructure, not an end-user device.
+See [Networking](/docs/concepts/networking), [DNS](/docs/concepts/dns), and
+[Tailscale](/docs/concepts/tailscale) for the details that affect operators.
 
-See [Tailscale](/docs/concepts/tailscale) for setup and tailnet behaviors.
+## Access model
 
-## Registry
+Catch must run as a tagged Tailscale node, such as `tag:catch`. Your tailnet
+policy decides which devices and tags can reach catch. Catch rejects untagged,
+user-owned nodes because it is server infrastructure.
 
-The internal registry is served in two places:
-
-- HTTPS `/v2/` on port 443 (for client pushes).
-- Loopback `/v2/` on a local port (for docker pulls on the host).
+See [Tailscale Setup](/docs/concepts/tailscale#first-time-host-setup) for the
+policy shape.

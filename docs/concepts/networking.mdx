@@ -3,15 +3,16 @@ title: Networking
 description: Network modes and flags for yeet services.
 ---
 
-Yeet/catch can place services into different network modes. The mode is
-selected with `--net` on `run` or `stage`.
+Choose networking based on how the service should be reached.
 
-## Modes
-
-- `host` (default): no network namespace, service uses the host network.
-- `ts`: Tailscale netns for the service.
-- `svc`: per-service virtual IP on an internal subnet.
-- `lan`: macvlan on the host LAN.
+| Need | Use |
+| --- | --- |
+| Host port such as `:8080` | `-p HOST:CONTAINER` |
+| Private service-to-service traffic | `--net=svc` |
+| A Tailscale identity for one service | `--net=ts` |
+| A LAN address from the host network | `--net=lan` |
+| LAN address plus yeet-managed fallback | `--net=svc,lan` |
+| Private service network plus Tailscale | `--net=svc,ts` |
 
 Modes are comma-separated:
 
@@ -19,132 +20,125 @@ Modes are comma-separated:
 yeet run <svc> ./compose.yml --net=svc,ts
 ```
 
-## Published Ports
+## Published ports
 
 For image, Dockerfile, Python, and TypeScript payloads, publish host ports with
-`yeet run -p HOST:CONTAINER <svc> <payload>`. Yeet stores the desired mappings
-in `yeet.toml` and catch records them with the service.
+`-p`:
 
-Use `yeet service set <svc> -p HOST:CONTAINER` to change published ports after
-deployment. The `service set` publish list is complete: include existing
-mappings you want to keep, or pass `--publish-reset` to replace or clear the
-list intentionally.
+```bash
+yeet run -p 8080:80 <svc> nginx:alpine
+```
+
+Change ports later with `service set`. The port list is complete, so include
+every mapping you want to keep:
 
 ```bash
 yeet service set web -p 80:80 -p 443:443
+```
+
+Replace or clear the list intentionally with `--publish-reset`:
+
+```bash
 yeet service set web --publish-reset -p 443:443
 yeet service set web --publish-reset
 ```
 
-`yeet info <svc>` shows published ports in plain output, and JSON formats expose
-structured `network.ports` data.
+Check the live ports first:
 
-## Tailscale (`ts`)
-
-`--net=ts` adds a Tailscale interface to the service netns, giving the service
-its own tailnet IP. Use `yeet tailscale` (alias: `yeet ts`) to run Tailscale
-commands for that service.
-
-See the [Tailscale](/docs/concepts/tailscale) page for setup, flags, and Serve
-examples.
+```bash
+yeet info web
+```
 
 ## Service network (`svc`)
 
-`svc` assigns a stable private IP from an internal range (`192.168.100.0/24`).
-`svc` is scoped to the yeet service subnet plus public IPv4 internet egress.
-It does not automatically grant access to the catch host's LAN routes,
-Tailscale interface, CGNAT ranges, loopback, link-local, multicast, or other
-non-public IPv4 destinations. Use `lan` when a workload should be a LAN host,
-and use `ts` when a workload should have its own Tailscale identity.
-
-- Use `yeet ip <svc>` to view it.
-- This is useful for service-to-service traffic or when combined with explicit
-  `ts` networking.
-- On modern Debian and Ubuntu hosts, yeet prefers native `nft` for the host
-  forwarding and masquerade rules that support `svc`.
-- If `nft` is not available, yeet falls back to `iptables-nft`.
-- `iptables-legacy` is supported as a compatibility fallback only.
-- Yeet owns its own firewall objects for this path (`table ip yeet` for `nft`,
-  or `YEET_FORWARD` / `YEET_POSTROUTING` chains for `iptables` backends)
-  instead of appending anonymous one-off rules directly into the host ruleset.
-- The host-side forward rules allow service-subnet traffic, reject non-public
-  IPv4 destinations, then allow remaining public IPv4 egress through NAT.
-- Inside each service netns, yeet also owns the DNAT chains used for published
-  compose ports (`YEET_PREROUTING` and `YEET_OUTPUT`) and now reconciles them
-  from the current docker endpoint state so stale sidecar-targeting rules are
-  removed automatically during container churn.
-- If a named service netns is recreated, catch now detects the stale docker
-  endpoint wiring for that service and recreates the whole compose project so
-  it rejoins the current netns cleanly.
-- catch also performs this reconciliation pass at startup for netns-backed
-  docker services and logs when it recreates a service for this reason.
-
-Services and VMs on `svc` also use catch-owned DNS by default. The resolver is
-available inside the service network at `192.168.100.1`; other `svc` services
-and VMs can be reached by short name, such as `web`, or by fully qualified
-name, such as `web.yeet.internal`. See [DNS](/docs/concepts/dns) for resolver
-behavior, VM and service netns details, and troubleshooting.
-
-The `svc` network currently requires exclusive use of `192.168.100.0/24` on
-the catch host. Catch rejects new `svc` networking if an existing host address
-or route overlaps that range.
-
-You can inspect the current host-side firewall state with:
+`svc` gives a service or VM a private yeet-managed address. Use it for private
+service-to-service traffic and for VM management.
 
 ```bash
-sudo nft list table ip yeet
-sudo iptables-nft -S YEET_FORWARD
-sudo iptables-nft -t nat -S YEET_POSTROUTING
+yeet run <svc> ./compose.yml --net=svc
+yeet ip <svc>
 ```
 
-If the host is on legacy compatibility mode, use `iptables-legacy` in place of
-`iptables-nft`.
+Services and VMs on `svc` can resolve each other by short name and
+`*.yeet.internal` names:
 
-For VMs, `svc` is the default network mode. The guest gets a private management
-IP reachable from the catch host, and `yeet ssh <vm>` proxies through catch to
-reach it. The VM does not need to be directly reachable from your laptop.
-VMs with both `svc` and `lan` use the LAN IP for `yeet ssh` when your
-workstation can reach it on port 22, then fall back to the catch-proxied `svc`
-address when the LAN path is not reachable. In that combined mode, yeet scopes
-the `svc` DNS link to yeet names so LAN-provided DNS can still handle normal
-external lookups, and the guest uses the LAN interface as its default route for
-ordinary outbound traffic.
+```text
+http://api:8080
+postgres://db:5432/app
+```
+
+See [DNS](/docs/concepts/dns) for resolver behavior.
+
+The `svc` network currently requires exclusive use of `192.168.100.0/24` on the
+catch host. If that range overlaps an existing host route, catch rejects new
+`svc` networking.
+
+## Tailscale (`ts`)
+
+`ts` gives a service its own Tailscale interface and tailnet IP:
+
+```bash
+yeet run <svc> ./compose.yml --net=ts --ts-tags=tag:app
+yeet ip <svc>
+```
+
+Use `svc,ts` when the service should have both normal service-network egress
+and a Tailscale identity:
+
+```bash
+yeet run <svc> ./compose.yml --net=svc,ts --ts-tags=tag:app
+```
+
+See [Tailscale](/docs/concepts/tailscale) for OAuth setup, tags, and
+`yeet tailscale` commands.
 
 ## LAN (`lan`)
 
-`lan` uses macvlan to attach the service to the LAN.
+`lan` attaches a service or VM to the catch host's LAN. Use it only on networks
+where macvlan, DHCP, and the selected parent interface make sense.
 
-- Default parent interface is the host default route from the catch host namespace.
-- Override with `--macvlan-parent`.
-- Optional `--macvlan-vlan` and `--macvlan-mac`.
+```bash
+yeet run <svc> ./compose.yml --net=lan
+yeet ip <svc>
+```
 
-For VMs, untagged `lan` attaches a TAP device to a host bridge so the guest can
-request a LAN address with DHCP. When `--macvlan-vlan=<id>` is set, yeet uses
-standard Linux VLAN and bridge devices: it creates yeet-owned VLAN plumbing when
-the lower interface is free, or attaches the VM TAP to an existing Linux bridge
-for that lower interface and VLAN when the host already owns it. The host
-interface still needs to carry the requested VLAN tag. VM networking supports
-`svc`, `lan`, or both; Tailscale mode is not available for VMs yet.
+Override the parent interface or VLAN when needed:
 
-For VM SSH, `lan` should be read as the catch host's LAN. For LAN-only VMs,
-`yeet ssh <vm>` connects directly to the guest LAN IP and prints that choice to
-stderr before starting SSH. If your workstation only reaches catch over the
-tailnet, a LAN-only VM might not be directly reachable from your workstation
-even though catch can reach it. Use `--net=svc,lan` when you want LAN presence
-and a stable yeet management fallback. If you need to skip the LAN probe and use
-the proxy path, use `yeet ssh --force-proxy <vm>`.
+```bash
+yeet run <svc> ./compose.yml --net=lan --macvlan-parent=<iface>
+yeet run <svc> ./compose.yml --net=lan --macvlan-parent=<iface> --macvlan-vlan=<id>
+```
+
+For VMs, `lan` means the catch host's LAN. A LAN-only VM must be reachable from
+your workstation on the guest LAN IP for `yeet ssh <vm>` to connect directly.
+Use `svc,lan` when you also want a catch-proxied management fallback:
+
+```bash
+yeet run <vm> vm://ubuntu/26.04 --net=svc,lan
+yeet ssh <vm>
+```
+
+Force the proxy path:
+
+```bash
+yeet ssh --force-proxy <vm>
+```
 
 ## Mounts
 
-`mount` and `umount` manage network mounts for a service.
+`mount` and `umount` manage host-level network mounts:
 
 ```bash
-yeet mount <svc> host:/export /mnt/data --type=nfs --opts=defaults
-yeet umount <svc> /mnt/data
+yeet mount host:/export data-share --type=nfs --opts=defaults
+yeet umount data-share
 ```
 
-Mount flags:
+Mounts are host-level resources, not per-service network modes.
 
-- `--type` (default `nfs`)
-- `--opts` (default `defaults`)
-- `--deps` (list of systemd dependencies)
+## Related docs
+
+- [Tailscale](/docs/concepts/tailscale) covers catch RPC and `--net=ts`.
+- [DNS](/docs/concepts/dns) covers names inside `svc`.
+- [VMs](/docs/payloads/vms) covers VM networking and SSH behavior.
+- [Troubleshooting](/docs/operations/troubleshooting) covers common network
+  failures.

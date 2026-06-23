@@ -1,14 +1,18 @@
 ---
 title: Data Layout
-description: On-host storage layout for catch.
+description: Where catch stores service state and data.
 ---
 
-Catch stores state on the host under a single data directory (`--data-dir`).
-The default is `./data`.
+Catch stores live state on each host under its data directory. You usually do
+not need to edit these files directly, but the layout helps when you inspect a
+host or plan service roots.
 
-## Top-level
+## Data directory
 
-```
+The catch data directory is controlled by `catch --data-dir`. The default is
+`./data`.
+
+```text
 <data-dir>/
   db.json
   services/
@@ -17,73 +21,84 @@ The default is `./data`.
   tsnet/
 ```
 
-## Per-service layout
+Use [catch reference](/docs/cli/catch-cli) for daemon flags.
 
-By default, services live under `<data-dir>/services/<svc>/`. A service can use
-a custom root selected with `yeet run <svc> <payload> --service-root=/abs/path`
-or moved later with `yeet service set <svc> --service-root=/abs/path`.
+## Service roots
 
-```bash
-yeet run vaultwarden ./compose.yml --service-root=/srv/apps/vaultwarden
-yeet run vaultwarden ./compose.yml --service-root=tank/apps/vaultwarden --zfs
+By default, services live under:
+
+```text
+<data-dir>/services/<svc>/
 ```
 
-For ZFS-backed service roots, pass `--zfs` and use the dataset name as
-`--service-root`; catch resolves the dataset mountpoint and stores both the
-dataset identity and the resolved filesystem path.
+Set a custom service root at first deploy:
 
-Catch stores the authoritative live root in its DB, including both the mounted
-filesystem path and the ZFS dataset name when `--zfs` is used. `yeet.toml`
-stores the user-facing replay intent. If those drift because the service was
-mutated from a different directory, run `yeet service sync <svc>` to pull the
-root identity back into the local config.
+```bash
+yeet run <svc> ./compose.yml --service-root=/srv/apps/<svc>
+```
 
-If the dataset does not exist, catch runs plain `zfs create <dataset>`. Parent
-datasets must already exist. If the dataset already exists or its mountpoint
-already contains files, catch prints a warning and deploys into it.
+Use a ZFS dataset as the service root:
+
+```bash
+yeet run <svc> ./compose.yml --service-root=tank/apps/<svc> --zfs
+```
+
+Inside a service root, the common directories are:
+
+```text
+<service-root>/
+  bin/
+  run/
+  data/
+  env/
+```
+
+- `bin/` contains install artifacts such as binaries, compose files, and units.
+- `run/` contains runtime files.
+- `data/` contains persistent application data.
+- `env/` contains environment files managed by `yeet env`.
+
+## Moving roots
+
+`yeet run` can set the root for a new service. Move an existing service with
+`yeet service set` while the service is stopped:
+
+```bash
+yeet stop <svc>
+yeet service set <svc> --service-root=/srv/apps/<svc> --copy
+yeet start <svc>
+```
+
+Use `--empty` instead of `--copy` when you want a new empty root.
+
+For ZFS-backed moves:
+
+```bash
+yeet stop <svc>
+yeet service set <svc> --service-root=tank/apps/<svc> --zfs --copy
+yeet start <svc>
+```
+
+Parent directories or parent datasets must already exist. `yeet service set`
+leaves the old root in place.
+
+## Local replay config
+
+`yeet.toml` stores the local recipe for future runs. Catch stores the live root
+on the host.
+
+If another checkout changes live service settings, sync them back:
+
+```bash
+yeet service sync <svc>
+yeet service sync --all
+```
 
 ## ZFS snapshots
 
-For ZFS-backed service roots, catch can create yeet-managed snapshots before
-risky changes. The built-in default is enabled and required: catch snapshots
-before redeploys, Docker image updates, and ZFS-backed service-root migrations.
-First deploys are skipped because there is no prior service state to recover.
-See [ZFS](/docs/concepts/zfs) for the full ZFS model, including VM disk clones.
+ZFS-backed service roots can get yeet-managed recovery points before deploys,
+Docker image updates, and service-root moves. Use the ZFS guide for snapshot
+defaults, retention, clone-first recovery, and VM disk behavior:
 
-Catch prunes only snapshots it created for that service. Yeet-created
-snapshots are named with a `yeet-` prefix and tagged with ZFS properties such
-as `com.yeetrun:created-by=catch`, `com.yeetrun:service=<svc>`, and
-`com.yeetrun:event=<event>`. The default retention keeps the newest 5 snapshots
-and prunes snapshots older than 7 days.
-
-Snapshot defaults and per-service overrides live in the catch DB because they
-control live service behavior. `yeet.toml` stores per-service overrides only as
-the local replay recipe; use `yeet service sync <svc>` if another checkout or
-machine changed the live policy.
-
-```
-<service-root>/
-  bin/   # binaries, compose files, units
-  run/   # runtime files
-  data/  # persistent app data
-  env/   # env files
-```
-
-Notes:
-
-- A custom service root is an absolute path on the catch host. The parent must
-  already exist; yeet can create the final service directory.
-- A ZFS service root is a dataset name. If it does not exist, catch runs plain
-  `zfs create <dataset>`. Parent datasets must already exist.
-- `yeet run` can set the initial root for a new service, but cannot move an
-  existing service to a different root.
-- Moving a root uses `yeet service set`, requires the service to be stopped,
-  leaves the old root in place, and requires `--copy` or `--empty` when running
-  non-interactively.
-- ZFS snapshot settings are inherited from catch defaults unless a service has
-  a snapshot override set by `yeet run` or `yeet service set`.
-- Env files are versioned under `env/` and surfaced via `yeet env show` or
-  `yeet env edit`.
-- Compose network files and Tailscale artifacts live under `bin/` and `run/`
-  (see [Tailscale](/docs/concepts/tailscale)).
-- `mounts/` is host-global and used by `yeet mount` / `yeet umount`.
+- [ZFS](/docs/concepts/zfs)
+- [Workflows: recover data](/docs/operations/workflows#recover-data)

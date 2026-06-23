@@ -48,25 +48,25 @@ Example:
 
 ```toml
 version = 1
-hosts = ["yeet-edge-b", "host-b"]
+hosts = ["home-catch", "lab-catch"]
 
 [[services]]
-name = "uptime-kuma"
-host = "yeet-edge-b"
-payload = "./uptime-kuma/compose.yml"
+name = "web"
+host = "home-catch"
+payload = "./web/compose.yml"
 args = ["--net=lan"]
 
 [[services]]
 name = "api"
-host = "host-b"
+host = "lab-catch"
 payload = "./bin/api"
 args = ["--flagA", "valueA"]
 
 [[services]]
-name = "owesplit"
-host = "yeet-edge-a"
+name = "report-job"
+host = "home-catch"
 type = "cron"
-payload = "./owesplit/owesplit"
+payload = "./jobs/report"
 schedule = "0 9 15 * *"
 args = ["-live"]
 ```

@@ -3,42 +3,33 @@ title: Tailscale
 description: How yeet uses Tailscale for RPC and per-service networking.
 ---
 
-Yeet integrates deeply with Tailscale: catch exposes RPC over an embedded
-tsnet instance, and services can optionally get their own Tailscale interfaces
-and IPs.
+Yeet uses Tailscale in two places:
 
-## What yeet uses Tailscale for
+- catch exposes RPC through an embedded tsnet node.
+- Services can get their own Tailscale identity with `--net=ts`.
 
-- **RPC to catch**: `yeet` talks to `catch` over Tailscale/tsnet. You do not
-  need Tailscale installed locally for RPC to work.
-- **Per-service networking**: `--net=ts` gives a service its own Tailscale
-  interface and IP address.
+You do not need the Tailscale client installed on your workstation for normal
+yeet commands. The local Tailscale client is only needed for discovery commands
+such as `yeet list-hosts`.
 
-## First-Time Host Setup
+## First-time host setup
 
-`catch` is the small daemon that yeet installs on each host. During
-`yeet init`, catch starts its own embedded tsnet node for RPC. That node must
-join Tailscale with a tag-based identity, usually `tag:catch`. User-owned catch
-nodes are rejected.
+Catch must join your tailnet as a tagged node, usually `tag:catch`. User-owned
+catch nodes are rejected.
 
-For a new tailnet or a first yeet host, use this order. The recommended setup
-uses one Tailscale OAuth client secret for both catch bootstrap and future
-`--net=ts` services.
+For a first host, use this order:
 
-1. Add a yeet owner tag in Tailscale policy, such as `tag:yeet`.
+1. Add a yeet owner tag, such as `tag:yeet`.
 2. Let that owner tag own the catch tag, usually `tag:catch`.
-3. Let the same owner tag own any service tags you plan to use later, such as
+3. Let that owner tag own any service tags you plan to use later, such as
    `tag:app`.
-4. Create a Tailscale OAuth client with the `auth_keys` scope, shown in the
-   admin console as Auth Keys write access.
-5. Select the owner tag (`tag:yeet` in this example) in the OAuth client's
-   tags.
-6. Copy the OAuth client secret. It starts with `tskey-client-`.
-7. Run `yeet init root@<machine-host>` and paste the OAuth client secret when
+4. Create a Tailscale OAuth client with the `auth_keys` scope.
+5. Select the owner tag on the OAuth client.
+6. Run `yeet init root@<machine-host>` and paste the OAuth client secret when
    prompted.
-8. Validate with `yeet status`.
+7. Validate with `yeet status`.
 
-Here is a minimal policy shape to merge into your existing tailnet policy:
+Minimal policy shape:
 
 ```jsonc
 {
@@ -54,206 +45,119 @@ Here is a minimal policy shape to merge into your existing tailnet policy:
 }
 ```
 
-The catch node itself joins as `tag:catch`. The OAuth client uses `tag:yeet`
-only as permission to mint auth keys for `tag:catch` and service tags such as
-`tag:app`.
+The catch node joins as `tag:catch`. The OAuth client uses `tag:yeet` only so it
+can mint auth keys for `tag:catch` and later service tags.
 
-The init command can install Docker and VM host tools in the same pass:
+If you do not plan to use `--net=ts` for services, the OAuth client can assign
+`tag:catch` directly. The owner-tag pattern is more flexible.
+
+## Bootstrap with a secret
+
+Interactive init can prompt for the OAuth client secret:
 
 ```bash
-yeet init --install-docker --install-vm-tools root@<machine-host>
+yeet init root@<machine-host>
 ```
 
-For non-interactive setup, pass the OAuth client secret directly:
+For unattended setup:
 
 ```bash
 yeet init --install-docker --ts-client-secret=<secret> root@<machine-host>
 ```
 
-If Tailscale rejects the requested tag during init, fix the OAuth client tags
-or `tagOwners` policy and paste the corrected OAuth client secret when yeet
-prompts again.
+On VM-capable hosts:
 
-If you only need catch bootstrap and do not plan to use `--net=ts`, you can
-create the OAuth client directly with `tag:catch` instead of an owner tag. That
-is simpler, but it will not let the same secret mint different service tags
-later unless your `tagOwners` policy allows it.
+```bash
+yeet init --install-docker --install-vm-tools --ts-client-secret=<secret> root@<machine-host>
+```
 
-Advanced users can also create a preauthorized auth key that assigns
-`tag:catch` and pass it with
-`yeet init --install-docker --ts-auth-key=<key> root@<machine-host>`.
+Advanced users can pass a preauthorized auth key for the catch node:
 
-If you use more than one catch cluster, use tags and Tailscale ACLs/grants to
-express the boundary. For example, hosts tagged `tag:catch` can be allowed to
-talk to other `tag:catch` hosts while hosts tagged `tag:other-catch` are kept in
-a separate group. Admin devices can be granted explicit access to either group
-in the tailnet policy; they do not need to share the catch tag.
+```bash
+yeet init --install-docker --ts-auth-key=<key> root@<machine-host>
+```
+
+The secret or auth key belongs to catch itself. If the resulting catch node is
+not tagged, catch refuses RPC.
+
+## Host naming
+
+`yeet init root@<machine-host>` uses SSH. Normal commands use the catch tsnet
+hostname:
+
+```bash
+CATCH_HOST=<catch-host> yeet status
+yeet --host=<catch-host> status
+yeet run <svc>@<catch-host> ./compose.yml
+```
 
 If another tailnet device already owns the requested catch hostname, Tailscale
-may assign a suffixed name such as `catch-1`. Yeet prints a warning during
-`init`; target that assigned catch host with `--host=catch-1`, set
-`CATCH_HOST=catch-1`, or remove the stale/conflicting Tailscale device and rerun
-`yeet init`.
-
-If the catch node joins as a user-owned device, catch refuses RPC and asks you
-to fix the Tailscale policy/device tag, then rerun `yeet init`. Passing
-`--ts-client-secret=<secret>` lets yeet mint a tagged auth key during init.
-
-## Keys and Tags
-
-Yeet uses two Tailscale credential paths:
-
-- **OAuth client secret**: the preferred path. `yeet init` prompts for it when
-  catch needs first enrollment, or you can pass `--ts-client-secret=<secret>`.
-  catch stores the secret and can reuse it later to mint per-service auth keys
-  for services deployed with `--net=ts`.
-- **Direct auth key**: the advanced/manual path. Pass
-  `yeet init --ts-auth-key=<key>` for catch bootstrap or `yeet run --net=ts
-  --ts-auth-key=<key>` for a specific service.
-
-For `--net=ts --ts-tags=...`, Tailscale decides which tags the OAuth client can
-assign. A client can mint keys for an exact matching tag set. If you want one
-OAuth client to assign different service tags dynamically, define a tag-owner
-hierarchy in the tailnet policy: give the OAuth client an owner tag, then let
-that owner tag own the service tags you plan to pass with `--ts-tags`.
-
-There is no yeet-side wildcard that bypasses Tailscale tag ownership. The auth
-key or OAuth client must be allowed by Tailscale to assign every tag you ask
-for.
-
-### Tailnet Policy Checklist
-
-Yeet does not need to own your whole tailnet policy. It does need the policy to
-allow the tags you ask Tailscale to assign:
-
-- `tagOwners` must allow catch bootstrap to assign the catch tag, such as
-  `tag:catch`.
-- The OAuth client used with `yeet init --ts-client-secret` must have the
-  `auth_keys` scope and be allowed to assign `tag:catch`, either directly or
-  through an owner tag such as `tag:yeet`.
-- `tagOwners` must allow the catch OAuth client to assign any service tags you
-  pass with `--ts-tags`.
-- ACLs or grants must allow your admin device or admin tag to reach the catch
-  tag on TCP port `41548`.
-- ACLs or grants for service tags are yours to design; yeet only asks Tailscale
-  to enroll the service with those tags.
-
-If you use a Tailscale OAuth client for `yeet tailscale --setup`, give that
-OAuth client the owner tag (`tag:yeet` in the example) so it can mint keys for
-the service tags owned by that tag.
-
-## Get Started (OAuth Setup)
-
-If you completed first-time host setup with an OAuth client secret, catch has
-already stored it and can use it for `--net=ts` services. To add or replace the
-stored secret later, run:
-
-```bash
-yeet tailscale --setup
-```
-
-This stores a `tskey-client-...` secret on the catch host. When you deploy a
-service with `--net=ts`, yeet uses that secret to mint per-service auth keys.
-Make sure the OAuth client has the owner tag that can assign the service tags
-you pass with `--ts-tags`.
-
-If you prefer, you can bypass OAuth and provide your own key:
-
-```bash
-yeet run <svc> ./compose.yml --net=ts --ts-auth-key=tskey-...
-```
-
-When you pass `--ts-auth-key` directly to `yeet run`, that key is for the
-service node, not the catch host. If you also pass `--ts-tags`, provide a key
-that already assigns those service tags.
+may assign a suffixed name such as `catch-1`. Use that assigned catch host, or
+remove the stale/conflicting Tailscale device and rerun `yeet init`.
 
 ## Service networking (`--net=ts`)
 
-Using `--net=ts` starts a dedicated tailscaled instance for the service and
-adds a Tailscale interface inside the service's network namespace. The service
-gets its own tailnet IP:
+Use `--net=ts` when a service should get its own tailnet IP:
 
 ```bash
 yeet run <svc> ./compose.yml --net=ts --ts-tags=tag:app
+yeet ip <svc>
 ```
 
-Check the IPs:
+Use `svc,ts` when the service should keep service-network egress and also get a
+Tailscale identity:
 
 ```bash
-yeet ip <svc>
-yeet info <svc>
+yeet run <svc> ./compose.yml --net=svc,ts --ts-tags=tag:app
 ```
 
-`--net` can be combined with other modes (for example, `--net=svc,ts`).
+The OAuth client stored during catch setup must be allowed to assign every tag
+you pass with `--ts-tags`.
 
-Note: `--net=ts` alone means the Tailscale TAP interface is the only network
-device for the service. That can be useful, but it often means no general
-internet access unless you route via a Tailscale exit node. A common pattern is
-`--net=svc,ts` so the service has a local service IP for outbound access while
-still getting its Tailscale address for tailnet traffic.
+Options:
 
-Tailscale options:
+- `--ts-tags=<tag>` sets service tags.
+- `--ts-exit=<node>` uses a Tailscale exit node.
+- `--ts-ver=<ver>` selects a Tailscale version for the service.
+- `--ts-auth-key=<key>` passes a direct auth key for that service.
 
-- `--ts-ver=<ver>`: Tailscale version to install for the service.
-- `--ts-tags=<tag>`: tags (repeatable or comma-separated).
-- `--ts-exit=<node>`: exit node.
-- `--ts-auth-key=<key>`: auth key for the service netns.
+## Tailscale commands for a service
 
-## Running Tailscale commands for a service
-
-Use `yeet tailscale` (alias: `yeet ts`) to run Tailscale commands inside the
-service's netns:
+Run Tailscale commands inside a service network namespace:
 
 ```bash
 yeet tailscale <svc> -- status
 yeet ts <svc> -- debug daemon-logs
 ```
 
-`yeet ts <svc> update` runs a **yeet-managed** updater (not Tailscale's official
-self-update path). It resolves the latest version on the service's current
-track (stable/unstable), replaces the managed `tailscaled` binary, and restarts
-the service's tailscaled unit. It prompts for confirmation before applying the
-upgrade.
-
-You can pin a specific version:
+Update the yeet-managed service Tailscale binary:
 
 ```bash
-yeet ts <svc> update 1.95.112
-# or
+yeet ts <svc> update
 yeet ts <svc> update --version=1.95.112
 ```
 
-If you intentionally want the official upstream subcommand behavior, pass it
-through explicitly:
+If you intentionally want Tailscale's own upstream `update` subcommand, pass it
+through after `--`:
 
 ```bash
 yeet ts <svc> -- update
 ```
 
-### Tailscale Serve (HTTP proxy + TLS)
+## Tailscale Serve
 
-Serve is useful for exposing a service over HTTPS on your tailnet. For example,
-to proxy a service running on port 3000:
+Expose a service over HTTPS on your tailnet:
 
 ```bash
-yeet ts mysvc serve --bg 3000
+yeet ts <svc> serve --bg 3000
 ```
 
-- `serve` can reverse-proxy a local HTTP server (by port or URL).
-- HTTPS uses an automatically provisioned TLS certificate.
-- Serve requires HTTPS to be enabled on the tailnet; the CLI will prompt you to
-  enable it if needed.
-- With `--bg`, Serve runs persistently and resumes after reboot; without it,
-  you must restart Serve after a reboot.
-
-## Host discovery
-
-`yeet list-hosts` uses your local Tailscale client to discover tagged nodes,
-so it requires Tailscale running locally.
+Serve requires HTTPS to be enabled on the tailnet. With `--bg`, the Serve
+config persists across reboots.
 
 ## Cleanup
 
-When you remove a service, yeet attempts to delete the corresponding Tailscale
+When you remove a service, yeet attempts to delete that service's Tailscale
 device from your tailnet.
 
 ## References
@@ -264,4 +168,3 @@ device from your tailnet.
 - https://tailscale.com/docs/reference/syntax/policy-file
 - https://tailscale.com/docs/reference/syntax/grants
 - https://tailscale.com/kb/1242/tailscale-serve
-- https://tailscale.com/kb/1312/serve

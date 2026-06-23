@@ -1,10 +1,10 @@
 ---
-title: catch CLI
-description: Catch flags, commands, and RPC surface overview.
+title: catch Reference
+description: Catch daemon commands and common flags.
 ---
 
-The catch binary runs on remote hosts and serves RPC requests. In normal use you
-install it with `yeet init`.
+Catch runs on remote Linux hosts and receives requests from yeet. In normal
+use, install and update it with `yeet init`.
 
 ## Usage
 
@@ -14,42 +14,41 @@ catch [flags] [install|version|is-catch]
 
 ## Commands
 
-- `install`: installs catch as a system service on the host.
-- `version`: prints the catch build version.
-- `is-catch`: prints `yes` (used for detection).
+- `install`: install catch as a system service on the host.
+- `version`: print the catch build version.
+- `is-catch`: print `yes` for detection.
 
-During `catch install`, catch requires Docker and configures Docker's
-containerd snapshotter. If Docker is missing, interactive installs prompt to
-install it. For non-interactive manual installs on Debian/Ubuntu hosts, set
-`CATCH_INSTALL_DOCKER=1` to let catch install Docker before writing the systemd
-service.
+## Common flags
 
-## Flags
+- `--data-dir`: base directory for catch state. Default: `./data`.
+- `--tsnet-host`: catch tsnet hostname. Default: `catch`.
+- `--tsnet-port`: catch RPC port.
 
-- `--data-dir`: base directory for data (default `./data`).
-- `--tsnet-host`: tsnet hostname (default `catch`).
-- `--tsnet-port`: tsnet port (default `41547`).
-- `--registry-internal-addr`: internal registry bind address.
+See [Data Layout](/docs/concepts/data-layout) for host storage and
+[Tailscale](/docs/concepts/tailscale) for tsnet setup.
 
-See [Tailscale](/docs/concepts/tailscale) for how catch uses tsnet.
+## Docker during install
 
-## RPC surface
+During `catch install`, catch requires Docker for container payloads. If Docker
+is missing, interactive installs can prompt to install it.
 
-You usually do not call these directly, but the server exposes:
+For normal installs, prefer:
 
-- `/rpc` JSON-RPC (e.g. `catch.Info`)
-- `/rpc/exec` streaming exec endpoint
-- `/rpc/events` streaming events endpoint
-- `/v2/` internal registry endpoint (HTTPS on port 443; loopback listener for
-  host docker pulls)
+```bash
+yeet init --install-docker root@<machine-host>
+```
 
-## Service commands (RPC)
+For manual non-interactive catch installs on Debian/Ubuntu-style hosts, set:
 
-These are the command names yeet forwards over RPC:
+```bash
+CATCH_INSTALL_DOCKER=1
+```
 
-- `run`, `start`, `stop`, `restart`, `status`, `logs`, `remove`, `rollback`
-- `env show`, `env edit`, `env copy`, `env set`, `edit`, `stage`, `ip`, `ts`,
-  `mount`, `umount`, `events`, `version`
-- `copy`, `cron`, `docker outdated`, `docker pull`, `docker update`, `enable`, `disable`
+## When to run catch directly
 
-See the [yeet CLI](/docs/cli/yeet-cli) and [Workflows](/docs/operations/workflows) for usage.
+Most users should not need direct catch commands. Use direct catch invocation
+only when you are installing manually, checking the daemon version on the host,
+or debugging host service startup.
+
+Use [Installation](/docs/getting-started/installation) for the supported
+bootstrap path and [yeet Commands](/docs/cli/yeet-cli) for normal operations.

@@ -27,6 +27,16 @@ shared or multi-tenant environments.
 
 Yes. Provide a compose file to `yeet run`.
 
+```bash
+yeet run <svc> ./compose.yml
+```
+
+## Can I run VMs?
+
+Yes, on Linux catch hosts with KVM, TUN/TAP, and VM tooling available. Many VPS
+providers do not expose nested virtualization, so a host can be valid for
+containers and still not support VM payloads. See [VMs](/docs/payloads/vms).
+
 ## How do I update a service?
 
 Re-run `yeet run` with the updated payload. For compose services, `yeet run`
@@ -34,3 +44,16 @@ does not pull images by default; use `yeet run --pull <svc> ./compose.yml` or
 `yeet docker update <svc...>` (pulls images and recreates containers) when you
 want fresh images for selected services. Use `yeet docker update --outdated` to
 update all compose services with available image updates.
+
+## What is the difference between a machine host and catch host?
+
+The machine host is the SSH target for `yeet init`, such as
+`root@<machine-host>`. The catch host is the tsnet hostname yeet targets after
+catch is installed. Use the catch host with `CATCH_HOST`, `--host`, and
+`<svc>@<catch-host>`.
+
+## What deletes data?
+
+`yeet rm <svc>` removes the service but keeps service data. Use
+`yeet rm --clean-data <svc>` only when you also want to delete the managed data
+root or VM disk.

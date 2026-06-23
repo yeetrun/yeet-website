@@ -1,23 +1,70 @@
 ---
-title: CLI Overview
-description: Command model, host targeting, and argument routing.
+title: How Commands Work
+description: Host targeting, service selection, and argument routing.
 ---
 
-Yeet is the client. Catch runs on remote hosts. Most yeet commands are forwarded
-to catch over RPC on your tailnet. See [Tailscale](/docs/concepts/tailscale) for
-how RPC and service networking work.
+Yeet runs on your workstation. Catch runs on remote hosts. Most yeet commands
+send RPC requests to the selected catch host.
 
-## Command model
+## Pick the host
 
-Common patterns:
+Setup uses an SSH machine host:
 
 ```bash
-yeet <command> <svc> [flags] [-- <args...>]
+yeet init root@<machine-host>
 ```
 
-## Help
+Normal commands use the catch host:
 
-Use `--help` for standard help and `--help-llm` for structured help:
+```bash
+CATCH_HOST=<catch-host> yeet status
+yeet --host=<catch-host> status
+yeet status@<catch-host>
+yeet run <svc>@<catch-host> ./compose.yml
+```
+
+If `yeet.toml` contains a host list, `yeet status` with no service queries
+those hosts.
+
+Save a default host:
+
+```bash
+yeet prefs --host=<catch-host> --save
+```
+
+## Pick the service
+
+Most service commands accept a service name:
+
+```bash
+yeet status <svc>
+yeet info <svc>
+yeet logs -f <svc>
+```
+
+Use `--service=<svc>` only when a command needs an explicit override:
+
+```bash
+yeet --service=<svc> logs -f
+```
+
+Some commands are host-level and do not target a service, such as `prefs`,
+`list-hosts`, `mount`, and `umount`.
+
+## Pass args to payloads
+
+Use `--` when arguments belong to the service payload instead of yeet:
+
+```bash
+yeet run <svc> ./bin/<svc> -- --flag value
+yeet cron <svc> ./job.sh "0 9 * * *" -- --job-arg foo
+```
+
+This keeps yeet flags and application flags separate.
+
+## Get help
+
+Use standard help for people and structured help for AI tools or scripts:
 
 ```bash
 yeet --help
@@ -25,58 +72,11 @@ yeet run --help
 yeet run --help-llm
 ```
 
-## Service selection
+Use [yeet Commands](/docs/cli/yeet-cli) for a grouped command index.
 
-- Most commands target a service. If you pass a service name, yeet routes the
-  command to that service.
-- `--service=<svc>` overrides the service for any command.
-- If no service is provided, commands run against the system service (`sys`).
-- Some commands are host-level and ignore service selection (e.g., `mount`,
-  `umount`, `list-hosts`, `prefs`).
+## TTY commands
 
-Service name placement:
-
-- The service name should come after known flags/args.
-- Unknown flags before the service name can confuse detection. Use `--` to stop
-  flag parsing.
-
-Examples:
-
-```bash
-yeet status                  # system-wide view
-yeet status <svc>             # single service
-yeet info <svc>               # detailed service info
-yeet status <svc>@<host>       # specific host
-yeet --service=<svc> logs -f  # service override
-yeet run <svc> ./bin/<svc> -- --app-flag value
-```
-
-## Global flags
-
-- `--host=<host>`: override the target **catch host** (also set by `CATCH_HOST`).
-- `--service=<svc>`: force a service name for the command.
-
-`yeet prefs` shows the resolved default host. Use `yeet prefs --save` to persist.
-
-Host scoping shortcuts (catch host):
-
-- `yeet <command>@<host>` for host-only commands (e.g., `events@host`).
-- `yeet <command> <svc>@<host>` to target a service on a specific host.
-
-If a `yeet.toml` exists with a host list, `yeet status` (no args) queries each
-host.
-
-## Passing args to services
-
-For commands that accept arbitrary arguments (run, stage, cron), use `--` to
-separate service args from yeet flags and avoid mis-detection:
-
-```bash
-yeet run <svc> ./bin/<svc> -- --flag value
-yeet cron <svc> ./job "0 9 * * *" -- --job-arg foo
-```
-
-## TTY requirements
-
-`yeet edit` and interactive commands require a TTY. Run them from an
-interactive shell.
+Interactive commands such as `yeet edit`, `yeet env edit`, and some prompts
+need a TTY. Run them from an interactive shell. For scripts, prefer explicit
+flags such as `--yes`, `--progress=plain`, or `--progress=quiet` where the
+command supports them.
