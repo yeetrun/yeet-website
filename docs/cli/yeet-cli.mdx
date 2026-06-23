@@ -378,12 +378,16 @@ Alias: `rm`.
 
 Flags:
 
-- `-y`/`--yes`: skip the removal prompt.
+- `-y`/`--yes`: skip removal prompts. This does not imply `--clean-data`.
 - `--clean-config`: delete the `yeet.toml` entry for the service. Without this
   flag, yeet prompts to keep or remove the local config after the service is
   removed.
 - `--clean-data`: delete service data, including VM guest disks. Without this
-  flag, yeet preserves `data/`.
+  flag, interactive removals ask whether to delete data and default to no;
+  non-interactive removals preserve `data/`.
+
+For scripted cleanup of disposable services, pass both `--yes` and
+`--clean-data` when you want prompts skipped and data deleted.
 
 ### service set
 
