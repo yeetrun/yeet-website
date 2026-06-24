@@ -3,6 +3,14 @@ title: Changelog
 description: Short notes for yeet + catch releases.
 ---
 
+## June 24, 2026
+
+### v0.8.10
+
+- VM hosts can now reclaim unused guest memory automatically with Firecracker ballooning; `yeet info` shows each VM's balloon mode and floor, and `yeet vm memory` exposes the host policy.
+- VM balloon monitoring now closes Firecracker API connections promptly, keeping balloon stats reliable during continuous catch reconciliation.
+- `yeet rm --clean-data` now asks before deleting service data, while `--yes` remains non-destructive unless data cleanup is explicitly requested.
+
 ## June 22, 2026
 
 ### v0.8.9
