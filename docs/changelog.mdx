@@ -5,6 +5,11 @@ description: Short notes for yeet + catch releases.
 
 ## June 24, 2026
 
+### v0.8.11
+
+- `yeet init` now checks VM host readiness before install, prompts for missing VM packages only on KVM/TUN-capable Debian/Ubuntu hosts, and uses `--install-vm-tools` for unattended VM host setup.
+- First-run setup docs now clarify the Tailscale Trust Credentials OAuth flow and send missing VM tooling warnings to the correct host requirements section.
+
 ### v0.8.10
 
 - VM hosts can now reclaim unused guest memory automatically with Firecracker ballooning; `yeet info` shows each VM's balloon mode and floor, and `yeet vm memory` exposes the host policy.
