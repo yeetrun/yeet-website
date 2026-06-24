@@ -41,6 +41,39 @@ Override the starting shape when needed:
 yeet run <vm> vm://ubuntu/26.04 --vcpus=4 --memory=4g --disk=128g
 ```
 
+## Choose VM memory behavior
+
+`--memory` is the VM's maximum RAM. New VMs enable Firecracker ballooning by
+default, so catch can reclaim guest memory under host pressure without lowering
+the configured maximum.
+
+Set the minimum floor when you create the VM:
+
+```bash
+yeet run <vm> vm://ubuntu/26.04 --memory=4g --memory-min=1g
+```
+
+`--memory-min` is the floor yeet will not intentionally reclaim below. Change
+it later with:
+
+```bash
+yeet vm set <vm> --memory-min=2g
+```
+
+Disable ballooning when a VM should reserve its full maximum memory:
+
+```bash
+yeet vm set <vm> --balloon=off
+```
+
+Host memory policy defaults to `safe`, which admits VMs against their maximum
+RAM. Opt into controlled overcommit only when you want catch to use VM memory
+floors for admission:
+
+```bash
+yeet vm memory set --policy=balanced
+```
+
 ## Choose VM networking
 
 `svc` networking is the default. It gives yeet a private management path to the
