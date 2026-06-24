@@ -6,8 +6,7 @@
       "title": "Getting Started",
       "children": [
         { "type": "link", "path": "/quick-start", "title": "Quick Start" },
-        { "type": "link", "path": "/installation", "title": "Install yeet and catch" },
-        { "type": "link", "path": "/first-run-validation", "title": "Validate a Host" }
+        { "type": "link", "path": "/installation", "title": "Install yeet and catch" }
       ]
     },
     { "type": "break" },

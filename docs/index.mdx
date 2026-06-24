@@ -4,8 +4,7 @@ description: A focused user manual for installing yeet, bootstrapping catch, and
 ---
 
 Yeet deploys services from your workstation to Linux hosts running catch. Start
-with the shortest path, then use the task guides when you need a specific
-payload or operational workflow.
+with setup, then use the task guides for the thing you want to run.
 
 ## Start here
 
@@ -15,18 +14,21 @@ payload or operational workflow.
   links={[
     { text: "Quick Start", href: "/docs/getting-started/quick-start" },
     { text: "Install yeet and catch", href: "/docs/getting-started/installation", theme: "neutral" },
-    { text: "Validate a Host", href: "/docs/getting-started/first-run-validation" },
-    { text: "Common Workflows", href: "/docs/operations/workflows", theme: "neutral" },
   ]}
 />
 
-## Choose your task
+## Common tasks
 
 <CardLinks
   cards={[
     {
-      title: "Deploy a service",
-      description: "Run a compose file, Dockerfile, image, binary, script, cron job, or VM.",
+      title: "Set up Tailscale",
+      description: "Create the tag policy and OAuth client secret catch needs before init.",
+      href: "/docs/concepts/tailscale",
+    },
+    {
+      title: "Choose what to run",
+      description: "Pick the right guide for containers, binaries, cron jobs, or VMs.",
       href: "/docs/payloads",
     },
     {
@@ -35,14 +37,23 @@ payload or operational workflow.
       href: "/docs/operations/workflows",
     },
     {
-      title: "Target the right host",
+      title: "Fix a problem",
+      description: "Start with common connection, Docker, networking, VM, and removal failures.",
+      href: "/docs/operations/troubleshooting",
+    },
+  ]}
+/>
+
+## Optional topics
+
+Use these when the service or host needs them.
+
+<CardLinks
+  cards={[
+    {
+      title: "Host targeting",
       description: "Understand machine hosts, catch hosts, CATCH_HOST, and svc@host syntax.",
       href: "/docs/cli/cli-overview",
-    },
-    {
-      title: "Set up Tailscale",
-      description: "Create the tag policy and OAuth client secret catch needs before init.",
-      href: "/docs/concepts/tailscale",
     },
     {
       title: "Choose networking",
@@ -58,11 +69,6 @@ payload or operational workflow.
       title: "Use recovery points",
       description: "Use ZFS service roots, snapshots, clone-first recovery, and VM restore.",
       href: "/docs/concepts/zfs",
-    },
-    {
-      title: "Fix a problem",
-      description: "Start with common connection, Docker, networking, VM, and removal failures.",
-      href: "/docs/operations/troubleshooting",
     },
   ]}
 />
