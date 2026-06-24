@@ -43,16 +43,21 @@ yeet --help
 Catch uses an embedded tsnet node. That node must join your tailnet with a tag,
 such as `tag:catch`. This is required before the first `yeet init`.
 
-Before you run `yeet init`, create this in the Tailscale admin console:
+Before you run `yeet init`, create an OAuth credential in the Tailscale admin
+console from `Trust credentials` -> `Credential` -> `OAuth`.
 
-- An owner tag for yeet, such as `tag:yeet`.
-- A catch tag, usually `tag:catch`, owned by `tag:yeet`.
-- ACLs or grants that let your workstation reach tagged catch nodes.
-- A Tailscale OAuth client with the Auth Keys write scope (`auth_keys`) and
-  `tag:yeet` selected.
+You have two choices:
+
+- Simple broad setup: choose `All - Read & Write` if you are comfortable giving
+  the credential broad Tailscale API access.
+- Least-privilege setup: choose custom scopes with Auth Keys write
+  (`auth_keys`) and select the tag the credential may assign. For catch-only
+  installs, select `tag:catch` directly. If you plan to use service
+  `--net=ts` later, use an owner tag such as `tag:yeet` that owns `tag:catch`
+  and service tags such as `tag:app`.
 
 Keep the `tskey-client-...` OAuth client secret ready. Interactive `yeet init`
-will ask for it during first setup. Follow
+asks for it during first setup. Follow
 [Tailscale Setup](/docs/concepts/tailscale#first-time-host-setup) for the
 minimal policy snippet.
 
@@ -69,7 +74,8 @@ Tailscale OAuth client secret unless you pass `--ts-client-secret=<secret>` or
 `--ts-auth-key=<key>`. Paste the secret from the Tailscale setup step.
 
 Interactive `yeet init` can also ask before installing missing Debian/Ubuntu
-packages.
+packages. `--install-docker` and `--install-vm-tools` are unattended yes flags
+for those prompts.
 
 If you use a non-root SSH user, yeet runs the remote install with sudo.
 
@@ -88,7 +94,9 @@ yeet init --install-docker --install-vm-tools root@<machine-host>
 ```
 
 Use `--install-vm-tools` only on hosts that expose KVM and TUN/TAP. Many VPS
-providers do not expose nested virtualization.
+providers do not expose nested virtualization. On hosts that are not VM
+capable, yeet warns and containers, binaries, scripts, and cron jobs still
+work.
 
 ## Run unattended setup
 

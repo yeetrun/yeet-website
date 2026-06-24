@@ -12,7 +12,7 @@ You need:
 
 - A Linux host with systemd and SSH access.
 - Tailscale admin access for the first catch enrollment.
-- A Tailscale OAuth client secret that can create tagged auth keys for catch.
+- A Tailscale OAuth client secret that can create a tagged auth key for catch.
 
 You do not need Tailscale installed on your workstation. yeet uses an embedded
 tsnet client for normal commands.
@@ -37,16 +37,20 @@ curl -fsSL https://yeetrun.com/install.sh | sh -s -- --nightly
 Do this before running `yeet init`. Catch must join your tailnet as a tagged
 device, usually `tag:catch`.
 
-In the Tailscale admin console, create:
+In the Tailscale admin console, open `Trust credentials` -> `Credential` ->
+`OAuth`.
 
-- An owner tag for yeet, such as `tag:yeet`.
-- A catch tag, usually `tag:catch`, owned by `tag:yeet`.
-- ACLs or grants that let your workstation reach `tag:catch`.
-- A Tailscale OAuth client with the Auth Keys write scope (`auth_keys`) and
-  `tag:yeet` selected.
+You have two choices:
+
+- Simple broad setup: choose `All - Read & Write` if you are comfortable giving
+  the credential broad Tailscale API access.
+- Least-privilege setup: choose custom scopes with Auth Keys write
+  (`auth_keys`) and select `tag:catch`. If you plan to use service `--net=ts`
+  later, select an owner tag such as `tag:yeet` that owns `tag:catch` and
+  service tags such as `tag:app`.
 
 Keep the `tskey-client-...` OAuth client secret ready. Interactive `yeet init`
-will ask for it during first setup.
+asks for it during first setup.
 
 For the minimal policy snippet, see
 [Tailscale Setup](/docs/concepts/tailscale#first-time-host-setup).
@@ -71,7 +75,9 @@ If the tailnet policy is not ready, finish
 running `yeet init`.
 
 If Docker is missing on a Debian/Ubuntu-style host, interactive `yeet init` can
-ask to install it.
+ask to install it. On Debian/Ubuntu hosts that expose KVM and TUN/TAP, init can
+also ask before installing missing VM tools. If the host is not VM capable,
+yeet warns and containers, binaries, scripts, and cron jobs still work.
 
 ## 4) Confirm yeet can reach catch
 

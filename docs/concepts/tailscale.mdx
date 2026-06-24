@@ -23,9 +23,14 @@ Before you run `yeet init`, set up Tailscale in this order:
 2. Let that owner tag own the catch tag, usually `tag:catch`.
 3. Let that owner tag own any service tags you plan to use later, such as
    `tag:app`.
-4. Create a Tailscale OAuth client with the `auth_keys` scope.
-5. Select the owner tag on the OAuth client.
-6. Copy the `tskey-client-...` OAuth client secret.
+4. Open `Trust credentials` -> `Credential` -> `OAuth` in the Tailscale admin
+   console.
+5. Choose `All - Read & Write` for a simple broad credential, or choose custom
+   scopes with Auth Keys write (`auth_keys`) for least privilege.
+6. For catch-only installs, select `tag:catch` directly. For future service
+   `--net=ts`, select the owner tag, such as `tag:yeet`, so the credential can
+   create keys for `tag:catch` and service tags such as `tag:app`.
+7. Copy the `tskey-client-...` OAuth client secret.
 
 Then run `yeet init root@<machine-host>` and paste that secret when prompted.
 Validate the host with `yeet status`.
@@ -46,11 +51,14 @@ Minimal policy shape:
 }
 ```
 
-The catch node joins as `tag:catch`. The OAuth client uses `tag:yeet` only so it
-can mint auth keys for `tag:catch` and later service tags.
+The catch node joins as `tag:catch`. With the least-privilege owner-tag setup,
+the OAuth client uses `tag:yeet` only so it can mint auth keys for `tag:catch`
+and later service tags.
 
-If you do not plan to use `--net=ts` for services, the OAuth client can assign
-`tag:catch` directly. The owner-tag pattern is more flexible.
+If you are comfortable with broad Tailscale API access, `All - Read & Write` is
+the simplest OAuth scope choice. If you do not plan to use `--net=ts` for
+services, a least-privilege OAuth client can assign `tag:catch` directly. The
+owner-tag pattern is more flexible.
 
 ## Run init with the secret
 

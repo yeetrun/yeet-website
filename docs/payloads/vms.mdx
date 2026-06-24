@@ -171,8 +171,8 @@ VM payloads require:
 - TUN/TAP at `/dev/net/tun`.
 - `qemu-img`, `zstd`, `e2fsck`, `resize2fs`, `mount`, `umount`, and `ip`.
 
-On Debian/Ubuntu hosts with KVM and TUN/TAP available, install missing VM tools
-during bootstrap:
+On Debian/Ubuntu hosts with KVM and TUN/TAP available, interactive `yeet init`
+can prompt to install missing VM tools. For unattended setup, answer yes with:
 
 ```bash
 yeet init --install-vm-tools root@<machine-host>
