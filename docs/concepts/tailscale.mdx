@@ -106,18 +106,37 @@ remove the stale/conflicting Tailscale device and rerun `yeet init`.
 
 ## Service networking (`--net=ts`)
 
-Use `--net=ts` when a service should get its own tailnet IP:
+Use `ts` when a service should get its own tailnet identity, tailnet IP, tags,
+ACLs, or Tailscale Serve config.
+
+For most services, use `svc,ts` instead of plain `ts`:
+
+```bash
+yeet run <svc> ./compose.yml --net=svc,ts --ts-tags=tag:app
+```
+
+`svc,ts` keeps yeet DNS, private service-to-service traffic, and ordinary
+internet egress through the catch host. It also gives the service its own
+Tailscale identity.
+
+Use plain `ts` only for deliberately tailnet-only services:
 
 ```bash
 yeet run <svc> ./compose.yml --net=ts --ts-tags=tag:app
 yeet ip <svc>
 ```
 
-Use `svc,ts` when the service should keep service-network egress and also get a
-Tailscale identity:
+Plain `ts` does not provide ordinary outbound internet by itself. Configure an
+exit node when a `ts`-only service needs internet access:
 
 ```bash
-yeet run <svc> ./compose.yml --net=svc,ts --ts-tags=tag:app
+yeet run <svc> ./compose.yml --net=ts --ts-tags=tag:app --ts-exit=<exit-node>
+```
+
+For an existing Tailscale service:
+
+```bash
+yeet tailscale <svc> -- set --exit-node=<exit-node>
 ```
 
 Make sure the OAuth client saved during catch setup can assign every tag you
@@ -129,6 +148,9 @@ Options:
 - `--ts-exit=<node>` uses a Tailscale exit node.
 - `--ts-ver=<ver>` selects a Tailscale version for the service.
 - `--ts-auth-key=<key>` passes a direct auth key for that service.
+
+See [Networking](/docs/concepts/networking) for when to choose `svc`, `lan`,
+`ts`, or a combination.
 
 ## Tailscale commands for a service
 

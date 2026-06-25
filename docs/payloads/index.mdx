@@ -61,15 +61,18 @@ network mode, tags, service root, snapshot settings, and payload args.
 ## Optional storage and networking
 
 Use the payload guide first. Then add storage or networking options when the
-service needs them:
+service needs them. Network modes also choose the outbound internet path:
+`svc` uses the catch host gateway, `lan` uses the LAN or VLAN gateway, and
+plain `ts` needs a Tailscale exit node for ordinary internet access.
 
 ```bash
 yeet run <svc> ./compose.yml --net=svc,ts
 yeet run <svc> ./compose.yml --service-root=tank/apps/<svc> --zfs
 ```
 
-See [Networking](/docs/concepts/networking) for `svc`, `ts`, and `lan`. See
-[ZFS](/docs/concepts/zfs) for dataset-backed service roots and snapshots.
+See [Networking](/docs/concepts/networking) for `svc`, `lan`, `ts`, and
+combined modes. See [ZFS](/docs/concepts/zfs) for dataset-backed service roots
+and snapshots.
 
 ## Related docs
 

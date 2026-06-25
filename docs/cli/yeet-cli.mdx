@@ -57,7 +57,8 @@ Common flags:
 - `-p HOST:CONTAINER`: publish host ports for image, Dockerfile, Python, and
   TypeScript payloads.
 - `--publish-reset`: replace or clear the saved published-port list.
-- `--net=svc|ts|lan|svc,ts|svc,lan`: choose network modes.
+- `--net=<mode[,mode...]>`: choose service network modes such as `svc`,
+  `svc,ts`, `lan`, or `lan,ts`. VMs support `svc`, `lan`, and `svc,lan`.
 - `--service-root=<path-or-dataset>`: choose the initial service root.
 - `--zfs`: treat `--service-root` as a ZFS dataset.
 - `--snapshots=on|off|inherit`: override service snapshot policy.
@@ -69,7 +70,8 @@ Related guides:
 
 - [Payloads](/docs/payloads)
 - [Workflows](/docs/operations/workflows)
-- [Networking](/docs/concepts/networking)
+- [Networking](/docs/concepts/networking) for reachability, DNS, and internet
+  egress paths
 - [ZFS](/docs/concepts/zfs)
 
 ### `stage`
@@ -421,7 +423,10 @@ yeet ts <svc> serve --bg 3000
 yeet ts <svc> update
 ```
 
-Use [Tailscale](/docs/concepts/tailscale) for tag and OAuth setup.
+Use [Tailscale](/docs/concepts/tailscale) for tag and OAuth setup. Use
+[Networking](/docs/concepts/networking#tailscale-ts) before choosing plain
+`--net=ts`; most Tailscale-exposed services should use `svc,ts` unless they
+are intentionally tailnet-only or use an exit node.
 
 ## Host Setup And Upgrade
 

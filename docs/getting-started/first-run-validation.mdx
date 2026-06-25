@@ -166,7 +166,8 @@ host, and run VM payloads on a KVM-capable machine. See [VMs](/docs/payloads/vms
 ## 6) Check optional host features only when needed
 
 LAN networking requires a host attached to a network where macvlan and DHCP
-make sense. A WAN-only VPS usually should skip this check.
+make sense. A WAN-only VPS usually should skip this check. LAN services use
+the LAN or VLAN gateway for outbound internet.
 
 ```bash
 yeet run yeet-smoke-lan nginx:alpine --net=lan
@@ -183,7 +184,8 @@ yeet rm --clean-data yeet-smoke-zfs
 ```
 
 See [Networking](/docs/concepts/networking) and [ZFS](/docs/concepts/zfs) for
-the full model.
+the full model. Use `svc,ts` instead of plain `ts` when a service needs both a
+Tailscale identity and normal outbound internet through the catch host.
 
 ## Cleanup check
 

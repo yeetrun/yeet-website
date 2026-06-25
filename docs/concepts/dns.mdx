@@ -4,7 +4,8 @@ description: Service discovery for yeet services and VMs.
 ---
 
 Yeet DNS lets services and VMs on `svc` networking reach each other by name
-instead of hard-coding private IP addresses.
+instead of hard-coding private IP addresses. `svc` networking also gives the
+workload ordinary outbound internet through the catch host.
 
 ## What resolves
 
@@ -22,7 +23,9 @@ http://api:8080
 postgres://db:5432/app
 ```
 
-Services without `svc` networking do not get yeet DNS records.
+Services without `svc` networking do not get yeet DNS records. Use `svc,ts`
+instead of plain `ts` when a Tailscale-exposed service also needs yeet DNS,
+private service traffic, or catch-host internet egress.
 
 ## Resolver address
 

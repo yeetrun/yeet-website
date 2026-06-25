@@ -133,6 +133,25 @@ yeet restart <svc>
 See [Networking](/docs/concepts/networking) before changing modes on a shared
 host.
 
+## A service has no outbound internet
+
+Check the service network mode first:
+
+```bash
+yeet info <svc>
+yeet ip <svc>
+```
+
+Use the mode to choose the next check:
+
+- `svc` and `svc,ts` use the catch host's gateway for ordinary internet
+  access. Confirm the catch host itself can reach the internet.
+- `lan` and `lan,ts` use the DHCP gateway and DNS from the LAN or VLAN. Check
+  that network's router, DHCP lease, and ACLs.
+- Plain `ts` is tailnet-only unless you configure a Tailscale exit node. Add
+  `svc`, use `--ts-exit=<exit-node>`, or run
+  `yeet tailscale <svc> -- set --exit-node=<exit-node>`.
+
 ## Yeet DNS names do not resolve
 
 Yeet DNS only publishes names for services and VMs using `svc` networking.

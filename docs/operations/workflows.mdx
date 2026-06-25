@@ -181,8 +181,13 @@ Use host ports when you only need a host-level TCP port:
 yeet run -p 8080:80 <svc> nginx:alpine
 ```
 
-Use `svc` for the private service network, `ts` for a Tailscale service node,
-and `lan` for a LAN address on hosts where macvlan and DHCP make sense:
+Choose networking by access path and outbound internet path:
+
+- Use `svc` for private yeet traffic, yeet DNS, and internet egress through the
+  catch host.
+- Use `svc,ts` when the service also needs its own Tailscale identity.
+- Use `lan` when the service should request a LAN or VLAN address and use that
+  network's DHCP gateway.
 
 ```bash
 yeet run <svc> ./compose.yml --net=svc
@@ -190,7 +195,9 @@ yeet run <svc> ./compose.yml --net=svc,ts
 yeet run <svc> ./compose.yml --net=lan
 ```
 
-See [Networking](/docs/concepts/networking) before using `lan` on a new host.
+Avoid plain `--net=ts` unless the service is intentionally tailnet-only or has
+a Tailscale exit node. See [Networking](/docs/concepts/networking) before
+using `lan`, `ts`, or combined modes on a new host.
 
 ## Move a service root
 

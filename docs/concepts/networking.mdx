@@ -1,33 +1,48 @@
 ---
 title: Networking
-description: Network modes and flags for yeet services.
+description: Choose service reachability, DNS, and outbound internet paths.
 ---
 
-Start with who needs to reach the service.
+Use this page when a service needs more than a host port. Network mode choice
+decides who can reach the workload, what names it can resolve, and where
+ordinary outbound internet goes.
 
-| Need | Use |
-| --- | --- |
-| Host port such as `:8080` | `-p HOST:CONTAINER` |
-| Private service-to-service traffic | `--net=svc` |
-| A Tailscale identity for one service | `--net=ts` |
-| A LAN address from the host network | `--net=lan` |
-| LAN address plus yeet-managed fallback | `--net=svc,lan` |
-| Private service network plus Tailscale | `--net=svc,ts` |
+## Start here
+
+| Need | Use | Internet egress |
+| --- | --- | --- |
+| Publish one container port on the catch host | `-p HOST:CONTAINER` | The workload's current network path |
+| Private yeet service traffic and yeet DNS | `--net=svc` | Catch host gateway |
+| Tailnet identity plus normal service networking | `--net=svc,ts` | Catch host gateway |
+| LAN or VLAN address | `--net=lan` | DHCP gateway from the LAN or VLAN |
+| LAN or VLAN address plus tailnet identity | `--net=lan,ts` | DHCP gateway from the LAN or VLAN |
+| Tailnet-only service | `--net=ts` | No ordinary internet unless you configure an exit node |
+| VM LAN access plus yeet-managed fallback | `--net=svc,lan` | LAN gateway for normal traffic |
+
+For most services that need a Tailscale identity, start with `svc,ts`, not
+plain `ts`. `svc,ts` keeps yeet DNS, private service traffic, and internet
+egress through the catch host while adding a tailnet identity.
 
 Modes are comma-separated:
 
 ```bash
-yeet run <svc> ./compose.yml --net=svc,ts
+yeet run <svc> ./compose.yml --net=svc,ts --ts-tags=tag:app
 ```
+
+VMs support `svc`, `lan`, and `svc,lan`. VM networking does not support `ts` as
+a yeet VM network mode.
 
 ## Published ports
 
-For image, Dockerfile, Python, and TypeScript payloads, publish host ports with
-`-p`:
+Use published ports when the workload only needs a TCP port on the catch host:
 
 ```bash
 yeet run -p 8080:80 <svc> nginx:alpine
 ```
+
+`-p` is not a network mode. It exposes a host port for image, Dockerfile,
+Python, and TypeScript payloads. Use `--net` only when the workload also needs
+private service networking, LAN presence, or a Tailscale identity.
 
 Change ports later with `service set`. The port list is complete, so include
 every mapping you want to keep:
@@ -51,8 +66,14 @@ yeet info web
 
 ## Service network (`svc`)
 
-`svc` gives a service or VM a private yeet-managed address. Use it for private
-service-to-service traffic and for VM management.
+`svc` gives a service or VM a private yeet-managed address.
+
+Use `svc` when the workload needs:
+
+- Private service-to-service traffic.
+- Yeet DNS names, such as `api` and `api.yeet.internal`.
+- Ordinary outbound internet through the catch host's gateway.
+- A stable VM management path through catch.
 
 ```bash
 yeet run <svc> ./compose.yml --net=svc
@@ -67,39 +88,38 @@ http://api:8080
 postgres://db:5432/app
 ```
 
-See [DNS](/docs/concepts/dns) for resolver behavior.
+Use `svc` as the default private app network. Add `ts` when the service also
+needs a tailnet identity. Add `lan` when the service or VM also needs a LAN
+address.
 
 The `svc` network currently requires exclusive use of `192.168.100.0/24` on the
 catch host. If that range overlaps an existing host route, catch rejects new
 `svc` networking.
 
-## Tailscale (`ts`)
-
-`ts` gives a service its own Tailscale interface and tailnet IP:
-
-```bash
-yeet run <svc> ./compose.yml --net=ts --ts-tags=tag:app
-yeet ip <svc>
-```
-
-Use `svc,ts` when the service should have both normal service-network egress
-and a Tailscale identity:
-
-```bash
-yeet run <svc> ./compose.yml --net=svc,ts --ts-tags=tag:app
-```
-
-See [Tailscale](/docs/concepts/tailscale) for OAuth setup, tags, and
-`yeet tailscale` commands.
+See [DNS](/docs/concepts/dns) for resolver behavior.
 
 ## LAN (`lan`)
 
-`lan` attaches a service or VM to the catch host's LAN. Use it only on networks
-where macvlan, DHCP, and the selected parent interface make sense.
+`lan` attaches a service or VM to the catch host's LAN with macvlan. The
+workload requests addressing through DHCP.
+
+Use `lan` when the workload should behave like a normal device on the LAN or
+VLAN:
 
 ```bash
 yeet run <svc> ./compose.yml --net=lan
 yeet ip <svc>
+```
+
+With `lan`, ordinary outbound internet uses the gateway and DNS from that LAN
+or VLAN. If the LAN has no gateway, blocks outbound access, or hands out the
+wrong DNS, the workload inherits that behavior.
+
+Use `lan,ts` when LAN clients and tailnet clients both need to reach the same
+service:
+
+```bash
+yeet run <svc> ./compose.yml --net=lan,ts --ts-tags=tag:app
 ```
 
 Override the parent interface or VLAN when needed:
@@ -109,9 +129,65 @@ yeet run <svc> ./compose.yml --net=lan --macvlan-parent=<iface>
 yeet run <svc> ./compose.yml --net=lan --macvlan-parent=<iface> --macvlan-vlan=<id>
 ```
 
-For VMs, `lan` means the catch host's LAN. A LAN-only VM must be reachable from
-your workstation on the guest LAN IP for `yeet ssh <vm>` to connect directly.
-Use `svc,lan` when you also want a catch-proxied management fallback:
+Use `lan` only on networks where macvlan, DHCP, and the selected parent
+interface make sense. A WAN-only VPS usually should not use `lan`.
+
+## Tailscale (`ts`)
+
+`ts` gives a service its own Tailscale identity, tailnet IP, tags, ACLs, and
+Tailscale Serve support.
+
+Use `svc,ts` for most services that need Tailscale:
+
+```bash
+yeet run <svc> ./compose.yml --net=svc,ts --ts-tags=tag:app
+yeet ip <svc>
+```
+
+This keeps yeet DNS and ordinary outbound internet through the catch host while
+adding a tailnet identity.
+
+Use plain `ts` only when the service is intentionally tailnet-only:
+
+```bash
+yeet run <svc> ./compose.yml --net=ts --ts-tags=tag:app
+```
+
+Plain `ts` does not provide ordinary outbound internet by itself. Configure a
+Tailscale exit node when a `ts`-only service needs internet access:
+
+```bash
+yeet run <svc> ./compose.yml --net=ts --ts-tags=tag:app --ts-exit=<exit-node>
+```
+
+For an existing Tailscale service, run Tailscale commands inside that service
+identity:
+
+```bash
+yeet tailscale <svc> -- set --exit-node=<exit-node>
+```
+
+Make sure the OAuth client saved during catch setup can assign every tag you
+pass with `--ts-tags`.
+
+See [Tailscale](/docs/concepts/tailscale) for OAuth setup, tags, exit nodes,
+and `yeet tailscale` commands.
+
+## Combine modes
+
+| Mode | Use when | Avoid when |
+| --- | --- | --- |
+| `svc` | The workload needs private yeet traffic, yeet DNS, or catch-host internet egress. | LAN clients need a LAN IP or tailnet clients need a service identity. |
+| `lan` | The workload should be a LAN or VLAN device. | The host network cannot provide DHCP, routing, or macvlan support. |
+| `ts` | The workload is deliberately tailnet-only, or an exit node handles internet egress. | The workload needs normal internet, yeet DNS, or private service traffic. |
+| `svc,ts` | The workload needs private yeet networking plus a tailnet identity. | The workload must appear as a LAN device. |
+| `lan,ts` | The LAN handles ordinary egress and the service also needs a tailnet identity. | The workload needs yeet DNS or private service traffic. |
+| `svc,lan` | A VM or service needs LAN presence plus yeet private networking. | The workload does not need the LAN. |
+| `svc,lan,ts` | A non-VM service truly needs private yeet traffic, LAN presence, and tailnet identity. | A simpler mode covers the real access path. |
+
+For VMs, `svc` is the default. `svc,lan` gives the VM LAN access and keeps a
+catch-managed fallback path. A LAN-only VM must be reachable from your
+workstation on its guest LAN IP for `yeet ssh <vm>` to connect directly.
 
 ```bash
 yeet run <vm> vm://ubuntu/26.04 --net=svc,lan
@@ -123,6 +199,27 @@ Force the proxy path:
 ```bash
 yeet ssh --force-proxy <vm>
 ```
+
+## Check a network choice
+
+Inspect the current addresses and saved network model:
+
+```bash
+yeet info <svc>
+yeet ip <svc>
+```
+
+Use the output to confirm:
+
+- `svc` shows a private service-network address.
+- `lan` shows a LAN or VLAN address from DHCP.
+- `ts` shows a tailnet address and Tailscale state.
+
+If the service has no outbound internet:
+
+- Use `svc` or `svc,ts` when the catch host should provide egress.
+- Check the LAN gateway and DNS when the service uses `lan`.
+- Configure a Tailscale exit node when the service uses plain `ts`.
 
 ## Mounts
 
@@ -137,7 +234,8 @@ Mounts are host-level resources, not per-service network modes.
 
 ## Related docs
 
-- [Tailscale](/docs/concepts/tailscale) covers catch host access and `--net=ts`.
+- [Tailscale](/docs/concepts/tailscale) covers catch host access,
+  per-service Tailscale identities, tags, and exit nodes.
 - [DNS](/docs/concepts/dns) covers names inside `svc`.
 - [VMs](/docs/payloads/vms) covers VM networking and SSH behavior.
 - [Troubleshooting](/docs/operations/troubleshooting) covers common network

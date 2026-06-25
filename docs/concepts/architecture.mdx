@@ -73,8 +73,10 @@ yeet stage <svc> commit
 ## Network model
 
 Services can use host ports, the private service network, a Tailscale service
-node, the host LAN, or combinations of those modes. VMs use the service network
-by default for management.
+node, the host LAN, or combinations of those modes. The mode also controls
+outbound internet: `svc` uses the catch host gateway, `lan` uses the LAN or
+VLAN gateway, and plain `ts` needs a Tailscale exit node for ordinary internet.
+VMs use the service network by default for management.
 
 See [Networking](/docs/concepts/networking), [DNS](/docs/concepts/dns), and
 [Tailscale](/docs/concepts/tailscale) for the details that affect operators.

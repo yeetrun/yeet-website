@@ -61,6 +61,11 @@ asks for it during first setup. Follow
 [Tailscale Setup](/docs/concepts/tailscale#first-time-host-setup) for the
 minimal policy snippet.
 
+Before deploying a service with `--net=ts`, read
+[Networking](/docs/concepts/networking). Most Tailscale-exposed services should
+use `svc,ts` so they keep yeet DNS and ordinary outbound internet through the
+catch host.
+
 ## Bootstrap catch
 
 Run this from your workstation:

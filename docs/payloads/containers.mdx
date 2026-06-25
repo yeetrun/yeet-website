@@ -97,16 +97,23 @@ and service-root moves.
 
 ## Networking
 
-Use `--net=lan` when the service should request a LAN address. Use `svc` for
-the private service network and `ts` when the service needs its own Tailscale
-identity.
+Use `svc` when the service needs private yeet traffic, yeet DNS, and outbound
+internet through the catch host. Use `svc,ts` when the service also needs its
+own Tailscale identity.
+
+Use `lan` when the service should request a LAN or VLAN address and use that
+network's DHCP gateway. Use `lan,ts` when the service needs both LAN presence
+and a Tailscale identity.
 
 ```bash
+yeet run <svc> ./compose.yml --net=svc
+yeet run <svc> ./compose.yml --net=svc,ts --ts-tags=tag:app
 yeet run <svc> ./compose.yml --net=lan
-yeet run <svc> ./compose.yml --net=svc,ts
 ```
 
-See [Networking](/docs/concepts/networking) for mode details.
+Avoid plain `--net=ts` unless the service is tailnet-only or has a Tailscale
+exit node. See [Networking](/docs/concepts/networking) for mode details and
+internet egress behavior.
 See [DNS](/docs/concepts/dns) for service discovery between `svc` services,
 including short names and `*.yeet.internal` names.
 

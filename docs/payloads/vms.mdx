@@ -76,14 +76,15 @@ yeet vm memory set --policy=balanced
 
 ## Choose VM networking
 
-`svc` networking is the default. It gives yeet a private management path to the
-guest:
+`svc` networking is the default. It gives yeet a private management path, yeet
+DNS, and outbound internet through the catch host:
 
 ```bash
 yeet run <vm> vm://ubuntu/26.04 --net=svc
 ```
 
-Use `lan` when the VM should request a LAN address through DHCP:
+Use `lan` when the VM should request a LAN or VLAN address through DHCP. The VM
+uses that network's gateway and DNS for ordinary internet access:
 
 ```bash
 yeet run <vm> vm://ubuntu/26.04 --net=lan
@@ -102,6 +103,9 @@ falls back to the catch proxy when it cannot. Force the proxy path with:
 ```bash
 yeet ssh --force-proxy <vm>
 ```
+
+VM network modes do not include `ts`. If the guest needs its own Tailscale
+identity, install and configure Tailscale inside the guest.
 
 See [Networking](/docs/concepts/networking) and [DNS](/docs/concepts/dns) for
 service-network names and LAN behavior.
@@ -310,7 +314,8 @@ remove shared image bases that future VMs can reuse.
 ## Related docs
 
 - [Installation](/docs/getting-started/installation) covers host bootstrap.
-- [Networking](/docs/concepts/networking) covers `svc`, `lan`, and `ts`.
+- [Networking](/docs/concepts/networking) covers `svc`, `lan`, service
+  combinations, and internet egress paths.
 - [DNS](/docs/concepts/dns) covers service-network names.
 - [ZFS](/docs/concepts/zfs) covers dataset-backed roots, snapshots, and VM disk
   clones.
