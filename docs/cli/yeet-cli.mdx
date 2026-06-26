@@ -390,7 +390,7 @@ recovery, and VM restore behavior.
 
 ### `ssh`
 
-Open SSH to the catch host, a service data directory, or a VM guest:
+Open a catch host shell, a service shell, or a VM guest shell:
 
 ```bash
 yeet ssh
@@ -400,8 +400,10 @@ yeet ssh -- uname -a
 yeet ssh <svc> -- ls -la
 ```
 
-For regular services, `yeet ssh <svc>` starts in that service's data directory.
-For VM services, it connects to the guest.
+After `yeet init`, host and regular service shells use catch over Tailscale and
+do not require host SSH keys or a host password. `yeet ssh <svc>` starts in the
+service data directory. VM services still connect to the guest operating system
+with SSH.
 
 ### `ip`
 
