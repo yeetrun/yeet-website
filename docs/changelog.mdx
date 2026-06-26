@@ -5,6 +5,11 @@ description: Short notes for yeet + catch releases.
 
 ## June 26, 2026
 
+### v0.8.13
+
+- `yeet ssh` now opens catch-host and regular service shells through catch over Tailscale, so shell access works after `yeet init` without host SSH keys or a host password.
+- Service shells still start in their service data directory, VM targets still connect to the guest operating system, and host shells now start in the host user's home directory.
+
 ### v0.8.12
 
 - Services using `--net=svc,ts` now keep Tailscale sidecars online on hosts where Docker manages firewall forwarding, so `yeet ip` reports both service-network and Tailscale addresses reliably.
