@@ -3,6 +3,14 @@ title: Changelog
 description: Short notes for yeet + catch releases.
 ---
 
+## June 26, 2026
+
+### v0.8.12
+
+- Services using `--net=svc,ts` now keep Tailscale sidecars online on hosts where Docker manages firewall forwarding, so `yeet ip` reports both service-network and Tailscale addresses reliably.
+- Tailscale-enabled service deploys now wait for the Tailscale address before finishing, avoiding a race where the service was running but the Tailscale endpoint was not visible yet.
+- Host setup is more resilient when an SSH status read stalls, and bundled container runtime dependencies include upstream security fixes.
+
 ## June 24, 2026
 
 ### v0.8.11
