@@ -14,9 +14,10 @@ You need:
 - A Linux host with systemd and SSH access.
 - Tailscale admin access for the first catch enrollment.
 - A Tailscale OAuth client secret that can create a tagged auth key for catch.
+- Tailscale installed on your workstation and connected to the same tailnet.
 
-You do not need Tailscale installed on your workstation. yeet uses an embedded
-tsnet client for normal commands.
+Catch uses embedded tsnet, but the local `yeet` CLI does not. After `yeet init`,
+normal commands connect to the catch tsnet hostname from your workstation.
 
 Skip VMs for the first run unless you already know the host has KVM. You can
 validate VM support after the container smoke test.
@@ -55,6 +56,8 @@ asks for it during first setup.
 
 For the minimal policy snippet, see
 [Tailscale Setup](/docs/concepts/tailscale#first-time-host-setup).
+For the `read`, `manage`, and `ssh` permissions in that snippet, see
+[Tailscale Access Grants](/docs/security/tailscale-access-grants).
 For service network choices, use [Networking](/docs/concepts/networking) before
 deploying `--net=ts`; most services that need Tailscale should use `svc,ts`.
 

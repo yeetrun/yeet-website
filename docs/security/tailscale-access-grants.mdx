@@ -1,0 +1,154 @@
+---
+title: Tailscale Access Grants
+description: Control who can read, manage, and open shell access through yeet.
+---
+
+Use Tailscale grants to decide who can connect to catch and what they can do
+after they reach it.
+
+## Start With One Admin Grant
+
+For first setup, keep the policy simple. Let Tailscale admins reach catch on
+its RPC port and give those admins every yeet permission. Tailscale's built-in
+admin autogroup is `autogroup:admin`.
+
+```jsonc
+{
+  "tagOwners": {
+    "tag:yeet": ["autogroup:admin"],
+    "tag:catch": ["tag:yeet"],
+    "tag:app": ["tag:yeet"]
+  },
+  "grants": [
+    {
+      "src": ["autogroup:admin"],
+      "dst": ["tag:catch"],
+      "ip": ["tcp:41548"],
+      "app": {
+        "yeetrun.com/app/yeet": [
+          { "allow": ["read", "manage", "ssh"] }
+        ]
+      }
+    },
+    {
+      "src": ["tag:catch"],
+      "dst": ["tag:catch"],
+      "ip": ["tcp:41548"]
+    }
+  ]
+}
+```
+
+Run `yeet init` after this policy is active. First setup requires `read`,
+`manage`, and `ssh` so one admin grant covers enrollment, validation, and shell
+checks.
+
+The second grant lets catch nodes talk to other catch nodes on the same port.
+Keep it if you run more than one catch host.
+
+## Permission Levels
+
+`read` allows observation commands. Use it for status, service information,
+logs, events, VM defaults, artifact hashes, and other commands that inspect
+catch state without changing it.
+
+`manage` allows high-trust changes. Use it for deploys, updates, service
+removal, `yeet rm --clean`, config changes, snapshot restore or deletion, VM
+lifecycle commands, catch upgrades, Tailscale service changes, and registry
+pushes over the tailnet.
+
+`ssh` allows catch-mediated shell access. Use it for `yeet ssh` into the catch
+host or into a service namespace.
+
+`manage` does not imply `read`, and `ssh` does not imply either one. Include
+every permission a role needs.
+
+## VM SSH
+
+`yeet ssh <vm>` only needs `read` at the yeet permission layer because the VM
+guest still enforces normal SSH authentication with its own key. This is
+different from `yeet ssh` into the catch host or a service namespace, which is
+authorized by catch and requires `ssh`.
+
+## Registry Access
+
+The tailnet registry endpoint requires `manage`. The registry is mainly useful
+for pushing deploy artifacts, so yeet does not expose a separate read-only
+registry permission over the tailnet. Internal loopback reads used by catch stay
+local to the host.
+
+## Workstation Access
+
+Catch embeds tsnet, but the local `yeet` CLI does not. Tailscale grants decide
+what a caller may do after it reaches catch, but your workstation must still be
+able to reach the catch tsnet address. In the normal setup, install Tailscale on
+the workstation and connect it to the same tailnet.
+
+## Split Access Later
+
+After the first host is working, split access if you need tighter roles. Keep
+the same app capability key and change the `src` groups and `allow` lists.
+
+```jsonc
+{
+  "groups": {
+    "group:yeet-readers": ["reader@example.com"],
+    "group:yeet-deployers": ["deployer@example.com"],
+    "group:yeet-shell-admins": ["shell-admin@example.com"]
+  },
+  "grants": [
+    {
+      "src": ["group:yeet-readers"],
+      "dst": ["tag:catch"],
+      "ip": ["tcp:41548"],
+      "app": {
+        "yeetrun.com/app/yeet": [
+          { "allow": ["read"] }
+        ]
+      }
+    },
+    {
+      "src": ["group:yeet-deployers"],
+      "dst": ["tag:catch"],
+      "ip": ["tcp:41548"],
+      "app": {
+        "yeetrun.com/app/yeet": [
+          { "allow": ["read", "manage"] }
+        ]
+      }
+    },
+    {
+      "src": ["group:yeet-shell-admins"],
+      "dst": ["tag:catch"],
+      "ip": ["tcp:41548"],
+      "app": {
+        "yeetrun.com/app/yeet": [
+          { "allow": ["read", "ssh"] }
+        ]
+      }
+    }
+  ]
+}
+```
+
+If a user matches multiple grants, catch treats the allowed yeet permissions as
+one combined set.
+
+## Denied Commands
+
+When catch denies a command, yeet prints the missing permission and links back
+to this page:
+
+```text
+missing yeet permission "manage"; update your Tailscale grant for yeetrun.com/app/yeet:
+https://yeet.run/docs/security/tailscale-access-grants
+```
+
+Update the matching Tailscale grant, wait for the policy to apply, then rerun
+the command from a workstation that can reach the catch hostname.
+
+## Related Pages
+
+- [Tailscale Setup](/docs/concepts/tailscale)
+- [Quick Start](/docs/getting-started/quick-start)
+- [yeet Commands](/docs/cli/yeet-cli)

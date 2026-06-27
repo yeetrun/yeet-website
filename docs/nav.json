@@ -22,6 +22,14 @@
     },
     {
       "type": "folder",
+      "path": "/security",
+      "title": "Security",
+      "children": [
+        { "type": "link", "path": "/tailscale-access-grants", "title": "Tailscale Access Grants" }
+      ]
+    },
+    {
+      "type": "folder",
       "path": "/payloads",
       "title": "Payload Guides",
       "children": [

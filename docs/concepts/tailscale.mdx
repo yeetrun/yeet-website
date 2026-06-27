@@ -8,9 +8,12 @@ Yeet uses Tailscale in two places:
 - catch exposes host access through an embedded tsnet node.
 - Services can get their own Tailscale identity with `--net=ts`.
 
-You do not need the Tailscale client installed on your workstation for normal
-yeet commands. The local Tailscale client is only needed for discovery commands
-such as `yeet list-hosts`.
+Catch embeds tsnet, but the local `yeet` CLI does not. Normal `yeet` commands
+use HTTP and WebSocket connections to the catch hostname, so your workstation
+must have network reachability to the catch tsnet address. In the standard
+setup, install Tailscale on the workstation and connect it to the same tailnet.
+Commands that query local tailnet state, such as `yeet list-hosts`, also use
+the local Tailscale client API.
 
 ## First-time host setup
 
@@ -45,11 +48,28 @@ Minimal policy shape:
     "tag:app": ["tag:yeet"]
   },
   "grants": [
-    { "src": ["autogroup:member"], "dst": ["tag:catch"], "ip": ["tcp:41548"] },
-    { "src": ["tag:catch"], "dst": ["tag:catch"], "ip": ["tcp:41548"] }
+    {
+      "src": ["autogroup:admin"],
+      "dst": ["tag:catch"],
+      "ip": ["tcp:41548"],
+      "app": {
+        "yeetrun.com/app/yeet": [
+          { "allow": ["read", "manage", "ssh"] }
+        ]
+      }
+    },
+    {
+      "src": ["tag:catch"],
+      "dst": ["tag:catch"],
+      "ip": ["tcp:41548"]
+    }
   ]
 }
 ```
+
+The first grant lets Tailscale admins run the first setup and normal admin
+commands. See [Tailscale Access Grants](/docs/security/tailscale-access-grants)
+for the `read`, `manage`, and `ssh` permissions attached to that grant.
 
 The catch node joins as `tag:catch`. With the least-privilege owner-tag setup,
 the OAuth client uses `tag:yeet` only so it can mint auth keys for `tag:catch`
@@ -92,7 +112,7 @@ not tagged, catch refuses connections.
 ## Host naming
 
 `yeet init root@<machine-host>` uses SSH. Normal commands use the catch tsnet
-hostname:
+hostname and require your workstation to be able to reach that tailnet address:
 
 ```bash
 CATCH_HOST=<catch-host> yeet status
