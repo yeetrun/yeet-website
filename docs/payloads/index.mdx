@@ -44,6 +44,13 @@ Choose the guide that matches what you already have.
 | Scheduled job | [Cron Jobs](/docs/payloads/cron-jobs) |
 | Linux guest | [VMs](/docs/payloads/vms) |
 
+## Create a workspace first
+
+Before your first `yeet run` or `yeet cron`, create or enter a
+[Service Workspace](/docs/getting-started/service-workspace). A successful
+deploy writes `yeet.toml` in the current directory, so the workspace is where
+yeet saves relative payload paths and future run options.
+
 ## Common flow
 
 Most services follow this loop:
@@ -57,10 +64,6 @@ yeet status <svc>
 After the first successful deploy, yeet writes service config to `yeet.toml`.
 For an existing service, a payload-only redeploy reuses saved options such as
 network mode, tags, service root, snapshot settings, and payload args.
-
-For a homelab with multiple third-party apps and custom payloads, keep those
-files in a [Service Workspace](/docs/getting-started/service-workspace). Run
-`yeet` commands from that directory so `yeet.toml` can store relative paths.
 
 ## Optional storage and networking
 

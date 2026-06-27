@@ -12,6 +12,11 @@ All examples use disposable service names. If you have more than one catch
 host, set `CATCH_HOST=<catch-host>` or pass `--host=<catch-host>` so every
 command targets the fresh host.
 
+Run this playbook from your
+[Service Workspace](/docs/getting-started/service-workspace), or from a
+temporary validation directory. Smoke deploys write `yeet.toml` in the current
+directory.
+
 ## 1) Confirm catch is reachable
 
 ```bash
@@ -69,7 +74,7 @@ yeet ssh -- curl -fsS http://127.0.0.1:18080/ >/dev/null
 Then remove the disposable service:
 
 ```bash
-yeet rm --clean-data yeet-smoke-web
+yeet rm --clean-data --clean-config yeet-smoke-web
 ```
 
 `--clean-data` deletes the service data too, so read the confirmation prompt
@@ -96,7 +101,7 @@ chmod +x yeet-smoke-script.sh
 yeet run yeet-smoke-script ./yeet-smoke-script.sh
 yeet status yeet-smoke-script
 yeet logs yeet-smoke-script
-yeet rm --clean-data yeet-smoke-script
+yeet rm --clean-data --clean-config yeet-smoke-script
 rm yeet-smoke-script.sh
 ```
 
@@ -123,7 +128,7 @@ yeet cron yeet-smoke-cron ./yeet-smoke-cron.sh "* * * * *"
 yeet status yeet-smoke-cron
 sleep 70
 yeet logs yeet-smoke-cron
-yeet rm --clean-data yeet-smoke-cron
+yeet rm --clean-data --clean-config yeet-smoke-cron
 rm yeet-smoke-cron.sh
 ```
 
@@ -154,7 +159,7 @@ disposable VM:
 yeet vm images catalog
 yeet run yeet-smoke-vm vm://ubuntu/26.04
 yeet ssh yeet-smoke-vm -- uname -a
-yeet rm --clean-data yeet-smoke-vm
+yeet rm --clean-data --clean-config yeet-smoke-vm
 ```
 
 To verify the NixOS image family too, run the same smoke check with
@@ -172,7 +177,7 @@ the LAN or VLAN gateway for outbound internet.
 ```bash
 yeet run yeet-smoke-lan nginx:alpine --net=lan
 yeet ip yeet-smoke-lan
-yeet rm --clean-data yeet-smoke-lan
+yeet rm --clean-data --clean-config yeet-smoke-lan
 ```
 
 ZFS-backed service roots require an existing parent dataset. Skip this if you
@@ -180,7 +185,7 @@ do not plan to use ZFS.
 
 ```bash
 yeet run yeet-smoke-zfs nginx:alpine --service-root=tank/apps/yeet-smoke-zfs --zfs
-yeet rm --clean-data yeet-smoke-zfs
+yeet rm --clean-data --clean-config yeet-smoke-zfs
 ```
 
 See [Networking](/docs/concepts/networking) and [ZFS](/docs/concepts/zfs) for

@@ -11,16 +11,17 @@ workload ordinary outbound internet through the catch host.
 
 For services and VMs with a `svc` network address, yeet answers:
 
-- Short names, such as `web`.
-- Fully qualified names under `yeet.internal`, such as `web.yeet.internal`.
+- Short names, such as `vaultwarden`.
+- Fully qualified names under `yeet.internal`, such as
+  `vaultwarden.yeet.internal`.
 
 Both forms resolve to the service's `svc` address.
 
 Examples from another `svc` service or VM:
 
 ```text
-http://api:8080
-postgres://db:5432/app
+http://home-assistant:8123
+postgres://postgres:5432/app
 ```
 
 Services without `svc` networking do not get yeet DNS records. Use `svc,ts`
@@ -51,7 +52,7 @@ Compose services using `--net=svc` get yeet DNS automatically. Application
 code can normally use short service names.
 
 ```bash
-yeet run api ./compose.yml --net=svc
+yeet run uptime-kuma ./compose.yml --net=svc
 ```
 
 If a Compose file already sets `dns:` or `dns_search:`, those settings remain
@@ -62,8 +63,8 @@ under the service's control.
 VMs use `svc` networking by default, so new VMs get yeet DNS automatically.
 
 ```bash
-yeet run worker vm://ubuntu/26.04
-yeet ssh worker
+yeet run lab-vm vm://ubuntu/26.04
+yeet ssh lab-vm
 ```
 
 From inside the VM, other `svc` services and VMs resolve by short name and

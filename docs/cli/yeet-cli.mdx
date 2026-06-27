@@ -28,7 +28,6 @@ Host shortcuts:
 
 ```bash
 yeet status@<catch-host>
-yeet run <svc>@<catch-host> ./compose.yml
 ```
 
 See [How Commands Work](/docs/cli/cli-overview) for service selection and
@@ -40,6 +39,10 @@ argument routing.
 
 Install or update a service from a payload:
 
+Run new-service deploy commands from a
+[Service Workspace](/docs/getting-started/service-workspace). A successful
+deploy writes `yeet.toml` in the current directory.
+
 ```bash
 yeet run --web
 yeet run <svc> ./compose.yml
@@ -47,6 +50,12 @@ yeet run -p 8080:80 <svc> nginx:alpine
 yeet run <svc> ./Dockerfile
 yeet run <svc> ./bin/<svc> -- --app-flag value
 yeet run <vm> vm://ubuntu/26.04
+```
+
+Target a specific host with `<svc>@<catch-host>` when needed:
+
+```bash
+yeet run <svc>@<catch-host> ./compose.yml
 ```
 
 `<svc>` must use lowercase letters, numbers, and dashes, start with a letter,

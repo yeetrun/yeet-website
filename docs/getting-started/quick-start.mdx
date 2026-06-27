@@ -4,7 +4,8 @@ description: Fastest path to a working yeet + catch install.
 ---
 
 Use this path for the first successful deploy. It installs yeet locally,
-bootstraps catch on one Linux host, then runs a disposable container.
+bootstraps catch on one Linux host, creates a service workspace, then runs a
+disposable container.
 
 ## Before you start
 
@@ -100,7 +101,21 @@ yeet --host=<catch-host> status
 See [How Commands Work](/docs/cli/cli-overview) if `root@<machine-host>`,
 `<catch-host>`, and `<svc>@<host>` are still unclear.
 
-## 5) Deploy a disposable service
+## 5) Create a service workspace
+
+Do this before your first `yeet run`. A successful deploy writes `yeet.toml` in
+the current directory.
+
+```bash
+mkdir -p ~/yeet-services
+cd ~/yeet-services
+```
+
+Use this directory for real homelab services too. See
+[Service Workspace](/docs/getting-started/service-workspace) before deploying
+third-party Compose apps, env files, Dockerfiles, scripts, or binaries.
+
+## 6) Deploy a disposable service
 
 Start with a small container:
 
@@ -116,22 +131,19 @@ Check the published port from the host:
 yeet ssh -- curl -fsS http://127.0.0.1:18080/ >/dev/null
 ```
 
-## 6) Remove the disposable service
+## 7) Remove the disposable service
 
 ```bash
-yeet rm --clean-data hello
+yeet rm --clean-data --clean-config hello
 ```
 
 `--clean-data` deletes the service data too, so read the confirmation prompt
-before accepting.
+before accepting. `--clean-config` removes the disposable `yeet.toml` entry.
 
 ## Next steps
 
 - Run the [First-Run Validation](/docs/getting-started/first-run-validation)
   playbook if this is a new host.
-- Create a [Service Workspace](/docs/getting-started/service-workspace) before
-  deploying real homelab apps with Compose files, env files, Dockerfiles,
-  scripts, or binaries.
 - Open [Workflows](/docs/operations/workflows) for day-to-day deploy and update
   commands.
 - Open [Payload Guides](/docs/payloads) to choose containers, binaries, scripts,

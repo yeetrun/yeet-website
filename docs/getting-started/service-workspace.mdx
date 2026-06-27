@@ -3,9 +3,9 @@ title: Service Workspace
 description: Organize homelab payloads and yeet.toml in one place.
 ---
 
-Use a service workspace for the apps you run with yeet. A directory such as
-`~/yeet-services` keeps third-party Compose apps, env files, custom
-Dockerfiles, scripts, binaries, and `yeet.toml` together.
+Use a service workspace before your first `yeet run` or `yeet cron`. A
+directory such as `~/yeet-services` keeps third-party Compose apps, env files,
+custom Dockerfiles, scripts, binaries, and `yeet.toml` together.
 
 Run deploy and service commands from this directory. Yeet reads and writes
 `yeet.toml` in the current directory, so a consistent workspace lets it reuse
@@ -48,7 +48,8 @@ Use one folder per app or custom service:
 ```
 
 Yeet creates `yeet.toml` after a successful deploy that saves project config.
-You do not need to create it by hand.
+Create or enter the workspace before deploying so that file lands in the right
+place. You do not need to create it by hand.
 
 ## Deploy third-party apps
 

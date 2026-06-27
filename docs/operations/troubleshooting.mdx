@@ -99,17 +99,17 @@ See [Containers](/docs/payloads/containers) for update and image workflows.
 you want to keep:
 
 ```bash
-yeet service set web -p 80:80 -p 443:443
+yeet service set vaultwarden -p 80:80 -p 443:443
 ```
 
 To replace the list or clear it, use `--publish-reset`:
 
 ```bash
-yeet service set web --publish-reset -p 443:443
-yeet service set web --publish-reset
+yeet service set vaultwarden --publish-reset -p 443:443
+yeet service set vaultwarden --publish-reset
 ```
 
-Use `yeet info web` before changing ports.
+Use `yeet info vaultwarden` before changing ports.
 
 ## Service networking does not work
 

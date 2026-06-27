@@ -6,6 +6,10 @@ description: Install scheduled jobs as systemd timers on the catch host.
 Cron payloads install a script or binary as a scheduled job. Catch implements
 them as systemd timer units, while yeet accepts a five-field cron expression.
 
+Run these commands from a
+[Service Workspace](/docs/getting-started/service-workspace). The first
+successful cron install writes `yeet.toml` in the current directory.
+
 ## Create a job
 
 ```bash

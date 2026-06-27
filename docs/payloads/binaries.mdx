@@ -6,6 +6,10 @@ description: Deploy local executables and shebang scripts as host systemd servic
 Binary and script payloads become systemd services on the catch host. Use this
 path for a single long-running process that does not need a container.
 
+Run these commands from a
+[Service Workspace](/docs/getting-started/service-workspace). The first
+successful deploy writes `yeet.toml` in the current directory.
+
 ## Binaries
 
 Build for the target host architecture before deploying. For a typical Linux

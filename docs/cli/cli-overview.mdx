@@ -20,6 +20,15 @@ Normal commands use the catch host:
 CATCH_HOST=<catch-host> yeet status
 yeet --host=<catch-host> status
 yeet status@<catch-host>
+```
+
+Run new-service deploy commands from a
+[Service Workspace](/docs/getting-started/service-workspace) so the generated
+`yeet.toml` lands in the directory you intend to use for that service set.
+
+Target a specific host when deploying:
+
+```bash
 yeet run <svc>@<catch-host> ./compose.yml
 ```
 

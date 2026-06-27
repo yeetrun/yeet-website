@@ -48,20 +48,20 @@ Change ports later with `service set`. The port list is complete, so include
 every mapping you want to keep:
 
 ```bash
-yeet service set web -p 80:80 -p 443:443
+yeet service set vaultwarden -p 80:80 -p 443:443
 ```
 
 Replace or clear the list intentionally with `--publish-reset`:
 
 ```bash
-yeet service set web --publish-reset -p 443:443
-yeet service set web --publish-reset
+yeet service set vaultwarden --publish-reset -p 443:443
+yeet service set vaultwarden --publish-reset
 ```
 
 Check the live ports first:
 
 ```bash
-yeet info web
+yeet info vaultwarden
 ```
 
 ## Service network (`svc`)
@@ -71,7 +71,7 @@ yeet info web
 Use `svc` when the workload needs:
 
 - Private service-to-service traffic.
-- Yeet DNS names, such as `api` and `api.yeet.internal`.
+- Yeet DNS names, such as `vaultwarden` and `vaultwarden.yeet.internal`.
 - Ordinary outbound internet through the catch host's gateway.
 - A stable VM management path through catch.
 
@@ -84,8 +84,8 @@ Services and VMs on `svc` can resolve each other by short name and
 `*.yeet.internal` names:
 
 ```text
-http://api:8080
-postgres://db:5432/app
+http://home-assistant:8123
+postgres://postgres:5432/app
 ```
 
 Use `svc` as the default private app network. Add `ts` when the service also
