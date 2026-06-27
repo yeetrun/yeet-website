@@ -16,6 +16,13 @@ commits the updated submodule pointer.
   accurate.
 - Keep changelog entries date-first, release-version second, and limited to
   1-3 user-facing bullets.
+- Make the latest changelog entry stand alone for users installing or upgrading.
+  It should explain the actual behavior, compatibility, reliability, or action
+  change without requiring the reader to inspect earlier versions.
+- For corrective releases, carry the real user-facing changes forward into the
+  new latest entry and mark the prior bad version as superseded when useful.
+  Do not make tag repair, git hashes, submodule pointers, CI retries, or website
+  publication mechanics the changelog message.
 - Use plain user-facing language. Avoid internal refactor details in release
   notes.
 - Keep examples generic. Do not publish private hostnames, service names, local

@@ -185,6 +185,20 @@ Reference pages should be complete but scannable.
 - Move rare flags into compact lists or tables.
 - Do not repeat full workflow tutorials inside the reference.
 
+## Changelog Entries
+
+Write changelog entries for users deciding whether to install or upgrade.
+
+- Make the latest version stand alone. If a user sees only that section, it
+  should still answer "what changed for me?"
+- Focus on behavior, compatibility, reliability, migration, or required action.
+- Do not make release plumbing the message. Avoid bullets about git hashes,
+  submodule pointers, source revisions, CI retries, tag repair, or website
+  publication mechanics unless a user must take action.
+- If a corrective release supersedes a bad tag or artifact, repeat the real
+  user-facing changes in the new latest entry. Mark the superseded version
+  plainly when helpful.
+
 ## Review Checklist
 
 Before publishing a page, check:
