@@ -5,6 +5,12 @@ description: Short notes for yeet + catch releases.
 
 ## June 27, 2026
 
+### v0.8.16
+
+- `yeet rm --clean <svc>` now removes service data and the local `yeet.toml` entry in one command, while plain `--yes` still does not delete data unless cleanup is explicit.
+- `yeet upgrade` and `yeet upgrade check` now include catch hosts from the current `yeet.toml` by default; use `--host=<catch-host>` when targeting one host.
+- The docs now recommend a service workspace for Compose files, env files, Dockerfiles, scripts, binaries, and the `yeet.toml` that yeet reads and writes, and agent-oriented command docs now use `--help-agent`.
+
 ### v0.8.15
 
 - `yeet run` and the web deploy form now reject invalid new service names before deployment, using a lowercase letter, number, and dash rule that works cleanly across catch, systemd, Docker Compose, and service-network DNS.
