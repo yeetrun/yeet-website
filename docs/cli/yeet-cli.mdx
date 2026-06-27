@@ -3,8 +3,8 @@ title: yeet Commands
 description: Client-side command reference for yeet.
 ---
 
-Use this page as a command index. For full CLI help, run the command with
-`--help-agent`.
+Use this page as a command index. For agent-readable CLI context, run the
+command with `--help-agent`.
 
 ```bash
 yeet --help-agent
@@ -177,15 +177,16 @@ Remove a service:
 yeet rm <svc>
 ```
 
-Remove service data too:
+Remove service data and the local config entry too:
 
 ```bash
-yeet rm --clean-data <svc>
+yeet rm --clean <svc>
 ```
 
 Useful flags:
 
-- `--yes`: skip prompts. This does not imply `--clean-data`.
+- `--clean`: delete service data and the local `yeet.toml` entry.
+- `--yes`: skip prompts. This does not imply `--clean` or `--clean-data`.
 - `--clean-config`: delete the local `yeet.toml` entry.
 - `--clean-data`: delete service data, including VM guest disks.
 
@@ -466,15 +467,15 @@ Check and install public yeet/catch releases:
 
 ```bash
 yeet upgrade check
-yeet upgrade check --all
 yeet upgrade
-yeet upgrade --all
-yeet upgrade --all --force
-yeet upgrade --all --version v0.6.1 --force
+yeet upgrade --host=<catch-host>
+yeet upgrade --force
+yeet upgrade --version v0.6.1 --force
 ```
 
-`--all` uses the current project's `yeet.toml` plus the default host. It does
-not scan the entire tailnet.
+When run from a service workspace with `yeet.toml`, `yeet upgrade` includes all
+project catch hosts plus the default catch host. Use `--host=<catch-host>` to
+upgrade one catch host.
 
 ### `version`
 

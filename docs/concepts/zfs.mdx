@@ -179,8 +179,9 @@ yeet start <vm>
 Yeet grows the VM disk and guest ext4 filesystem. Disk shrink and live resize
 are not supported.
 
-`yeet rm --clean-data <vm>` removes the VM service data and VM clone. It does
-not remove the shared image base, so future VMs can keep cloning it.
+`yeet rm --clean <vm>` removes the VM service data, VM clone, and local
+`yeet.toml` entry. It does not remove the shared image base, so future VMs can
+keep cloning it.
 
 If ZFS is present for VM disk setup, the host also needs `udevadm`.
 

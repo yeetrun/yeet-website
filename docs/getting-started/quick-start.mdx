@@ -134,11 +134,11 @@ yeet ssh -- curl -fsS http://127.0.0.1:18080/ >/dev/null
 ## 7) Remove the disposable service
 
 ```bash
-yeet rm --clean-data --clean-config hello
+yeet rm --clean hello
 ```
 
-`--clean-data` deletes the service data too, so read the confirmation prompt
-before accepting. `--clean-config` removes the disposable `yeet.toml` entry.
+`--clean` deletes the service data and removes the disposable `yeet.toml`
+entry, so read the confirmation prompt before accepting.
 
 ## Next steps
 

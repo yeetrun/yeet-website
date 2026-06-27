@@ -140,37 +140,37 @@ playbook to test the payload types this host should support.
 
 ## Upgrade yeet and catch
 
-Check the local CLI and the selected catch host:
+Check the local CLI and catch hosts:
 
 ```bash
 yeet upgrade check
 ```
 
-Upgrade both from verified GitHub release assets:
+Upgrade from verified GitHub release assets:
 
 ```bash
 yeet upgrade
 ```
 
-If a project has multiple catch hosts in `yeet.toml`, check and upgrade each
-one:
+When you run from a service workspace with `yeet.toml`, `yeet upgrade` includes
+all project catch hosts plus the default catch host. Use `--host=<catch-host>`
+only when you want to upgrade one catch host.
 
 ```bash
-yeet upgrade check --all
-yeet upgrade --all
+yeet upgrade --host=<catch-host>
 ```
 
 To reinstall the latest public release even when a component already looks
 current, newer, or locally built:
 
 ```bash
-yeet upgrade --all --force
+yeet upgrade --force
 ```
 
 To install a specific public release, select the tag:
 
 ```bash
-yeet upgrade --all --version v0.6.1 --force
+yeet upgrade --version v0.6.1 --force
 ```
 
 ## Host requirements

@@ -67,8 +67,8 @@ Cron installs use `yeet cron`; service-root moves happen afterward through
 yeet status <svc>
 yeet logs -f <svc>
 yeet rm <svc>
-yeet rm --clean-data <svc>
+yeet rm --clean <svc>
 ```
 
-`--clean-data` removes the managed service data root in addition to the
-scheduled job. Read the confirmation prompt before accepting.
+`--clean` removes the managed service data root and local `yeet.toml` entry in
+addition to the scheduled job. Read the confirmation prompt before accepting.

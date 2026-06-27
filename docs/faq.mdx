@@ -57,6 +57,7 @@ install. Use the catch host with `CATCH_HOST`, `--host`, and
 
 ## What deletes data?
 
-`yeet rm <svc>` removes the service but keeps service data. Use
-`yeet rm --clean-data <svc>` only when you also want to delete the managed data
-root or VM disk.
+`yeet rm <svc>` removes the service but keeps service data. It prompts before
+removing the local config entry. Use `yeet rm --clean <svc>` when you also want
+to delete the managed data root or VM disk and remove the local `yeet.toml`
+entry.

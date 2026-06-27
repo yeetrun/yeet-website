@@ -306,10 +306,10 @@ Uninstall the VM service but keep its disk:
 yeet rm <vm>
 ```
 
-Delete the guest disk too:
+Delete the guest disk and local config entry too:
 
 ```bash
-yeet rm --clean-data <vm>
+yeet rm --clean <vm>
 ```
 
 For ZFS-backed VMs, cleanup removes the VM clone and service data. It does not
