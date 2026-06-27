@@ -43,6 +43,11 @@ yeet --help
 Catch uses an embedded tsnet node. That node must join your tailnet with a tag,
 such as `tag:catch`. This is required before the first `yeet init`.
 
+Your tailnet policy must also grant the setup user access to catch on TCP port
+`41548` with the `yeetrun.com/app/yeet` app permissions `read`, `manage`, and
+`ssh`. First setup requires all three. Later, you can split access into
+separate read, manage, and shell roles.
+
 Before you run `yeet init`, create an OAuth credential in the Tailscale admin
 console from `Trust credentials` -> `Credential` -> `OAuth`.
 
@@ -59,7 +64,9 @@ You have two choices:
 Keep the `tskey-client-...` OAuth client secret ready. Interactive `yeet init`
 asks for it during first setup. Follow
 [Tailscale Setup](/docs/concepts/tailscale#first-time-host-setup) for the
-minimal policy snippet.
+minimal policy snippet, and use
+[Tailscale Access Grants](/docs/security/tailscale-access-grants) when you are
+ready to split roles.
 
 Before deploying a service with `--net=ts`, read
 [Networking](/docs/concepts/networking). Most Tailscale-exposed services should

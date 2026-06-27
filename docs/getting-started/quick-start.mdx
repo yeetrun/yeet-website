@@ -39,6 +39,11 @@ curl -fsSL https://yeetrun.com/install.sh | sh -s -- --nightly
 Do this before running `yeet init`. Catch must join your tailnet as a tagged
 device, usually `tag:catch`.
 
+Your tailnet policy must also let your setup user reach catch on TCP port
+`41548` with the `yeetrun.com/app/yeet` app permissions `read`, `manage`, and
+`ssh`. First setup requires all three because `yeet init` enrolls catch,
+checks the install, and may run shell-backed validation.
+
 In the Tailscale admin console, open `Trust credentials` -> `Credential` ->
 `OAuth`.
 
@@ -55,8 +60,8 @@ Keep the `tskey-client-...` OAuth client secret ready. Interactive `yeet init`
 asks for it during first setup.
 
 For the minimal policy snippet, see
-[Tailscale Setup](/docs/concepts/tailscale#first-time-host-setup).
-For the `read`, `manage`, and `ssh` permissions in that snippet, see
+[Tailscale Setup](/docs/concepts/tailscale#first-time-host-setup). For the
+permission model and split-role examples, see
 [Tailscale Access Grants](/docs/security/tailscale-access-grants).
 For service network choices, use [Networking](/docs/concepts/networking) before
 deploying `--net=ts`; most services that need Tailscale should use `svc,ts`.
