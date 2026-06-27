@@ -1,0 +1,137 @@
+---
+title: Service Workspace
+description: Organize homelab payloads and yeet.toml in one place.
+---
+
+Use a service workspace for the apps you run with yeet. A directory such as
+`~/yeet-services` keeps third-party Compose apps, env files, custom
+Dockerfiles, scripts, binaries, and `yeet.toml` together.
+
+Run deploy and service commands from this directory. Yeet reads and writes
+`yeet.toml` in the current directory, so a consistent workspace lets it reuse
+saved payload paths, hosts, network flags, service roots, snapshots, cron
+schedules, and payload args.
+
+## Create a workspace
+
+Run this on your workstation:
+
+```bash
+mkdir -p ~/yeet-services
+cd ~/yeet-services
+```
+
+Use one folder per app or custom service:
+
+```text
+~/yeet-services/
+  yeet.toml
+  uptime-kuma/
+    compose.yml
+  vaultwarden/
+    compose.yml
+    vaultwarden.env
+  home-assistant/
+    compose.yml
+  gitea/
+    compose.yml
+  mqtt-bridge/
+    Dockerfile
+    config.yml
+  sensor-collector/
+    cmd/
+      sensor-collector/
+  jobs/
+    backup.sh
+  bin/
+    sensor-collector
+```
+
+Yeet creates `yeet.toml` after a successful deploy that saves project config.
+You do not need to create it by hand.
+
+## Deploy third-party apps
+
+Most homelab apps start from a Compose file:
+
+```bash
+cd ~/yeet-services
+yeet run uptime-kuma ./uptime-kuma/compose.yml
+yeet run --env-file=./vaultwarden/vaultwarden.env vaultwarden ./vaultwarden/compose.yml
+```
+
+After each successful deploy, yeet saves the service entry in `yeet.toml`.
+Future commands can reuse that saved payload path and deploy options.
+
+## Deploy custom services
+
+Use the same workspace for local Dockerfiles:
+
+```bash
+cd ~/yeet-services
+yeet run mqtt-bridge ./mqtt-bridge/Dockerfile
+```
+
+Build binaries for the catch host architecture before deploying them:
+
+```bash
+cd ~/yeet-services
+GOOS=linux GOARCH=amd64 go build -o ./bin/sensor-collector ./sensor-collector/cmd/sensor-collector
+yeet run sensor-collector ./bin/sensor-collector
+```
+
+Put scheduled jobs beside the rest of the homelab payloads:
+
+```bash
+cd ~/yeet-services
+yeet cron backup ./jobs/backup.sh "0 3 * * *"
+```
+
+## Re-run saved services
+
+Run saved services from the workspace directory:
+
+```bash
+cd ~/yeet-services
+yeet run uptime-kuma
+yeet run mqtt-bridge
+```
+
+Yeet reads `yeet.toml`, finds the saved payload path, and reuses saved options
+such as network mode, env file, service root, snapshot settings, and payload
+args.
+
+## Keep paths relative
+
+Prefer paths that stay inside the workspace:
+
+```bash
+yeet run uptime-kuma ./uptime-kuma/compose.yml
+yeet run mqtt-bridge ./mqtt-bridge/Dockerfile
+yeet run sensor-collector ./bin/sensor-collector
+```
+
+Relative paths make the workspace easier to back up, move, or sync. They also
+keep `yeet.toml` readable.
+
+## Use service folders
+
+Keep each third-party app in its own folder with its Compose file, env files,
+and app-specific config. Use shared folders such as `bin/` and `jobs/` for
+small custom payloads.
+
+Avoid running deploy commands from random directories. If yeet cannot find the
+right `yeet.toml`, it cannot reuse the saved service entry.
+
+Service names must use 1-63 lowercase letters, numbers, and dashes. Start with
+a letter and end with a letter or number.
+
+## Related docs
+
+- [Quick Start](/docs/getting-started/quick-start) installs yeet and catch.
+- [Payloads](/docs/payloads) helps choose Compose, Dockerfile, binary, script,
+  cron, or VM payloads.
+- [Workflows](/docs/operations/workflows) shows daily deploy and update
+  commands.
+- [Configuration & Prefs](/docs/concepts/configuration-and-prefs) explains
+  `yeet.toml`, client prefs, and host defaults.

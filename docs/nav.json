@@ -6,6 +6,7 @@
       "title": "Getting Started",
       "children": [
         { "type": "link", "path": "/quick-start", "title": "Quick Start" },
+        { "type": "link", "path": "/service-workspace", "title": "Service Workspace" },
         { "type": "link", "path": "/installation", "title": "Install yeet and catch" }
       ]
     },

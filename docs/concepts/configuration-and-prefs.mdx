@@ -36,7 +36,9 @@ yeet prefs --save
 ## Project config (`yeet.toml`)
 
 When you run yeet from a project directory, it can persist service defaults in
-a `yeet.toml` file.
+a `yeet.toml` file. For homelab services, use a
+[Service Workspace](/docs/getting-started/service-workspace) so Compose files,
+env files, Dockerfiles, scripts, binaries, and `yeet.toml` stay together.
 
 `yeet run --web` writes the same project config entries as the matching CLI
 path (`yeet run` or `yeet cron`). Payload paths, env files, service-root
@@ -50,24 +52,24 @@ version = 1
 hosts = ["home-catch", "lab-catch"]
 
 [[services]]
-name = "web"
+name = "uptime-kuma"
 host = "home-catch"
-payload = "./web/compose.yml"
-args = ["--net=lan"]
+payload = "./uptime-kuma/compose.yml"
+args = ["--net=svc,ts"]
 
 [[services]]
-name = "api"
+name = "sensor-collector"
 host = "lab-catch"
-payload = "./bin/api"
-args = ["--flagA", "valueA"]
+payload = "./bin/sensor-collector"
+args = ["--listen", ":9100"]
 
 [[services]]
-name = "report-job"
+name = "backup"
 host = "home-catch"
 type = "cron"
-payload = "./jobs/report"
-schedule = "0 9 15 * *"
-args = ["-live"]
+payload = "./jobs/backup.sh"
+schedule = "0 3 * * *"
+args = ["--target", "nas"]
 ```
 
 Notes:

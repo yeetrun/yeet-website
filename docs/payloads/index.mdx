@@ -58,6 +58,10 @@ After the first successful deploy, yeet writes service config to `yeet.toml`.
 For an existing service, a payload-only redeploy reuses saved options such as
 network mode, tags, service root, snapshot settings, and payload args.
 
+For a homelab with multiple third-party apps and custom payloads, keep those
+files in a [Service Workspace](/docs/getting-started/service-workspace). Run
+`yeet` commands from that directory so `yeet.toml` can store relative paths.
+
 ## Optional storage and networking
 
 Use the payload guide first. Then add storage or networking options when the
