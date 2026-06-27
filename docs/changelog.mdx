@@ -3,6 +3,13 @@ title: Changelog
 description: Short notes for yeet + catch releases.
 ---
 
+## June 27, 2026
+
+### v0.8.14
+
+- Tailscale-enabled services no longer try to manage the host's DNS settings, preventing service sidecars from replacing the host `/etc/resolv.conf`.
+- Upgrading catch repairs existing Tailscale service configs automatically, so already deployed services pick up the safer DNS behavior after restart.
+
 ## June 26, 2026
 
 ### v0.8.13
