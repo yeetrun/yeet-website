@@ -1,4 +1,3 @@
-import { bodyFont, displayFont, monoFont } from "@/components/text";
 import PreviewBanner from "@/components/preview-banner";
 import classNames from "classnames";
 import Head from "next/head";
@@ -26,15 +25,7 @@ export default function RootLayout({
 
   return (
     <>
-      <div
-        className={classNames(
-          s.rootLayout,
-          bodyFont.variable,
-          displayFont.variable,
-          monoFont.variable,
-          className,
-        )}
-      >
+      <div className={classNames(s.rootLayout, className)}>
         <Head>
           <title>{title}</title>
           <meta name="description" content={description} />

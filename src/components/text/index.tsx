@@ -1,28 +1,9 @@
 import classNames from "classnames";
-import { IBM_Plex_Mono, Space_Grotesk, Source_Sans_3 } from "next/font/google";
 import { forwardRef, UIEventHandler } from "react";
+import { bodyFont, displayFont, monoFont } from "@/styles/fonts";
 import s from "./Text.module.css";
 
-export const displayFont = Space_Grotesk({
-  display: "swap",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--display-font",
-});
-
-export const bodyFont = Source_Sans_3({
-  display: "swap",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
-  variable: "--body-font",
-});
-
-export const monoFont = IBM_Plex_Mono({
-  display: "swap",
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--mono-font",
-});
+export { bodyFont, displayFont, monoFont };
 
 interface TextProps {
   children?: React.ReactNode;
