@@ -70,6 +70,8 @@ Minimal policy shape:
 The first grant lets Tailscale admins run the first setup and normal admin
 commands. See [Tailscale Access Grants](/docs/security/tailscale-access-grants)
 for the `read`, `manage`, and `ssh` permissions attached to that grant.
+Keep `autogroup:admin` directly in the grant `src`; do not put it inside a
+custom policy-file group.
 
 The catch node joins as `tag:catch`. With the least-privilege owner-tag setup,
 the OAuth client uses `tag:yeet` only so it can mint auth keys for `tag:catch`

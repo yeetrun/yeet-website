@@ -5,6 +5,18 @@ description: Short notes for yeet + catch releases.
 
 ## June 27, 2026
 
+### v0.8.18
+
+- Catch now requires the `yeetrun.com/app/yeet` Tailscale app grant for yeet
+  access. Add `read`, `manage`, and `ssh` to your admin grant before upgrading
+  catch, or commands will be denied with a missing-permission message.
+- `read`, `manage`, and `ssh` are enforced independently across observation,
+  deploy/remove/registry/setup, and catch-mediated shell access. VM guest SSH
+  still uses normal guest SSH keys after yeet reads VM metadata.
+- The docs now include a dedicated Tailscale Access Grants page and clarify
+  that the local `yeet` CLI needs workstation reachability to catch, usually
+  through Tailscale installed on the workstation.
+
 ### v0.8.17
 
 - `yeet rm --clean <svc>` now removes service data and the local `yeet.toml` entry in one command, while plain `--yes` still does not delete data unless cleanup is explicit.

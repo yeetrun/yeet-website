@@ -43,6 +43,10 @@ Run `yeet init` after this policy is active. First setup requires `read`,
 `manage`, and `ssh` so one admin grant covers enrollment, validation, and shell
 checks.
 
+Use `autogroup:admin` directly in the grant `src`. Do not create a
+`group:yeet-admins` entry that contains `autogroup:admin`; Tailscale policy
+groups are for actual user identities when you define them in the policy file.
+
 The second grant lets catch nodes talk to other catch nodes on the same port.
 Keep it if you run more than one catch host.
 
@@ -88,6 +92,7 @@ the workstation and connect it to the same tailnet.
 
 After the first host is working, split access if you need tighter roles. Keep
 the same app capability key and change the `src` groups and `allow` lists.
+When you define policy-file groups, list the users in those groups directly.
 
 ```jsonc
 {
