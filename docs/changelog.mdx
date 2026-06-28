@@ -3,6 +3,17 @@ title: Changelog
 description: Short notes for yeet + catch releases.
 ---
 
+## June 28, 2026
+
+### v0.8.21
+
+- VM hosts on Debian and Ubuntu can now prepare `br0` for `--net=lan`
+  during `yeet init` or the first LAN VM deploy, so fresh hosts without an
+  existing bridge can run LAN-connected VMs.
+- VM guest SSH now proxies through the same `yeet` binary you ran, so commands
+  such as `./yeet ssh <vm>` do not fail when an older `yeet` appears earlier
+  on `PATH`.
+
 ## June 27, 2026
 
 ### v0.8.20
