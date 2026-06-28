@@ -86,8 +86,9 @@ Tailscale OAuth client secret unless you pass `--ts-client-secret=<secret>` or
 `--ts-auth-key=<key>`. Paste the secret from the Tailscale setup step.
 
 Interactive `yeet init` can also ask before installing missing Debian/Ubuntu
-packages. `--install-docker` and `--install-vm-tools` are unattended yes flags
-for those prompts.
+packages. On VM-capable Debian/Ubuntu hosts, it can ask to prepare VM LAN
+bridge support too. `--install-docker` and `--install-vm-tools` are unattended
+yes flags for the package prompts.
 
 If you use a non-root SSH user, yeet runs the remote install with sudo.
 
@@ -104,6 +105,10 @@ For VM payloads on a KVM-capable host, install Docker and VM tools:
 ```bash
 yeet init --install-docker --install-vm-tools root@<machine-host>
 ```
+
+If you plan to run VMs with `--net=lan`, answer yes when init asks to prepare
+the host bridge. If you skip it, the first `yeet run <vm> ... --net=lan`
+prompts before creating the VM service.
 
 Use `--install-vm-tools` only on hosts that expose KVM and TUN/TAP. Many VPS
 providers do not expose nested virtualization. On hosts that are not VM

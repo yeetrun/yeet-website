@@ -100,8 +100,9 @@ See [DNS](/docs/concepts/dns) for resolver behavior.
 
 ## LAN (`lan`)
 
-`lan` attaches a service or VM to the catch host's LAN with macvlan. The
-workload requests addressing through DHCP.
+`lan` attaches a workload to the catch host's LAN. Containers and other
+non-VM services use macvlan. VMs attach their guest TAP device to a host bridge.
+In both cases, the workload requests addressing through DHCP.
 
 Use `lan` when the workload should behave like a normal device on the LAN or
 VLAN:
@@ -131,6 +132,13 @@ yeet run <svc> ./compose.yml --net=lan --macvlan-parent=<iface> --macvlan-vlan=<
 
 Use `lan` only on networks where macvlan, DHCP, and the selected parent
 interface make sense. A WAN-only VPS usually should not use `lan`.
+
+For VM `lan` networking, yeet needs a bridge on the host LAN. If the host
+already has one on the default route, yeet uses it. On supported Debian/Ubuntu
+hosts without a bridge, interactive `yeet init` or the first `yeet run <vm> ...
+--net=lan` can prepare `br0` after confirmation. Bridge preparation can briefly
+interrupt host networking; if your command disconnects during the change, rerun
+it after the host comes back.
 
 ## Tailscale (`ts`)
 
@@ -187,7 +195,8 @@ and `yeet tailscale` commands.
 
 For VMs, `svc` is the default. `svc,lan` gives the VM LAN access and keeps a
 catch-managed fallback path. A LAN-only VM must be reachable from your
-workstation on its guest LAN IP for `yeet ssh <vm>` to connect directly.
+workstation on its guest LAN IP for `yeet ssh <vm>` to connect directly. If no
+host LAN bridge is ready yet, yeet asks to prepare one before creating the VM.
 
 ```bash
 yeet run <vm> vm://ubuntu/26.04 --net=svc,lan

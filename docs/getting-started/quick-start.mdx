@@ -20,7 +20,8 @@ Catch uses embedded tsnet, but the local `yeet` CLI does not. After `yeet init`,
 normal commands connect to the catch tsnet hostname from your workstation.
 
 Skip VMs for the first run unless you already know the host has KVM. You can
-validate VM support after the container smoke test.
+validate VM support and optional VM LAN bridge setup after the container smoke
+test.
 
 ## 1) Install yeet on your workstation
 
@@ -87,8 +88,9 @@ running `yeet init`.
 
 If Docker is missing on a Debian/Ubuntu-style host, interactive `yeet init` can
 ask to install it. On Debian/Ubuntu hosts that expose KVM and TUN/TAP, init can
-also ask before installing missing VM tools. If the host is not VM capable,
-yeet warns and containers, binaries, scripts, and cron jobs still work.
+also ask before installing missing VM tools and preparing VM LAN bridge support.
+If the host is not VM capable, yeet warns and containers, binaries, scripts,
+and cron jobs still work.
 
 ## 4) Confirm yeet can reach catch
 

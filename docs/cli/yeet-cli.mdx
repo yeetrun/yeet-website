@@ -75,6 +75,7 @@ Common flags:
 - `--publish-reset`: replace or clear the saved published-port list.
 - `--net=<mode[,mode...]>`: choose service network modes such as `svc`,
   `svc,ts`, `lan`, or `lan,ts`. VMs support `svc`, `lan`, and `svc,lan`.
+  VM `lan` networking prompts to prepare a host bridge when one is not ready.
 - `--service-root=<path-or-dataset>`: choose the initial service root.
 - `--zfs`: treat `--service-root` as a ZFS dataset.
 - `--snapshots=on|off|inherit`: override service snapshot policy.
@@ -461,6 +462,9 @@ yeet init --install-docker --install-vm-tools root@<machine-host>
 yeet init --ts-auth-key=<key> root@<machine-host>
 yeet init
 ```
+
+On supported Debian/Ubuntu VM hosts, interactive `yeet init` can also prepare
+`br0` for VM `--net=lan` networking after confirmation.
 
 Use [Installation](/docs/getting-started/installation) for the full bootstrap
 flow.

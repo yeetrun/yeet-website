@@ -94,6 +94,17 @@ uses that network's gateway and DNS for ordinary internet access:
 yeet run <vm> vm://ubuntu/26.04 --net=lan
 ```
 
+For VM LAN networking, catch attaches the guest TAP device to a host bridge. If
+the host already has a bridge on the default LAN route, yeet uses it. On
+supported Debian/Ubuntu hosts without a bridge, yeet can prepare `br0` from the
+default LAN uplink after you confirm.
+
+Interactive `yeet init` offers that bridge preparation when VM support is
+available. You can also skip it during init; the first `yeet run <vm> ...
+--net=lan` prompts before creating VM files or database state. If the host
+briefly drops the connection while applying the bridge, wait for it to come
+back and rerun the same `yeet run` command.
+
 Use `svc,lan` when the VM needs host LAN access and should still keep a
 catch-managed fallback path:
 
@@ -180,11 +191,17 @@ VM payloads require:
 - `qemu-img`, `zstd`, `e2fsck`, `resize2fs`, `mount`, `umount`, and `ip`.
 
 On Debian/Ubuntu hosts with KVM and TUN/TAP available, interactive `yeet init`
-can prompt to install missing VM tools. For unattended setup, answer yes with:
+can prompt to install missing VM tools and prepare VM LAN bridge support. For
+unattended VM tool setup, answer yes with:
 
 ```bash
 yeet init --install-vm-tools root@<machine-host>
 ```
+
+Automatic VM LAN bridge preparation currently supports Debian/Ubuntu
+netplan-networkd hosts with a physical default-route LAN uplink. Hosts that
+already route through a bridge reuse that bridge without rewriting the host
+network.
 
 Many VPS providers do not expose nested virtualization. Use containers,
 binaries, scripts, and cron jobs on those hosts, and run VMs on a KVM-capable

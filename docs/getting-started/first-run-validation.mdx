@@ -152,6 +152,11 @@ If the VM devices exist but tools are missing on a Debian/Ubuntu host, rerun
 `yeet init --install-vm-tools root@<machine-host>` or install the packages
 listed in [VMs](/docs/payloads/vms#host-requirements).
 
+On a VM-capable Debian/Ubuntu host, interactive `yeet init` can also ask to
+prepare VM LAN bridge support. Say yes when you plan to run VMs with
+`--net=lan`. Say no to defer it; the first VM LAN create prompts again before
+it creates the VM service.
+
 If KVM and TUN/TAP are available and the required tools are present, create a
 disposable VM:
 
@@ -179,6 +184,18 @@ yeet run yeet-smoke-lan nginx:alpine --net=lan
 yeet ip yeet-smoke-lan
 yeet rm --clean yeet-smoke-lan
 ```
+
+For VM LAN networking, run the same idea with a disposable VM:
+
+```bash
+yeet run yeet-smoke-vm-lan vm://ubuntu/26.04 --net=lan
+yeet ip yeet-smoke-vm-lan
+yeet rm --clean yeet-smoke-vm-lan
+```
+
+If the host needs a bridge, yeet prompts before creating the VM. Applying the
+bridge can briefly interrupt host networking. If the command disconnects during
+that step, wait for the host to come back and rerun the same command.
 
 ZFS-backed service roots require an existing parent dataset. Skip this if you
 do not plan to use ZFS.
