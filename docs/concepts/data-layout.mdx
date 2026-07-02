@@ -9,10 +9,9 @@ host or plan service roots.
 
 ## Data directory
 
-Use `catch --data-dir` to set the catch data directory. When yeet installs
-catch, it starts the service with an explicit host data directory.
-Manual catch runs default to a `data` directory under the current working
-directory.
+Fresh `yeet init` installs default to `$HOME/yeet-data` on the catch host.
+Interactive init asks before using that path. Manual catch runs use the same
+default unless you pass `catch --data-dir`.
 
 ```text
 <data-dir>/
@@ -23,7 +22,8 @@ directory.
   tsnet/
 ```
 
-Use [catch reference](/docs/cli/catch-cli) for catch flags.
+Use [Installation](/docs/getting-started/installation) for first-time host
+setup and [catch reference](/docs/cli/catch-cli) for manual catch flags.
 
 ## Service roots
 
@@ -83,6 +83,30 @@ yeet start <svc>
 
 Parent directories or parent datasets must already exist. `yeet service set`
 leaves the old root in place.
+
+## Reconfigure host storage
+
+Use `yeet host set` when you want to change the catch data directory or the
+default root for future services:
+
+```bash
+yeet host set --data-dir=/srv/yeet-data
+yeet host set --services-root=/srv/yeet-services --migrate-services=all
+yeet host set --zfs --data-dir=flash/yeet/data --services-root=flash/yeet/services --migrate-services=all
+```
+
+Changing the data directory copies catch state, reinstalls the catch unit, and
+restarts catch. Changing the default services root affects services that still
+live under the previous default root. With `--migrate-services=all`, yeet stops
+those services, moves their roots, updates catch, and starts services that were
+running before the move. With `--migrate-services=none`, those services stay at
+their current roots and continue to run there.
+
+If you omit `--migrate-services` in an interactive terminal, yeet asks whether
+to migrate affected services. With `--yes`, pass `--migrate-services=all` or
+`--migrate-services=none` explicitly. After a migration, yeet updates matching
+entries in the local `yeet.toml`; pass `--config ./yeet.toml` when you run the
+command outside the project directory.
 
 ## Local replay config
 

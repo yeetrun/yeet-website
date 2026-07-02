@@ -85,6 +85,18 @@ During first catch enrollment, interactive `yeet init` prompts for the
 Tailscale OAuth client secret unless you pass `--ts-client-secret=<secret>` or
 `--ts-auth-key=<key>`. Paste the secret from the Tailscale setup step.
 
+Fresh interactive installs also ask where catch should store host data. The
+default is `$HOME/yeet-data` on the catch host, with services under
+`$HOME/yeet-data/services`. If the host has ZFS, init can use datasets and
+create missing child datasets when the parent exists:
+
+```bash
+yeet init --zfs --data-dir=flash/yeet/data --services-root=flash/yeet/services root@<machine-host>
+```
+
+Rerunning `yeet init` for an existing catch install keeps the current storage
+layout and upgrades catch without asking the storage questions again.
+
 Interactive `yeet init` can also ask before installing missing Debian/Ubuntu
 packages. On VM-capable Debian/Ubuntu hosts, it can ask to prepare VM LAN
 bridge support too. `--install-docker` and `--install-vm-tools` are unattended
@@ -206,8 +218,9 @@ VM payloads:
 - TUN/TAP at `/dev/net/tun`.
 - `qemu-img`, `zstd`, `e2fsck`, `resize2fs`, `mount`, `umount`, and `ip`.
 
-ZFS is optional. Use it when you want dataset-backed service roots, snapshots,
-or fast VM disk clones. See [ZFS](/docs/concepts/zfs).
+ZFS is optional. Use it when you want dataset-backed host storage, service
+roots, snapshots, or fast VM disk clones. See
+[Data Layout](/docs/concepts/data-layout) and [ZFS](/docs/concepts/zfs).
 
 ## Manual catch install
 

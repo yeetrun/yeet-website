@@ -459,15 +459,44 @@ yeet init root@<machine-host>
 yeet init --ts-client-secret=<secret> root@<machine-host>
 yeet init --install-docker root@<machine-host>
 yeet init --install-docker --install-vm-tools root@<machine-host>
+yeet init --data-dir=/srv/yeet-data root@<machine-host>
+yeet init --zfs --data-dir=flash/yeet/data --services-root=flash/yeet/services root@<machine-host>
 yeet init --ts-auth-key=<key> root@<machine-host>
 yeet init
 ```
+
+Fresh interactive installs ask where catch should store host data. The default
+is `$HOME/yeet-data` on the catch host, with services under that data
+directory. Existing catch installs keep their current storage layout when you
+rerun `yeet init`.
 
 On supported Debian/Ubuntu VM hosts, interactive `yeet init` can also prepare
 `br0` for VM `--net=lan` networking after confirmation.
 
 Use [Installation](/docs/getting-started/installation) for the full bootstrap
 flow.
+
+### `host set`
+
+Change catch host storage after install:
+
+```bash
+yeet host set --data-dir=/srv/yeet-data
+yeet host set --services-root=/srv/yeet-services --migrate-services=none
+yeet host set --zfs --data-dir=flash/yeet/data --services-root=flash/yeet/services --migrate-services=all
+```
+
+Use `--data-dir` for catch state and registry data. Use `--services-root` for
+the default root of services that do not have their own explicit root. If you
+change `--services-root`, choose `--migrate-services=all` to move affected
+services or `--migrate-services=none` to pin them at their existing roots.
+
+Without `--yes`, yeet prints the plan and asks before applying it. If
+`--migrate-services` is omitted in an interactive terminal, yeet asks whether
+to migrate affected services. With `--yes`, pass the migration mode explicitly.
+
+When services move, yeet updates matching entries in the local `yeet.toml`.
+Pass `--config ./yeet.toml` when the project config is somewhere else.
 
 ### `upgrade`
 

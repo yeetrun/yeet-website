@@ -82,6 +82,9 @@ During first setup, `yeet init` prompts for the Tailscale OAuth client secret
 unless you pass `--ts-client-secret=<secret>` or `--ts-auth-key=<key>`. Paste
 the secret you created in the previous step.
 
+Fresh installs also ask where catch should store host data. The default is
+`$HOME/yeet-data` on the catch host, with services under that path.
+
 If the tailnet policy is not ready, finish
 [Tailscale Setup](/docs/concepts/tailscale#first-time-host-setup) before
 running `yeet init`.
