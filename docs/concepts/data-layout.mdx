@@ -90,10 +90,15 @@ Use `yeet host set` when you want to change the catch data directory or the
 default root for future services:
 
 ```bash
+yeet info
 yeet host set --data-dir=/srv/yeet-data
 yeet host set --services-root=/srv/yeet-services --migrate-services=all
 yeet host set --zfs --data-dir=flash/yeet/data --services-root=flash/yeet/services --migrate-services=all
 ```
+
+Run `yeet info` to inspect the current host data directory, services root, catch
+service root, and service/VM inventory. Use `yeet info --host=<catch-host>` when
+you want to inspect a host other than the current default.
 
 Changing the data directory copies catch state, reinstalls the catch unit, and
 restarts catch. Changing the default services root affects services that still

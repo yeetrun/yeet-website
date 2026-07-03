@@ -128,9 +128,12 @@ yeet status <svc>@<catch-host>
 
 ### `info`
 
-Show detailed service information:
+Show host storage and inventory, or detailed service information when a service
+is supplied:
 
 ```bash
+yeet info
+yeet info --host=<catch-host>
 yeet info <svc>
 yeet info <svc> --format=json
 ```
@@ -481,6 +484,7 @@ flow.
 Change catch host storage after install:
 
 ```bash
+yeet info
 yeet host set --data-dir=/srv/yeet-data
 yeet host set --services-root=/srv/yeet-services --migrate-services=none
 yeet host set --zfs --data-dir=flash/yeet/data --services-root=flash/yeet/services --migrate-services=all
@@ -490,6 +494,8 @@ Use `--data-dir` for catch state and registry data. Use `--services-root` for
 the default root of services that do not have their own explicit root. If you
 change `--services-root`, choose `--migrate-services=all` to move affected
 services or `--migrate-services=none` to pin them at their existing roots.
+Run `yeet info` before or after the change to see the current host data
+directory, services root, catch service root, and service/VM inventory.
 
 With `--zfs`, `--data-dir` and `--services-root` are dataset names. A ZFS
 services root is a dataset prefix, so migrated services and `catch` use child
