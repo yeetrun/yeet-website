@@ -3,6 +3,20 @@ title: Changelog
 description: Short notes for yeet + catch releases.
 ---
 
+## July 3, 2026
+
+### v0.9.0
+
+- New catch installs now ask where host data should live, default to
+  `$HOME/yeet-data`, and can use ZFS datasets for the catch data directory and
+  default services root.
+- `yeet host set` can reconfigure an existing catch host's data directory or
+  services root, migrate affected services, update matching `yeet.toml`
+  entries, and keep ZFS-backed services under per-service child datasets.
+- `yeet info` without a service now shows host storage paths, the catch service
+  root, and service/VM inventory; service info is quieter, and catch isolates
+  service resolver state more reliably.
+
 ## June 28, 2026
 
 ### v0.8.21
