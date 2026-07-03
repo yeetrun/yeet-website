@@ -31,6 +31,10 @@ yeet run <svc> ./compose.yml --service-root=tank/apps/<svc> --zfs
 Parent datasets must already exist. If the dataset already exists or its
 mountpoint already contains files, catch prints a warning and deploys into it.
 
+For host-wide storage, `yeet init --zfs` and `yeet host set --zfs` treat the
+services-root dataset as a prefix. Services under that default root, including
+`catch`, use child datasets such as `tank/apps/<svc>`.
+
 `yeet.toml` records the service-root intent for future deploys. If another
 checkout changes the live service root, sync it back:
 

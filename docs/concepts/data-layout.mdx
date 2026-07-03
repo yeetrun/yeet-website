@@ -102,6 +102,10 @@ those services, moves their roots, updates catch, and starts services that were
 running before the move. With `--migrate-services=none`, those services stay at
 their current roots and continue to run there.
 
+With `--zfs`, `--data-dir` and `--services-root` are dataset names. The
+services root is a dataset prefix: migrated services and `catch` use child
+datasets such as `flash/yeet/services/<svc>`.
+
 If you omit `--migrate-services` in an interactive terminal, yeet asks whether
 to migrate affected services. With `--yes`, pass `--migrate-services=all` or
 `--migrate-services=none` explicitly. After a migration, yeet updates matching

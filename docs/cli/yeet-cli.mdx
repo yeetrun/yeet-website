@@ -491,6 +491,10 @@ the default root of services that do not have their own explicit root. If you
 change `--services-root`, choose `--migrate-services=all` to move affected
 services or `--migrate-services=none` to pin them at their existing roots.
 
+With `--zfs`, `--data-dir` and `--services-root` are dataset names. A ZFS
+services root is a dataset prefix, so migrated services and `catch` use child
+datasets such as `flash/yeet/services/<svc>`.
+
 Without `--yes`, yeet prints the plan and asks before applying it. If
 `--migrate-services` is omitted in an interactive terminal, yeet asks whether
 to migrate affected services. With `--yes`, pass the migration mode explicitly.
