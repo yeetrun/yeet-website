@@ -5,6 +5,15 @@ description: Short notes for yeet + catch releases.
 
 ## July 4, 2026
 
+### v0.9.2
+
+- `yeet run --web` now preselects the same service-root and ZFS defaults as
+  `yeet run`, including ZFS-backed services roots discovered from the selected
+  catch host.
+- The web deploy form now treats `<service>` as placeholder text until a
+  service name is entered, keeps the service root synced as you type, and waits
+  to validate storage fields until a service name exists.
+
 ### v0.9.1
 
 - Project-wide `yeet status` is much faster on hosts with many services because
