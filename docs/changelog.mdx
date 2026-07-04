@@ -3,6 +3,18 @@ title: Changelog
 description: Short notes for yeet + catch releases.
 ---
 
+## July 4, 2026
+
+### v0.9.1
+
+- Project-wide `yeet status` is much faster on hosts with many services because
+  catch now reads Docker, systemd, and VM status in bulk instead of probing each
+  service one at a time, and `yeet status <svc-a> <svc-b>` can now show any mix
+  of configured services, payload types, and VMs across hosts.
+- `yeet status --format=json` and `--format=json-pretty` now work from a
+  service workspace with multiple configured hosts, returning grouped status for
+  every host in the project.
+
 ## July 3, 2026
 
 ### v0.9.0
