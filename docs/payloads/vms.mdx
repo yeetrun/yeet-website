@@ -1,6 +1,6 @@
 ---
 title: VMs
-description: Create and manage Firecracker-backed Linux VM services.
+description: Create long-lived Linux guests when a container is the wrong box.
 ---
 
 Use a VM payload when a workload needs a long-lived Linux guest, its own init
@@ -8,6 +8,11 @@ system, or stronger isolation than a container.
 
 VM payloads require a Linux catch host with KVM. If you are setting up a host
 for the first time, run the container smoke test before starting here.
+
+VMs are useful because they are real machines. They are also annoying because
+they are real machines. They boot, consume memory, own disks, have networking,
+and keep secrets in places containers usually do not. Use them when that is the
+tradeoff you actually want.
 
 Run VM creation commands from a
 [Service Workspace](/docs/getting-started/service-workspace). The first
@@ -37,7 +42,8 @@ yeet ssh <vm>
 
 `yeet run` creates the VM service. It is not the update path for an existing VM
 with the same name. Use `yeet vm set` for supported changes, or remove and
-recreate the VM when you want a fresh guest.
+recreate the VM when you want a fresh guest. A VM has state; redeploying it
+like a stateless container would be a neat way to lose the plot.
 
 Override the starting shape when needed:
 
@@ -49,7 +55,8 @@ yeet run <vm> vm://ubuntu/26.04 --vcpus=4 --memory=4g --disk=128g
 
 `--memory` is the VM's maximum RAM. New VMs enable Firecracker ballooning by
 default, so catch can reclaim guest memory under host pressure without lowering
-the configured maximum.
+the configured maximum. This is a pressure valve, not a promise that memory is
+infinite.
 
 Set the minimum floor when you create the VM:
 
@@ -72,7 +79,7 @@ yeet vm set <vm> --balloon=off
 
 Host memory policy defaults to `safe`, which admits VMs against their maximum
 RAM. Opt into controlled overcommit only when you want catch to use VM memory
-floors for admission:
+floors for admission. Overcommit is a capacity bet. Make it on purpose:
 
 ```bash
 yeet vm memory set --policy=balanced
@@ -88,7 +95,9 @@ yeet run <vm> vm://ubuntu/26.04 --net=svc
 ```
 
 Use `lan` when the VM should request a LAN or VLAN address through DHCP. The VM
-uses that network's gateway and DNS for ordinary internet access:
+uses that network's gateway and DNS for ordinary internet access. If that
+network has bad DHCP, bad DNS, or no gateway, the VM faithfully inherits the
+mess:
 
 ```bash
 yeet run <vm> vm://ubuntu/26.04 --net=lan
@@ -103,7 +112,8 @@ Interactive `yeet init` offers that bridge preparation when VM support is
 available. You can also skip it during init; the first `yeet run <vm> ...
 --net=lan` prompts before creating VM files or database state. If the host
 briefly drops the connection while applying the bridge, wait for it to come
-back and rerun the same `yeet run` command.
+back and rerun the same `yeet run` command. Bridge changes are real host
+network changes, not decorative YAML.
 
 Use `svc,lan` when the VM needs host LAN access and should still keep a
 catch-managed fallback path:
@@ -120,7 +130,8 @@ yeet ssh --force-proxy <vm>
 ```
 
 VM network modes do not include `ts`. If the guest needs its own Tailscale
-identity, install and configure Tailscale inside the guest.
+identity, install and configure Tailscale inside the guest. At that point the
+guest is the actor joining the tailnet, which is the right boundary.
 
 See [Networking](/docs/concepts/networking) and [DNS](/docs/concepts/dns) for
 service-network names and LAN behavior.
@@ -146,7 +157,7 @@ yeet vm console <vm>
 ```
 
 Detach from the console by pressing Enter, then typing `~.`. The VM keeps
-running.
+running. The console is a window into the guest, not a lifecycle command.
 
 Copy files with VM endpoints:
 
@@ -172,6 +183,7 @@ yeet start <vm>
 ```
 
 Disk changes are grow-only. Shrinking disks and live resize are not supported.
+Disks are where optimism goes to meet filesystems.
 
 For VLAN-tagged LAN networking:
 
@@ -205,7 +217,8 @@ network.
 
 Many VPS providers do not expose nested virtualization. Use containers,
 binaries, scripts, and cron jobs on those hosts, and run VMs on a KVM-capable
-machine.
+machine. This is not a yeet limitation so much as physics with a provider
+invoice.
 
 ## Image cache
 
@@ -221,7 +234,8 @@ yeet vm images prune --dry-run
 ```
 
 `yeet vm images update` refreshes official image families for future VM
-creates. It does not rewrite existing VM disks.
+creates. It does not rewrite existing VM disks. Existing VMs are stateful
+guests, not templates waiting to be surprised.
 
 When creating a VM with a stale cached image, interactive runs prompt by
 default. For non-interactive runs, choose explicitly:
@@ -247,7 +261,8 @@ yeet run <vm> vm://ubuntu/26.04 --service-root=tank/vms/<vm> --zfs
 ```
 
 For ZFS-backed VMs, yeet can clone a shared image base on the same pool instead
-of writing the root filesystem again. Raw VM disks work without ZFS.
+of writing the root filesystem again. Raw VM disks work without ZFS. Faster
+clone paths are useful; optional dependencies are still optional.
 
 See [ZFS](/docs/concepts/zfs) for dataset, snapshot, and cleanup behavior.
 
@@ -268,7 +283,8 @@ yeet snapshots inspect <vm> <snapshot>
 ```
 
 Clone first when you want to inspect a recovered disk without changing the
-original VM:
+original VM. It is the recovery version of "measure twice, cut once," except
+with less woodworking and more panic avoidance:
 
 ```bash
 yeet snapshots clone <vm> <snapshot> <new-vm>
@@ -292,7 +308,8 @@ yeet snapshots restore <vm> <snapshot> --mode=full --stop --yes
 ```
 
 Use disk restore unless you specifically need to resume from a Firecracker
-checkpoint.
+checkpoint. Full checkpoints are powerful and specific; do not reach for them
+just because the word "full" sounds safer.
 
 ## Import a local VM image
 
@@ -307,7 +324,8 @@ yeet run devbox vm://lab/ubuntu
 The import directory must contain `rootfs.ext4` or `rootfs.ext4.zst`. If it
 also contains a yeet VM `manifest.json`, yeet uses the guest settings from that
 manifest. Re-importing the same image name affects new VMs only; existing VMs
-keep the image version from their original create.
+keep the image version from their original create. Image names are cache keys
+for future guests, not remote-control handles for existing ones.
 
 Remove an imported image:
 
@@ -330,7 +348,8 @@ yeet rm --clean <vm>
 ```
 
 For ZFS-backed VMs, cleanup removes the VM clone and service data. It does not
-remove shared image bases that future VMs can reuse.
+remove shared image bases that future VMs can reuse. Shared bases are cache
+state, not the guest you just removed.
 
 ## Related docs
 

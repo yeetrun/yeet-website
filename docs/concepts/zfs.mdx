@@ -1,11 +1,15 @@
 ---
 title: ZFS
-description: ZFS-backed service roots, snapshots, and VM disk clones.
+description: Use datasets, snapshots, and VM disk clones when storage needs sharper edges.
 ---
 
 ZFS support is optional. Yeet works without it, but ZFS is useful when you want
 service roots on named datasets, pre-change snapshots, or fast VM disk clones
 on a ZFS pool.
+
+Do not start here because ZFS sounds serious. Start here when the recovery
+model matters. Storage is the part of infrastructure that quietly becomes
+permanent, then loudly explains your earlier optimism.
 
 ## Where ZFS applies
 
@@ -16,7 +20,8 @@ ZFS is a storage choice, not a payload type. It can back:
 - Yeet-managed snapshots before risky service changes.
 - Shared VM image bases for faster ZFS-backed VM creates.
 
-Use raw filesystem paths when you do not need those behaviors.
+Use raw filesystem paths when you do not need those behaviors. A simple path is
+not a moral failure.
 
 ## Service roots
 
@@ -30,6 +35,7 @@ yeet run <svc> ./compose.yml --service-root=tank/apps/<svc> --zfs
 
 Parent datasets must already exist. If the dataset already exists or its
 mountpoint already contains files, catch prints a warning and deploys into it.
+That warning is worth reading; existing files are existing state.
 
 For host-wide storage, `yeet init --zfs` and `yeet host set --zfs` treat the
 services-root dataset as a prefix. Services under that default root, including
@@ -53,7 +59,8 @@ older than 7 days, and runs before these events:
 - `service-root-migration`
 
 Yeet skips first deploys because there is no prior service state to recover.
-Catch prunes only snapshots it created for that service.
+Catch prunes only snapshots it created for that service. The snapshot policy is
+a safety rail, not a backup strategy with a hat on.
 
 ```bash
 yeet snapshots defaults show
@@ -119,7 +126,8 @@ yeet snapshots rm <svc> <snapshot> --yes
 ## Recovery workflow
 
 Use `clone` first when you want to inspect a recovery point or copy files out
-without changing the original service:
+without changing the original service. This is the calm path: inspect first,
+mutate later.
 
 ```bash
 yeet snapshots clone <svc> <snapshot> <svc>-recover
@@ -134,7 +142,8 @@ yeet snapshots restore <svc> <snapshot> --stop --yes
 
 `restore` creates a pre-restore recovery point before it mutates ZFS state. If
 the restore does not produce the result you expected, inspect the new
-pre-restore point before making another change.
+pre-restore point before making another change. Stacking guesses on top of a
+bad restore is how recovery turns into archaeology.
 
 Snapshots recover storage state. Service generations recover deployed
 definitions and install artifacts. The default `--generation=current` keeps
@@ -154,7 +163,8 @@ yeet service set <svc> --service-root=tank/apps/<svc> --zfs --empty
 ```
 
 Use `--copy` to copy the old root into the new dataset, or `--empty` to create
-a new empty root. `yeet service set` leaves the old root in place.
+a new empty root. `yeet service set` leaves the old root in place. That is a
+deliberate breadcrumb until you decide the migration is good.
 
 ## ZFS-backed VMs
 
@@ -166,7 +176,8 @@ yeet run <vm> vm://ubuntu/26.04 --service-root=tank/vms/<vm> --zfs
 
 The first VM created on a pool for an image family/version prepares a shared
 ZFS image base. Later VMs on the same pool and image family/version clone that
-base instead of writing the root filesystem again.
+base instead of writing the root filesystem again. This is where ZFS stops
+being fancy and starts being faster.
 
 When a newer VM image enters the cache, yeet keeps ZFS image bases that VM
 clones still use and prunes only old unreferenced bases. Use
@@ -193,7 +204,8 @@ If ZFS is present for VM disk setup, the host also needs `udevadm`.
 
 Use ZFS when you want named datasets, storage-level recovery points, or faster
 repeat VM creates on the same pool. Skip it for simple services where a normal
-filesystem path is enough.
+filesystem path is enough. The best storage feature is the one you can actually
+operate.
 
 ## Related docs
 

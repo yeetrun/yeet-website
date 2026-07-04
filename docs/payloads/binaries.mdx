@@ -1,10 +1,14 @@
 ---
 title: Binaries & Scripts
-description: Deploy local executables and shebang scripts as host systemd services.
+description: Run one host process from a local executable or shebang script.
 ---
 
 Binary and script payloads become systemd services on the catch host. Use this
 path for a single long-running process that does not need a container.
+
+This is the direct path. Build or write the thing, hand it to yeet, and catch
+installs it as a host service. There is less packaging here, which is nice,
+and more dependence on the host environment, which is the bill.
 
 Run these commands from a
 [Service Workspace](/docs/getting-started/service-workspace). The first
@@ -22,7 +26,9 @@ yeet run <svc> ./bin/<svc>
 
 ## Scripts
 
-Scripts need a shebang and executable-compatible contents for the host.
+Scripts need a shebang and executable-compatible contents for the host. If the
+shebang points at an interpreter the host does not have, the service will fail
+exactly as requested.
 
 ```bash
 yeet run <svc> ./script.sh
@@ -36,6 +42,8 @@ runs.
 
 Rebuild or edit the local payload, then re-run `yeet run`. For an existing
 service, a payload-only redeploy reuses saved run options from `yeet.toml`.
+That is useful because the binary changes more often than the network, root,
+or env-file decision.
 
 ```bash
 yeet run <svc> ./bin/<svc>
@@ -53,7 +61,8 @@ yeet run --force <svc> ./bin/<svc>
 
 Binary and script services can use a ZFS dataset as their service root. This is
 useful when the process writes persistent data and you want yeet-managed
-snapshots before redeploys.
+snapshots before redeploys. If the process is stateless, a normal path is
+probably enough.
 
 ```bash
 yeet run <svc> ./bin/<svc> --service-root=tank/apps/<svc> --zfs
@@ -73,7 +82,8 @@ yeet copy ./config.yml <svc>:config/config.yml
 ```
 
 When you pass `--env-file` during `yeet run`, yeet stores the env file path in
-`yeet.toml` and re-uploads it on future runs.
+`yeet.toml` and re-uploads it on future runs. Keep that env file in the
+workspace so the deploy recipe does not depend on a random absolute path.
 
 ```bash
 yeet run --env-file=prod.env <svc> ./bin/<svc>
@@ -101,4 +111,5 @@ yeet rm --clean <svc>
 
 `--clean` removes the managed service data root and local `yeet.toml` entry in
 addition to uninstalling the systemd service. Read the confirmation prompt
-before accepting.
+before accepting. Uninstalling a unit and deleting its data are different
+operations for a reason.

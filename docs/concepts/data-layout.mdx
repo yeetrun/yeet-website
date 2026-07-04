@@ -1,17 +1,22 @@
 ---
 title: Data Layout
-description: Where catch stores service state and data.
+description: Where catch puts live host state, service roots, generated files, and recovery points.
 ---
 
 Catch stores live state on each host under its data directory. You usually do
 not need to edit these files directly, but the layout helps when you inspect a
 host or plan service roots.
 
+This page exists because storage is where abstractions go to become facts. You
+do not need to memorize the tree. You should know which directory is disposable
+and which one contains the thing you will be sad to delete.
+
 ## Data directory
 
 Fresh `yeet init` installs default to `$HOME/yeet-data` on the catch host.
 Interactive init asks before using that path. Manual catch runs use the same
-default unless you pass `catch --data-dir`.
+default unless you pass `catch --data-dir`. Pick a path you are willing to back
+up, monitor, and explain later.
 
 ```text
 <data-dir>/
@@ -63,7 +68,8 @@ Inside a service root, the common directories are:
 ## Moving roots
 
 `yeet run` can set the root for a new service. Stop an existing service before
-moving its root with `yeet service set`:
+moving its root with `yeet service set`. Moving storage while the process is
+writing to it is not clever. It is a race condition with better marketing.
 
 ```bash
 yeet stop <svc>
@@ -82,12 +88,14 @@ yeet start <svc>
 ```
 
 Parent directories or parent datasets must already exist. `yeet service set`
-leaves the old root in place.
+leaves the old root in place. That old root is not cleanup debt by accident; it
+is a rollback handle until you decide otherwise.
 
 ## Reconfigure host storage
 
 Use `yeet host set` when you want to change the catch data directory or the
-default root for future services:
+default root for future services. This is a host-level change, so inspect first
+and read the plan before applying it:
 
 ```bash
 yeet info
@@ -120,7 +128,8 @@ command outside the project directory.
 ## Local replay config
 
 `yeet.toml` stores the local recipe for future runs. Catch stores the live root
-on the host.
+on the host. The split is useful until it drifts; then it is a queue of future
+surprises.
 
 If another checkout changes live service settings, sync them back:
 

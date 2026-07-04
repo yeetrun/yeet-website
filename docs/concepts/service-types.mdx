@@ -1,11 +1,15 @@
 ---
 title: Service Types
-description: Payload detection and installation behavior for yeet services.
+description: How yeet decides what kind of service a payload becomes.
 ---
 
 Yeet detects payload type and installs the service accordingly. This page is
 the compact detection reference. For step-by-step usage, start with
 [Payloads](/docs/payloads).
+
+The detection rules are intentionally boring: file shape in, service type out.
+That is the point. You should be able to look at a payload and predict which
+host mechanism catch will use before the command changes anything.
 
 <CardLinks
   cards={[
@@ -37,11 +41,15 @@ the compact detection reference. For step-by-step usage, start with
 - ELF or Mach-O binary.
 - Catch installs it as a systemd service on the host.
 - Use `yeet run <svc> ./bin/<svc>`.
+- Build for the catch host architecture first, because systemd is not an
+  emulator.
 
 ## Script
 
 - Shebang file (e.g., `#!/usr/bin/env bash`).
 - Catch treats it like a binary and installs it as a systemd service.
+- The interpreter must exist on the host. The shebang is a contract, not a
+  suggestion.
 
 ## Docker Compose
 
@@ -99,3 +107,5 @@ the compact detection reference. For step-by-step usage, start with
 - Architecture must match the target host; mismatches fail early.
 - [ZFS](/docs/concepts/zfs) is storage backing for service roots and VM disks,
   not a service type.
+- If a service already exists, its type is fixed. Replace it with a new service
+  name or remove the old one first.

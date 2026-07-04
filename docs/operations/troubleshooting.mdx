@@ -1,11 +1,15 @@
 ---
 title: Troubleshooting
-description: Common failures and how to fix them.
+description: Start from the symptom, then check the boundary that usually breaks.
 ---
 
 Start with the symptom you see. If this is a fresh host, run
 [First-Run Validation](/docs/getting-started/first-run-validation) after fixing
 the first connection problem.
+
+Most failures happen at a boundary: workstation to catch, catch to Docker,
+service to network, VM to KVM, or local config to live state. Debug the boundary
+first. Random retries are just latency with a command prompt.
 
 ## yeet cannot reach catch
 
@@ -16,7 +20,7 @@ CATCH_HOST=<catch-host> yeet status
 yeet --host=<catch-host> status
 ```
 
-Then check:
+Then check the layers in order:
 
 - The catch tsnet node exists in Tailscale.
 - The node has a tag such as `tag:catch`.
@@ -36,7 +40,8 @@ tailnet policy shape.
 ## `yeet init` says catch needs a tag
 
 Catch rejects user-owned tsnet nodes. It must join the tailnet with a tag-based
-identity.
+identity. That rule is not cosmetic; it keeps the daemon in the server side of
+the trust model.
 
 Fix the Tailscale policy first, then rerun init:
 
@@ -60,7 +65,8 @@ yeet init --install-docker --ts-auth-key=<key> root@<machine-host>
 ## `yeet init` got a different catch hostname
 
 Tailscale assigned a suffix such as `catch-1` because another device already
-owns the requested hostname.
+owns the requested hostname. This is not random naming. It is stale or
+conflicting state showing up as DNS.
 
 Use the assigned catch host:
 
@@ -97,7 +103,8 @@ See [Containers](/docs/payloads/containers) for update and image workflows.
 ## Published port changes fail
 
 `yeet service set` protects the full published-port list. Include every mapping
-you want to keep:
+you want to keep. Otherwise you are not adding a port; you are replacing the
+list with a smaller one:
 
 ```bash
 yeet service set vaultwarden -p 80:80 -p 443:443
@@ -123,7 +130,8 @@ yeet ip <svc>
 
 For `svc` networking, `yeet info` and `yeet ip` should show private
 service-network addresses. For `lan`, the host network must support macvlan and
-DHCP. A WAN-only VPS usually should not use `lan`.
+DHCP. A WAN-only VPS usually should not use `lan`. No LAN, no LAN address. It
+is rude, but clear.
 
 If the service was running before a network change, restart it:
 
@@ -143,7 +151,8 @@ yeet info <svc>
 yeet ip <svc>
 ```
 
-Use the mode to choose the next check:
+Use the mode to choose the next check. Egress follows the network mode, not the
+hope you had while typing it:
 
 - `svc` and `svc,ts` use the catch host's gateway for ordinary internet
   access. Confirm the catch host itself can reach the internet.
@@ -156,6 +165,7 @@ Use the mode to choose the next check:
 ## Yeet DNS names do not resolve
 
 Yeet DNS only publishes names for services and VMs using `svc` networking.
+Without a `svc` address, there is no record to publish.
 
 Check the resolver from a service or VM on the service network:
 
@@ -193,7 +203,8 @@ See [VMs](/docs/payloads/vms) for image cache and console diagnostics.
 
 ## Binary architecture mismatch
 
-Build binaries for the catch host architecture:
+Build binaries for the catch host architecture. If the CPU cannot execute the
+file, no amount of service management will make it brave:
 
 ```bash
 GOOS=linux GOARCH=amd64 go build -o ./bin/<svc> ./cmd/<svc>
@@ -205,7 +216,7 @@ Use the host's actual architecture when it is not amd64.
 ## `edit` fails without a TTY
 
 `yeet edit` and `yeet env edit` launch an editor. Run them from an interactive
-shell.
+shell. Editors are TTY-shaped problems.
 
 ## Staged changes are confusing
 
@@ -229,7 +240,8 @@ yeet stage <svc> clear
 
 ## `copy` destination errors
 
-One side of a copy must be remote, such as `<svc>:path` or `<vm>:path`.
+One side of a copy must be remote, such as `<svc>:path` or `<vm>:path`. Local to
+local copy already has a tool; it is called `cp`.
 
 Examples:
 
@@ -245,7 +257,8 @@ Remote service paths are relative to the service data directory.
 
 Yeet fixes a service type after the first install. If you installed a service
 as Compose, you cannot later replace it with a binary using the same service
-name.
+name. The live service has a shape, and yeet does not silently swap it under
+the same name.
 
 Choose a new service name, or remove the old service first:
 
@@ -254,4 +267,5 @@ yeet rm <svc>
 ```
 
 Use `--clean` only when you also want to delete the service data and remove the
-local `yeet.toml` entry.
+local `yeet.toml` entry. Data deletion is a separate decision, not a louder
+version of "try again."

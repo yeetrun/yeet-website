@@ -1,10 +1,14 @@
 ---
 title: Configuration & Prefs
-description: Client preferences, project config, and environment variables.
+description: Where local defaults live, and which file yeet trusts when it reruns a service.
 ---
 
 Use this page when you need to see where yeet stores client preferences and
 project defaults.
+
+There are two kinds of local state. Preferences answer "what host do I usually
+mean?" Project config answers "how do I replay this set of services?" Mixing
+those is how defaults become spooky action at a distance.
 
 ## Client prefs
 
@@ -23,7 +27,9 @@ Schema:
 ```
 
 `defaultHost` is the **catch host** (Tailscale/tsnet hostname) that yeet uses
-when you do not specify a host with `@<host>`, `--host`, or `yeet.toml`. See
+when you do not specify a host with `@<host>`, `--host`, or `yeet.toml`. This
+is not the SSH machine host from `yeet init`; it is the operating target after
+catch is installed. See
 [Tailscale](/docs/concepts/tailscale) for details.
 
 Commands:
@@ -36,7 +42,11 @@ yeet prefs --save
 ## Project config (`yeet.toml`)
 
 When you run yeet from a project directory, it can persist service defaults in
-a `yeet.toml` file. For homelab services, use a
+a `yeet.toml` file. This file is the replay recipe for the services in that
+directory. It is deliberately plain text because deployment state should not
+require mind reading.
+
+For homelab services, use a
 [Service Workspace](/docs/getting-started/service-workspace) so Compose files,
 env files, Dockerfiles, scripts, binaries, and `yeet.toml` stay together.
 
@@ -82,6 +92,10 @@ Notes:
   these are the binary args after `--`.
 - `schedule` is the 5-field cron expression for `type = "cron"`.
 - `hosts` controls host-scoped commands like `yeet status` with no args.
+
+If the live host state changes from another checkout, use `yeet service sync`
+instead of editing around the drift by hand. Hand-edited drift is still drift;
+it just has fingerprints.
 
 ## Environment variables
 

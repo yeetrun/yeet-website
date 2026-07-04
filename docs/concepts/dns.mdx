@@ -1,11 +1,15 @@
 ---
 title: DNS
-description: Service discovery for yeet services and VMs.
+description: How services on the private yeet network find each other without hard-coded IPs.
 ---
 
 Yeet DNS lets services and VMs on `svc` networking reach each other by name
 instead of hard-coding private IP addresses. `svc` networking also gives the
 workload ordinary outbound internet through the catch host.
+
+DNS here is intentionally narrow. It is not a tailnet-wide naming system and it
+is not a replacement for your LAN resolver. It is the private phone book for
+workloads that joined the yeet service network.
 
 ## What resolves
 
@@ -26,7 +30,8 @@ postgres://postgres:5432/app
 
 Services without `svc` networking do not get yeet DNS records. Use `svc,ts`
 instead of plain `ts` when a Tailscale-exposed service also needs yeet DNS,
-private service traffic, or catch-host internet egress.
+private service traffic, or catch-host internet egress. Plain `ts` is not
+"svc, but cooler." It is a different network path.
 
 ## Resolver address
 
@@ -44,7 +49,9 @@ dig @192.168.100.1 web.yeet.internal A +short
 ```
 
 Yeet forwards ordinary external names through the catch host's resolver. It
-forwards tailnet names under `*.ts.net` to Tailscale DNS.
+forwards tailnet names under `*.ts.net` to Tailscale DNS. In other words, the
+service network gets useful names without becoming the only resolver in the
+room.
 
 ## Containers
 
@@ -101,6 +108,7 @@ dig @192.168.100.1 <svc>.yeet.internal A +short
 ```
 
 If the query returns nothing, the service probably does not have a `svc` network
-address yet. Redeploy or update the service networking, then check again.
+address yet. Redeploy or update the service networking, then check again. The
+resolver cannot publish a service that never joined its network.
 
 See [Networking](/docs/concepts/networking) for mode selection.

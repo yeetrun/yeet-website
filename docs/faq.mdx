@@ -1,6 +1,6 @@
 ---
 title: FAQ
-description: Short answers to common yeet questions.
+description: Short answers to the questions people usually ask after the first deploy.
 ---
 
 ## Is this intended for general use?
@@ -9,6 +9,9 @@ Yeet targets homelab-style use by people comfortable operating Linux hosts over
 SSH. It is not a general-purpose platform or a multi-tenant orchestrator: use
 Linux/systemd hosts, Tailscale/tsnet connectivity, and a single-operator trust
 model.
+
+In other words: yeet is for infrastructure you control. It is not a way to make
+unsafe trust boundaries safe by naming them.
 
 ## Does yeet require Tailscale?
 
@@ -25,6 +28,9 @@ with [Tailscale Access Grants](/docs/security/tailscale-access-grants).
 
 Yes. This is acceptable for a single-operator homelab, but not recommended for
 shared or multi-tenant environments.
+
+This is one of those details that is boring until it is the whole security
+model.
 
 ## Can I use docker compose?
 
@@ -58,9 +64,11 @@ The machine host is the SSH target for `yeet init`, such as
 install. Use the catch host with `CATCH_HOST`, `--host`, and
 `<svc>@<catch-host>`.
 
+SSH installs the daemon. Tailscale operates it. That split is the model.
+
 ## What deletes data?
 
 `yeet rm <svc>` removes the service but keeps service data. It prompts before
 removing the local config entry. Use `yeet rm --clean <svc>` when you also want
 to delete the managed data root or VM disk and remove the local `yeet.toml`
-entry.
+entry. Read the prompt; data deletion is not a place for optimistic clicking.

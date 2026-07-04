@@ -1,10 +1,14 @@
 ---
 title: Installation
-description: Install yeet locally and bootstrap catch on a remote host.
+description: Install yeet locally, install catch on a host, and keep the two host names straight.
 ---
 
-Install yeet on your workstation, then use `yeet init` to install catch on a
+Install `yeet` on your workstation, then use `yeet init` to install `catch` on a
 Linux host you control.
+
+There are two phases. First, SSH gets catch onto the machine. After that,
+Tailscale is the control path. Mixing those names up is the fastest way to make
+a working install look broken.
 
 ## Host names
 
@@ -16,7 +20,8 @@ Yeet uses two host names during setup:
   starts.
 
 Use the machine host for installation. Use the catch host with `CATCH_HOST`,
-`--host`, and `<svc>@<catch-host>` after installation.
+`--host`, and `<svc>@<catch-host>` after installation. The machine name answers
+"how do I SSH there?" The catch name answers "which daemon am I operating?"
 
 ## Install yeet
 
@@ -41,7 +46,8 @@ yeet --help
 ## Prepare Tailscale access
 
 Catch uses an embedded tsnet node. That node must join your tailnet with a tag,
-such as `tag:catch`. This is required before the first `yeet init`.
+such as `tag:catch`. This is required before the first `yeet init`. Yeet treats
+an untagged user-owned catch node as the wrong security model, because it is.
 
 Your tailnet policy must also grant the setup user access to catch on TCP port
 `41548` with the `yeetrun.com/app/yeet` app permissions `read`, `manage`, and
@@ -62,7 +68,8 @@ You have two choices:
   and service tags such as `tag:app`.
 
 Keep the `tskey-client-...` OAuth client secret ready. Interactive `yeet init`
-asks for it during first setup. Follow
+asks for it during first setup. This secret creates the catch node credential,
+so do not lose track of where it came from. Follow
 [Tailscale Setup](/docs/concepts/tailscale#first-time-host-setup) for the
 minimal policy snippet, and use
 [Tailscale Access Grants](/docs/security/tailscale-access-grants) when you are
@@ -87,15 +94,19 @@ Tailscale OAuth client secret unless you pass `--ts-client-secret=<secret>` or
 
 Fresh interactive installs also ask where catch should store host data. The
 default is `$HOME/yeet-data` on the catch host, with services under
-`$HOME/yeet-data/services`. If the host has ZFS, init can use datasets and
-create missing child datasets when the parent exists:
+`$HOME/yeet-data/services`. This directory is where live host state begins to
+accumulate, so treat it as infrastructure, not cache.
+
+If the host has ZFS, init can use datasets and create missing child datasets
+when the parent exists:
 
 ```bash
 yeet init --zfs --data-dir=flash/yeet/data --services-root=flash/yeet/services root@<machine-host>
 ```
 
 Rerunning `yeet init` for an existing catch install keeps the current storage
-layout and upgrades catch without asking the storage questions again.
+layout and upgrades catch without asking the storage questions again. The
+default is stability, not "surprise, your data moved."
 
 Interactive `yeet init` can also ask before installing missing Debian/Ubuntu
 packages. On VM-capable Debian/Ubuntu hosts, it can ask to prepare VM LAN
@@ -123,9 +134,9 @@ the host bridge. If you skip it, the first `yeet run <vm> ... --net=lan`
 prompts before creating the VM service.
 
 Use `--install-vm-tools` only on hosts that expose KVM and TUN/TAP. Many VPS
-providers do not expose nested virtualization. On hosts that are not VM
-capable, yeet warns and containers, binaries, scripts, and cron jobs still
-work.
+providers do not expose nested virtualization. That is a host constraint, not a
+motivational challenge. On hosts that are not VM capable, yeet warns and
+containers, binaries, scripts, and cron jobs still work.
 
 ## Run unattended setup
 
@@ -142,7 +153,8 @@ yeet init --install-docker --install-vm-tools --ts-auth-key=<key> root@<machine-
 ```
 
 The secret or auth key belongs to the catch node. Catch accepts connections only
-after the node has the required tag.
+after the node has the required tag. If the tag is wrong, the daemon may exist,
+but the access model is still not valid.
 
 ## Confirm the install
 
@@ -178,7 +190,8 @@ yeet upgrade
 
 When you run from a service workspace with `yeet.toml`, `yeet upgrade` includes
 all project catch hosts plus the default catch host. Use `--host=<catch-host>`
-only when you want to upgrade one catch host.
+only when you want to upgrade one catch host. Otherwise, the project file is the
+source of truth and yeet follows it.
 
 ```bash
 yeet upgrade --host=<catch-host>
@@ -219,11 +232,18 @@ VM payloads:
 - `qemu-img`, `zstd`, `e2fsck`, `resize2fs`, `mount`, `umount`, and `ip`.
 
 ZFS is optional. Use it when you want dataset-backed host storage, service
-roots, snapshots, or fast VM disk clones. See
+roots, snapshots, or fast VM disk clones. Skip it when a normal filesystem path
+is enough. Storage choices have a way of becoming permanent by Wednesday.
+
+See
 [Data Layout](/docs/concepts/data-layout) and [ZFS](/docs/concepts/zfs).
 
 ## Manual catch install
 
-Use `yeet init` unless you have a specific reason to install catch manually. If
-you do install catch yourself, see the [catch reference](/docs/cli/catch-cli)
-for catch flags such as `--data-dir` and `--tsnet-host`.
+Use `yeet init` unless you have a specific reason to install catch manually.
+Manual install gives you more rope and fewer guardrails, which is sometimes
+exactly what you need and often exactly what you regret.
+
+If you do install catch yourself, see the
+[catch reference](/docs/cli/catch-cli) for catch flags such as `--data-dir`
+and `--tsnet-host`.

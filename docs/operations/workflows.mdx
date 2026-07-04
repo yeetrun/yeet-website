@@ -1,6 +1,6 @@
 ---
 title: Workflows
-description: Common deploy and update flows for yeet.
+description: Common deploy, update, recovery, and cleanup loops.
 ---
 
 Use this page when you know what you want to do and need the command shape. For
@@ -9,6 +9,10 @@ payload-specific details, use the linked payload guide.
 For real homelab services, run these commands from a
 [Service Workspace](/docs/getting-started/service-workspace). Yeet reads and
 writes `yeet.toml` in the current directory.
+
+The pattern is deliberately repetitive: run the command, inspect status, read
+logs, then make the next change. Infrastructure gets easier when the feedback
+loop is short and visible.
 
 ## Deploy with the web form
 
@@ -23,7 +27,8 @@ yeet run --web <svc> ./compose.yml
 
 The form saves the same service config to `yeet.toml` that the CLI uses.
 Runtime errors appear in the browser and local terminal so you can edit and
-retry without restarting the command.
+retry without restarting the command. It is still the same deploy model, just
+with fewer flags in your short-term memory.
 
 ## Deploy a compose stack
 
@@ -60,7 +65,8 @@ yeet service set <svc> --publish-reset -p 443:443
 
 ## Push a local image
 
-Use this when you already built a container image on your workstation:
+Use this when you already built a container image on your workstation. Yeet
+pushes it to the catch host's registry and can run it from there:
 
 ```bash
 yeet docker push <svc> <local-image>:<tag> --run
@@ -75,7 +81,8 @@ yeet logs -f <svc>
 
 ## Deploy a binary or script
 
-Build binaries for the catch host architecture before deploying:
+Build binaries for the catch host architecture before deploying. The host does
+not care what architecture your laptop prefers:
 
 ```bash
 GOOS=linux GOARCH=amd64 go build -o ./bin/<svc> ./cmd/<svc>
@@ -139,7 +146,8 @@ yeet docker update --outdated
 ```
 
 Use `--force` when you want to redeploy even if yeet detects no payload or
-config change:
+config change. This is a deliberate poke, not a troubleshooting strategy by
+itself:
 
 ```bash
 yeet run --force <svc> ./compose.yml
@@ -147,7 +155,9 @@ yeet run --force <svc> ./compose.yml
 
 ## Stage before applying
 
-Use staging when you want to upload and inspect a payload before applying it:
+Use staging when you want to upload and inspect a payload before applying it.
+That adds a checkpoint to the deploy queue, which is useful when the payload is
+large or the timing matters:
 
 ```bash
 yeet stage <svc> ./bin/<svc>
@@ -202,7 +212,8 @@ yeet run <svc> ./compose.yml --net=lan
 
 Avoid plain `--net=ts` unless the service is intentionally tailnet-only or has
 a Tailscale exit node. See [Networking](/docs/concepts/networking) before
-using `lan`, `ts`, or combined modes on a new host.
+using `lan`, `ts`, or combined modes on a new host. Network mode is not just
+"who can connect"; it also decides what the service can reach.
 
 ## Move a service root
 
@@ -222,7 +233,8 @@ yeet start <svc>
 ```
 
 Use `--empty` instead of `--copy` when you want a new empty root. See
-[ZFS](/docs/concepts/zfs) for dataset-backed roots and snapshots.
+[ZFS](/docs/concepts/zfs) for dataset-backed roots and snapshots. Moving a
+root is a state migration. Read the plan like it matters, because it does.
 
 ## Recover data
 
@@ -233,7 +245,8 @@ yeet snapshots list <svc>
 yeet snapshots inspect <svc> <snapshot>
 ```
 
-Clone first when you want to inspect recovered data safely:
+Clone first when you want to inspect recovered data safely. This keeps the
+original service out of your first recovery experiment:
 
 ```bash
 yeet snapshots clone <svc> <snapshot> <svc>-recover
@@ -250,7 +263,8 @@ See [ZFS](/docs/concepts/zfs) for snapshot defaults, retention, and VM recovery.
 
 ## Target a host
 
-Here, `<catch-host>` is the catch tsnet hostname, not the SSH machine host.
+Here, `<catch-host>` is the catch tsnet hostname, not the SSH machine host. SSH
+was for installation. Normal operations use the catch identity.
 
 ```bash
 CATCH_HOST=<catch-host> yeet status
@@ -279,4 +293,5 @@ Remove service data and the local config entry too:
 yeet rm --clean <svc>
 ```
 
-Read the confirmation prompt before deleting data.
+Read the confirmation prompt before deleting data. A cleanup command should be
+boring only after you know what it will remove.

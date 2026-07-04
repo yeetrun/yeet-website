@@ -1,10 +1,14 @@
 ---
 title: How Commands Work
-description: Host targeting, service selection, and argument routing.
+description: How yeet chooses a host, chooses a service, and separates its flags from payload args.
 ---
 
 Yeet runs on your workstation. Catch runs on remote hosts. Most yeet commands
 send requests to the selected catch host.
+
+The command model has three recurring questions: which host, which service, and
+which arguments belong to yeet versus the payload. When a command looks weird,
+one of those boundaries is usually the culprit.
 
 ## Pick the host
 
@@ -33,7 +37,8 @@ yeet run <svc>@<catch-host> ./compose.yml
 ```
 
 If `yeet.toml` contains a host list, `yeet status` with no service queries
-those hosts.
+those hosts. Project state wins over guessing, which is the correct bias for a
+tool that can restart things.
 
 Save a default host:
 
@@ -63,7 +68,8 @@ yeet --service=<svc> logs -f
 ```
 
 Some commands are host-level and do not target a service, such as `prefs`,
-`list-hosts`, `mount`, and `umount`.
+`list-hosts`, `mount`, and `umount`. Not every operation needs a service name;
+forcing one would just create fake precision.
 
 ## Pass args to payloads
 
@@ -74,7 +80,9 @@ yeet run <svc> ./bin/<svc> -- --flag value
 yeet cron <svc> ./job.sh "0 9 * * *" -- --job-arg foo
 ```
 
-This keeps yeet flags and application flags separate.
+This keeps yeet flags and application flags separate. Without the separator,
+every parser in the chain has to guess where its job ends. Parsers are bad at
+guessing politely.
 
 ## Get help
 
@@ -93,4 +101,5 @@ Use [yeet Commands](/docs/cli/yeet-cli) for a grouped command index.
 Interactive commands such as `yeet edit`, `yeet env edit`, and some prompts
 need a TTY. Run them from an interactive shell. For scripts, prefer explicit
 flags such as `--yes`, `--progress=plain`, or `--progress=quiet` where the
-command supports them.
+command supports them. Automation should not depend on pretending a prompt is a
+person.

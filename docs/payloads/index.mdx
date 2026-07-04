@@ -1,10 +1,15 @@
 ---
 title: Payloads
-description: Choose what to run with yeet.
+description: Choose the right deploy path for the thing you already have.
 ---
 
 A payload is the thing you give to `yeet run`, `yeet stage`, or `yeet cron`.
 Choose the guide that matches what you already have.
+
+That sounds obvious because it is. The trap is picking the most powerful shape
+instead of the simplest one that matches the workload. Containers are great.
+VMs are real machines. Cron jobs are timers with consequences. Choose the
+smallest mechanism that explains the service.
 
 <CardLinks
   cards={[
@@ -51,6 +56,9 @@ Before your first `yeet run` or `yeet cron`, create or enter a
 deploy writes `yeet.toml` in the current directory, so the workspace is where
 yeet saves relative payload paths and future run options.
 
+This file is the replay recipe. If it lands in the wrong directory, yeet will
+faithfully remember the wrong place.
+
 ## Common flow
 
 Most services follow this loop:
@@ -63,7 +71,8 @@ yeet status <svc>
 
 After the first successful deploy, yeet writes service config to `yeet.toml`.
 For an existing service, a payload-only redeploy reuses saved options such as
-network mode, tags, service root, snapshot settings, and payload args.
+network mode, tags, service root, snapshot settings, and payload args. The
+payload changes; the operating context stays put unless you change it.
 
 ## Optional storage and networking
 
@@ -71,6 +80,9 @@ Use the payload guide first. Then add storage or networking options when the
 service needs them. Network modes also choose the outbound internet path:
 `svc` uses the catch host gateway, `lan` uses the LAN or VLAN gateway, and
 plain `ts` needs a Tailscale exit node for ordinary internet access.
+
+Do not treat networking and storage flags as garnish. They change the failure
+mode.
 
 ```bash
 yeet run <svc> ./compose.yml --net=svc,ts

@@ -1,6 +1,6 @@
 ---
 title: Service Workspace
-description: Organize homelab payloads and yeet.toml in one place.
+description: Keep payload files and yeet.toml together so deploy state has one obvious home.
 ---
 
 Use a service workspace before your first `yeet run` or `yeet cron`. A
@@ -11,6 +11,11 @@ Run deploy and service commands from this directory. Yeet reads and writes
 `yeet.toml` in the current directory, so a consistent workspace lets it reuse
 saved payload paths, hosts, network flags, service roots, snapshots, cron
 schedules, and payload args.
+
+This is not ceremony. It is a cheap way to stop deployment state from spreading
+across shell history, memory, and whichever directory happened to be open when
+the service first worked. Hidden state is where future debugging time goes to
+retire.
 
 ## Create a workspace
 
@@ -49,7 +54,8 @@ Use one folder per app or custom service:
 
 Yeet creates `yeet.toml` after a successful deploy that saves project config.
 Create or enter the workspace before deploying so that file lands in the right
-place. You do not need to create it by hand.
+place. You do not need to create it by hand. You do need to avoid creating it
+accidentally in `~/Downloads`.
 
 ## Deploy third-party apps
 
@@ -62,7 +68,8 @@ yeet run --env-file=./vaultwarden/vaultwarden.env vaultwarden ./vaultwarden/comp
 ```
 
 After each successful deploy, yeet saves the service entry in `yeet.toml`.
-Future commands can reuse that saved payload path and deploy options.
+Future commands can reuse that saved payload path and deploy options. The
+workspace becomes the replay recipe, not just a folder with YAML in it.
 
 ## Deploy custom services
 
@@ -81,7 +88,8 @@ GOOS=linux GOARCH=amd64 go build -o ./bin/sensor-collector ./sensor-collector/cm
 yeet run sensor-collector ./bin/sensor-collector
 ```
 
-Put scheduled jobs beside the rest of the homelab payloads:
+Put scheduled jobs beside the rest of the homelab payloads. Cron jobs become
+real services too, just with a timer pulling the trigger:
 
 ```bash
 cd ~/yeet-services
@@ -100,7 +108,8 @@ yeet run mqtt-bridge
 
 Yeet reads `yeet.toml`, finds the saved payload path, and reuses saved options
 such as network mode, env file, service root, snapshot settings, and payload
-args.
+args. That means `yeet run <svc>` is only as good as the project file under
+your feet.
 
 ## Keep paths relative
 
@@ -113,7 +122,8 @@ yeet run sensor-collector ./bin/sensor-collector
 ```
 
 Relative paths make the workspace easier to back up, move, or sync. They also
-keep `yeet.toml` readable.
+keep `yeet.toml` readable. Absolute paths are fine until you move machines and
+discover your deployment plan was secretly a filesystem autobiography.
 
 ## Use service folders
 
@@ -122,7 +132,8 @@ and app-specific config. Use shared folders such as `bin/` and `jobs/` for
 small custom payloads.
 
 Avoid running deploy commands from random directories. If yeet cannot find the
-right `yeet.toml`, it cannot reuse the saved service entry.
+right `yeet.toml`, it cannot reuse the saved service entry. The tool is not
+confused. It is obeying the directory you gave it.
 
 Service names must use 1-63 lowercase letters, numbers, and dashes. Start with
 a letter and end with a letter or number.

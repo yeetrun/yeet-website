@@ -1,6 +1,6 @@
 ---
 title: How yeet Works
-description: How yeet and catch work together over Tailscale.
+description: "The moving parts: local CLI, remote daemon, Tailscale control path, and host state."
 ---
 
 Yeet has two parts:
@@ -12,9 +12,14 @@ You use `yeet init` once per host to install catch. After that, yeet talks to
 catch over Tailscale/tsnet and asks it to install, update, inspect, and remove
 services.
 
+That is the whole model. Yeet is not a cloud scheduler hiding somewhere else.
+The state lives on hosts you control, and the CLI is the handle you use to move
+that state deliberately.
+
 ## Deploy flow
 
-When you run `yeet run <svc> <payload>`:
+When you run `yeet run <svc> <payload>`, the interesting part is not that a
+command ran. The interesting part is where responsibility moves:
 
 1. yeet detects the payload type.
 2. yeet ships the payload or deployment recipe to catch.
@@ -51,6 +56,10 @@ Catch owns the live service state on the host. A local `yeet.toml` stores the
 replay recipe for your project: payload path, host, network mode, service root,
 snapshot settings, cron schedule, and payload args.
 
+Those are intentionally different jobs. Catch knows what is running. The local
+project file knows how you want to run it again. If those drift, make the drift
+visible instead of guessing.
+
 If live state changes from another checkout, sync it back:
 
 ```bash
@@ -61,6 +70,9 @@ yeet service sync <svc>
 
 Each service can have generations. A new deploy creates a new generation, and
 rollback can return to the previous one when a previous generation is available.
+Generations recover deployed definitions and install artifacts. They are not
+storage snapshots, because naming two different recovery tools the same thing
+would be rude to future you.
 
 Use staging when you want to upload a payload before applying it:
 
@@ -78,6 +90,9 @@ outbound internet: `svc` uses the catch host gateway, `lan` uses the LAN or
 VLAN gateway, and plain `ts` needs a Tailscale exit node for ordinary internet.
 VMs use the service network by default for management.
 
+Reachability, DNS, and egress are one system. If you choose only the inbound
+path and ignore the outbound path, the service will remind you at runtime.
+
 See [Networking](/docs/concepts/networking), [DNS](/docs/concepts/dns), and
 [Tailscale](/docs/concepts/tailscale) for the details that affect operators.
 
@@ -85,7 +100,8 @@ See [Networking](/docs/concepts/networking), [DNS](/docs/concepts/dns), and
 
 Catch must run as a tagged Tailscale node, such as `tag:catch`. Your tailnet
 policy decides which devices and tags can reach catch. Catch rejects untagged,
-user-owned nodes because it is server infrastructure.
+user-owned nodes because it is server infrastructure. Identity is part of the
+control plane, not an afterthought bolted onto the port.
 
 See [Tailscale Setup](/docs/concepts/tailscale#first-time-host-setup) for the
 policy shape.

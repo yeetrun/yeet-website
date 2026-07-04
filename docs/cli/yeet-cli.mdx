@@ -1,6 +1,6 @@
 ---
 title: yeet Commands
-description: Client-side command reference for yeet.
+description: The client command index, grouped by the work you are trying to do.
 ---
 
 Use this page as a command index. For agent-readable CLI context, run the
@@ -12,7 +12,9 @@ yeet run --help-agent
 yeet vm images --help-agent
 ```
 
-For recipes, start with [Workflows](/docs/operations/workflows).
+For recipes, start with [Workflows](/docs/operations/workflows). This page is
+for lookup after you know the shape of the job. Reference docs are not a
+personality test; nobody wins by reading them top to bottom first.
 
 ## Global flags
 
@@ -93,7 +95,8 @@ Related guides:
 
 ### `stage`
 
-Upload a payload without applying it:
+Upload a payload without applying it. This adds a review point between "bytes
+arrived" and "service changed":
 
 ```bash
 yeet stage <svc> ./bin/<svc>
@@ -199,7 +202,8 @@ Useful flags:
 - `--clean-config`: delete the local `yeet.toml` entry.
 - `--clean-data`: delete service data, including VM guest disks.
 
-Read confirmation prompts carefully before deleting data.
+Read confirmation prompts carefully before deleting data. `--yes` answers the
+prompt; it does not decide that data should be deleted.
 
 ## Config, Env, And Files
 
@@ -258,7 +262,8 @@ yeet service generations <svc>
 ```
 
 Generations track deployed definitions and install artifacts. They are not
-storage snapshots.
+storage snapshots. Rollback changes what was deployed; snapshots recover data.
+That distinction matters most when you are already stressed.
 
 ### `service rollback`
 
@@ -377,6 +382,8 @@ Detach by pressing Enter, then typing `~.`.
 ## Snapshots
 
 Snapshots are yeet recovery points for ZFS-backed service roots and VM disks.
+They are for storage state, not for wishing every risky change had been
+documented.
 
 ### Common flow
 
@@ -425,7 +432,8 @@ yeet ssh <svc> -- ls -la
 After `yeet init`, host and regular service shells use catch over Tailscale and
 do not require host SSH keys or a host password. `yeet ssh <svc>` starts in the
 service data directory. VM services still connect to the guest operating system
-with SSH.
+with SSH, because the guest is a real machine and gets its own authentication
+boundary.
 
 ### `ip`
 
@@ -472,7 +480,8 @@ yeet init
 Fresh interactive installs ask where catch should store host data. The default
 is `$HOME/yeet-data` on the catch host, with services under that data
 directory. Existing catch installs keep their current storage layout when you
-rerun `yeet init`.
+rerun `yeet init`. Re-running init is an upgrade path, not a storage migration
+surprise.
 
 On supported Debian/Ubuntu VM hosts, interactive `yeet init` can also prepare
 `br0` for VM `--net=lan` networking after confirmation.
@@ -505,6 +514,8 @@ datasets such as `flash/yeet/services/<svc>`.
 Without `--yes`, yeet prints the plan and asks before applying it. If
 `--migrate-services` is omitted in an interactive terminal, yeet asks whether
 to migrate affected services. With `--yes`, pass the migration mode explicitly.
+Automation should declare whether services move; a hidden default here would be
+a bad joke.
 
 When services move, yeet updates matching entries in the local `yeet.toml`.
 Pass `--config ./yeet.toml` when the project config is somewhere else.
@@ -542,7 +553,8 @@ yeet list-hosts
 ```
 
 This command uses the local Tailscale client for discovery. Normal yeet commands
-do not require a local Tailscale client.
+do not require a local Tailscale client API, but your workstation still needs
+network reachability to catch's tsnet address.
 
 ## Host Mounts
 

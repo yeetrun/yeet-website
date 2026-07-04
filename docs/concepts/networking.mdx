@@ -1,11 +1,16 @@
 ---
 title: Networking
-description: Choose service reachability, DNS, and outbound internet paths.
+description: Choose who can reach a service, what it can resolve, and how it gets out.
 ---
 
 Use this page when a service needs more than a host port. Network mode choice
 decides who can reach the workload, what names it can resolve, and where
 ordinary outbound internet goes.
+
+That last part matters. It is easy to design only the inbound path because
+that is the thing you are trying to expose. Then the app tries to download an
+update, resolve a database name, or call an API, and suddenly egress was part
+of the design all along. Oops.
 
 ## Start here
 
@@ -21,7 +26,8 @@ ordinary outbound internet goes.
 
 For most services that need a Tailscale identity, start with `svc,ts`, not
 plain `ts`. `svc,ts` keeps yeet DNS, private service traffic, and internet
-egress through the catch host while adding a tailnet identity.
+egress through the catch host while adding a tailnet identity. Plain `ts` is
+for services that are intentionally tailnet-only or have an exit-node plan.
 
 Modes are comma-separated:
 
@@ -34,7 +40,8 @@ a yeet VM network mode.
 
 ## Published ports
 
-Use published ports when the workload only needs a TCP port on the catch host:
+Use published ports when the workload only needs a TCP port on the catch host.
+This is the small hammer. Use it when it fits:
 
 ```bash
 yeet run -p 8080:80 <svc> nginx:alpine
@@ -42,7 +49,9 @@ yeet run -p 8080:80 <svc> nginx:alpine
 
 `-p` is not a network mode. It exposes a host port for image, Dockerfile,
 Python, and TypeScript payloads. Use `--net` only when the workload also needs
-private service networking, LAN presence, or a Tailscale identity.
+private service networking, LAN presence, or a Tailscale identity. More network
+modes do not make a service more deployed. They make it more reachable in more
+ways, which is not automatically a win.
 
 Change ports later with `service set`. The port list is complete, so include
 every mapping you want to keep:
@@ -90,7 +99,7 @@ postgres://postgres:5432/app
 
 Use `svc` as the default private app network. Add `ts` when the service also
 needs a tailnet identity. Add `lan` when the service or VM also needs a LAN
-address.
+address. Start simple; you can always add surface area later.
 
 The `svc` network currently requires exclusive use of `192.168.100.0/24` on the
 catch host. If that range overlaps an existing host route, catch rejects new
@@ -131,7 +140,8 @@ yeet run <svc> ./compose.yml --net=lan --macvlan-parent=<iface> --macvlan-vlan=<
 ```
 
 Use `lan` only on networks where macvlan, DHCP, and the selected parent
-interface make sense. A WAN-only VPS usually should not use `lan`.
+interface make sense. A WAN-only VPS usually should not use `lan`. If there is
+no meaningful LAN, asking for a LAN address is mostly performance art.
 
 For VM `lan` networking, yeet needs a bridge on the host LAN. If the host
 already has one on the default route, yeet uses it. On supported Debian/Ubuntu
@@ -176,7 +186,8 @@ yeet tailscale <svc> -- set --exit-node=<exit-node>
 ```
 
 Make sure the OAuth client saved during catch setup can assign every tag you
-pass with `--ts-tags`.
+pass with `--ts-tags`. Tags are not comments. They are the identity catch asks
+Tailscale to create.
 
 See [Tailscale](/docs/concepts/tailscale) for OAuth setup, tags, exit nodes,
 and `yeet tailscale` commands.
@@ -197,6 +208,8 @@ For VMs, `svc` is the default. `svc,lan` gives the VM LAN access and keeps a
 catch-managed fallback path. A LAN-only VM must be reachable from your
 workstation on its guest LAN IP for `yeet ssh <vm>` to connect directly. If no
 host LAN bridge is ready yet, yeet asks to prepare one before creating the VM.
+That prompt exists because rewriting a host's bridge configuration should not
+happen as a side effect you discover by losing SSH.
 
 ```bash
 yeet run <vm> vm://ubuntu/26.04 --net=svc,lan
@@ -224,7 +237,8 @@ Use the output to confirm:
 - `lan` shows a LAN or VLAN address from DHCP.
 - `ts` shows a tailnet address and Tailscale state.
 
-If the service has no outbound internet:
+If the service has no outbound internet, debug by network mode. Guessing here
+is slow because each mode has a different egress path:
 
 - Use `svc` or `svc,ts` when the catch host should provide egress.
 - Check the LAN gateway and DNS when the service uses `lan`.

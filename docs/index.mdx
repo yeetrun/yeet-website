@@ -1,10 +1,14 @@
 ---
 title: Yeet Docs
-description: A focused user manual for installing yeet, bootstrapping catch, and running services.
+description: Install yeet, bootstrap catch, and run services without building a tiny cloud by accident.
 ---
 
-Yeet deploys services from your workstation to Linux hosts running catch. Start
-with setup, then use the task guides for the thing you want to run.
+Yeet runs from your workstation and asks catch to do the boring host work:
+install services, move files, start units, tail logs, and clean up after itself
+when you tell it to. The point is not to hide Linux. The point is to keep the
+state visible enough that you can debug it when Friday arrives with opinions.
+
+Start with setup. Then pick the guide for the thing you actually want to run.
 
 ## Start here
 
@@ -23,27 +27,27 @@ with setup, then use the task guides for the thing you want to run.
   cards={[
     {
       title: "Set up Tailscale",
-      description: "Create the tag policy and OAuth credential catch needs before init.",
+      description: "Create the tag policy and OAuth credential catch needs before init, because access control is not a decoration.",
       href: "/docs/concepts/tailscale",
     },
     {
       title: "Choose what to run",
-      description: "Pick the right guide for containers, binaries, cron jobs, or VMs.",
+      description: "Pick containers, binaries, cron jobs, or VMs by what the workload needs, not by what sounds impressive.",
       href: "/docs/payloads",
     },
     {
       title: "Organize service files",
-      description: "Keep third-party apps, env files, custom payloads, and yeet.toml together.",
+      description: "Keep third-party apps, env files, custom payloads, and yeet.toml in one boring directory.",
       href: "/docs/getting-started/service-workspace",
     },
     {
       title: "Operate a service",
-      description: "Update, restart, tail logs, edit config, stage changes, and copy files.",
+      description: "Update, restart, tail logs, edit config, stage changes, and copy files without inventing a dashboard first.",
       href: "/docs/operations/workflows",
     },
     {
       title: "Fix a problem",
-      description: "Start with common connection, Docker, networking, VM, and removal failures.",
+      description: "Start with common connection, Docker, networking, VM, and cleanup failures. It is usually one of those.",
       href: "/docs/operations/troubleshooting",
     },
   ]}
@@ -51,18 +55,19 @@ with setup, then use the task guides for the thing you want to run.
 
 ## Optional topics
 
-Use these when the service or host needs them.
+Use these when the service or host has moved past the happy path. That is not a
+failure. That is just infrastructure becoming specific.
 
 <CardLinks
   cards={[
     {
       title: "Host targeting",
-      description: "Understand machine hosts, catch hosts, CATCH_HOST, and svc@host syntax.",
+      description: "Understand machine hosts, catch hosts, CATCH_HOST, and svc@host syntax before names become hidden state.",
       href: "/docs/cli/cli-overview",
     },
     {
       title: "Choose networking",
-      description: "Pick reachability, DNS, and outbound internet paths for a service.",
+      description: "Pick reachability, DNS, and outbound internet paths as one decision, because the network does not care which part you forgot.",
       href: "/docs/concepts/networking",
     },
     {
@@ -72,7 +77,7 @@ Use these when the service or host needs them.
     },
     {
       title: "Use recovery points",
-      description: "Use ZFS service roots, snapshots, clone-first recovery, and VM restore.",
+      description: "Use ZFS service roots, snapshots, clone-first recovery, and VM restore before the rollback plan is a feeling.",
       href: "/docs/concepts/zfs",
     },
   ]}
@@ -80,7 +85,8 @@ Use these when the service or host needs them.
 
 ## Reference
 
-Use reference pages after you know the workflow you want.
+Use reference pages after you know the workflow you want. References are maps,
+not tutorials. If you start here, expect to walk in circles a little.
 
 <CardLinks
   cards={[
