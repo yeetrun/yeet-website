@@ -6,10 +6,6 @@ description: Fast path from empty host to one disposable service.
 This is the shortest useful path: install `yeet`, prepare Tailscale, install
 `catch`, run a disposable container, and remove it.
 
-You are not designing the final setup yet. You are proving the loop works:
-workstation -> catch -> service -> logs -> cleanup. Once that loop works, the
-rest of the manual is detail you can pull in when you need it.
-
 ## TLDR
 
 You need:
@@ -70,7 +66,7 @@ yeet init root@<machine-host>
 During first setup, paste the Tailscale OAuth client secret from step 1.
 If Docker is missing on a Debian/Ubuntu-style host, interactive init asks before
 installing it. Use the [Installation guide](/docs/getting-started/installation)
-for unattended flags such as `--install-docker`.
+for non-interactive setup.
 
 Use `root@<machine-host>` for SSH setup. After setup, normal commands target
 the catch hostname on your tailnet. That split sounds fussy until you have more

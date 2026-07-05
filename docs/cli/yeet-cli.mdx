@@ -468,8 +468,7 @@ Install or update catch on a machine host over SSH:
 ```bash
 yeet init root@<machine-host>
 yeet init --ts-client-secret=<secret> root@<machine-host>
-yeet init --install-docker root@<machine-host>
-yeet init --install-docker --install-vm-tools root@<machine-host>
+yeet init --install-docker --install-vm-tools --ts-client-secret=<secret> root@<machine-host>
 yeet init --data-dir=/srv/yeet-data root@<machine-host>
 yeet init --zfs --data-dir=flash/yeet/data --services-root=flash/yeet/services root@<machine-host>
 yeet init --ts-auth-key=<key> root@<machine-host>

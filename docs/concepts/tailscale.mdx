@@ -99,13 +99,13 @@ Interactive init prompts for the OAuth client secret during first setup:
 yeet init root@<machine-host>
 ```
 
-For unattended setup:
+For unattended catch enrollment, pass the OAuth secret:
 
 ```bash
-yeet init --install-docker --ts-client-secret=<secret> root@<machine-host>
+yeet init --ts-client-secret=<secret> root@<machine-host>
 ```
 
-On VM-capable hosts:
+Add package flags only when automation should pre-answer install prompts:
 
 ```bash
 yeet init --install-docker --install-vm-tools --ts-client-secret=<secret> root@<machine-host>
@@ -114,7 +114,7 @@ yeet init --install-docker --install-vm-tools --ts-client-secret=<secret> root@<
 Advanced users can pass a preauthorized auth key for the catch node:
 
 ```bash
-yeet init --install-docker --ts-auth-key=<key> root@<machine-host>
+yeet init --ts-auth-key=<key> root@<machine-host>
 ```
 
 The secret or auth key belongs to catch itself. If the resulting catch node is

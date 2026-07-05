@@ -102,18 +102,22 @@ export default function InstallPage({ docsNavTree }: InstallPageProps) {
                 <code>{`yeet init root@<machine-host>`}</code>
               </CodeBlock>
               <P className={s.note}>
-                If the host can run VMs, let yeet install the VM tools:
+                If Docker or VM tools are missing on a supported host,
+                interactive setup asks before installing them.
               </P>
-              <CodeBlock>
-                <code>{`yeet init --install-vm-tools root@<machine-host>`}</code>
-              </CodeBlock>
               <P className={s.note}>
-                For unattended setup, pass the package flags and OAuth secret
+                For unattended catch enrollment, pass the OAuth secret
                 explicitly:
               </P>
               <CodeBlock>
-                <code>{`yeet init --install-docker --install-vm-tools --ts-client-secret=<secret> root@<machine-host>`}</code>
+                <code>{`yeet init --ts-client-secret=<secret> root@<machine-host>`}</code>
               </CodeBlock>
+              <P className={s.note}>
+                For unattended setup, add package flags such as{" "}
+                <code>--install-docker</code> or{" "}
+                <code>--install-vm-tools</code> when you want automation to
+                answer yes to those prompts.
+              </P>
               <P className={s.note}>
                 The SSH target is the <strong>machine host</strong>. After
                 install, yeet talks to the <strong>catch host</strong> (tsnet

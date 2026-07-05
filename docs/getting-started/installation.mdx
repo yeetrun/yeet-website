@@ -115,15 +115,20 @@ yes flags for the package prompts.
 
 If you use a non-root SSH user, yeet runs the remote install with sudo.
 
-## Install host packages during bootstrap
+## Pre-answer package prompts
 
-For container payloads on a Debian/Ubuntu-style host, let yeet install Docker:
+For interactive setup, run plain `yeet init`. If Docker or VM tools are missing
+on supported hosts, init asks before installing them.
+
+For unattended container bootstrap on a Debian/Ubuntu-style host, pre-answer the
+Docker prompt:
 
 ```bash
 yeet init --install-docker root@<machine-host>
 ```
 
-For VM payloads on a KVM-capable host, install Docker and VM tools:
+For unattended VM payload setup on a KVM-capable host, pre-answer Docker and VM
+tool prompts:
 
 ```bash
 yeet init --install-docker --install-vm-tools root@<machine-host>
@@ -140,16 +145,23 @@ containers, binaries, scripts, and cron jobs still work.
 
 ## Run unattended setup
 
-For repeatable setup, pass the Tailscale OAuth client secret:
+For repeatable catch enrollment, pass the Tailscale OAuth client secret:
 
 ```bash
-yeet init --install-docker --install-vm-tools --ts-client-secret=<secret> root@<machine-host>
+yeet init --ts-client-secret=<secret> root@<machine-host>
 ```
 
 Advanced users can pass a preauthorized Tailscale auth key instead:
 
 ```bash
-yeet init --install-docker --install-vm-tools --ts-auth-key=<key> root@<machine-host>
+yeet init --ts-auth-key=<key> root@<machine-host>
+```
+
+If your automation also needs host packages installed, add the package flags it
+should answer yes to:
+
+```bash
+yeet init --install-docker --install-vm-tools --ts-client-secret=<secret> root@<machine-host>
 ```
 
 The secret or auth key belongs to the catch node. Catch accepts connections only

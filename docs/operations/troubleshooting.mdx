@@ -53,13 +53,13 @@ For repeatable setup, pass an OAuth client secret that can assign the catch
 tag:
 
 ```bash
-yeet init --install-docker --ts-client-secret=<secret> root@<machine-host>
+yeet init --ts-client-secret=<secret> root@<machine-host>
 ```
 
 Advanced users can pass a preauthorized Tailscale auth key instead:
 
 ```bash
-yeet init --install-docker --ts-auth-key=<key> root@<machine-host>
+yeet init --ts-auth-key=<key> root@<machine-host>
 ```
 
 ## `yeet init` got a different catch hostname
@@ -79,15 +79,21 @@ Or remove the stale/conflicting Tailscale device and rerun `yeet init`.
 ## Docker payloads fail
 
 Container payloads require Docker on the catch host. On Debian/Ubuntu-style
-hosts, install it during bootstrap:
+hosts, interactive init can ask before installing it:
+
+```bash
+yeet init root@<machine-host>
+```
+
+For unattended setup, pre-answer the Docker prompt:
 
 ```bash
 yeet init --install-docker root@<machine-host>
 ```
 
-If local image pushes do not show up on the host, rerun bootstrap with Docker
-setup enabled. `yeet init --install-docker` configures the Docker settings yeet
-needs during catch install.
+If local image pushes do not show up on the host, rerun bootstrap and allow
+Docker setup. For unattended setup, `--install-docker` also configures the
+Docker settings yeet needs during catch install.
 
 For Compose services:
 
@@ -192,8 +198,9 @@ done
 ```
 
 If KVM is missing, use containers, binaries, scripts, and cron jobs on that
-host. If KVM and TUN/TAP exist but tools are missing on Debian/Ubuntu, rerun
-init with VM tools. The flag answers yes for the VM-tools package prompt:
+host. If KVM and TUN/TAP exist but tools are missing on Debian/Ubuntu,
+interactive `yeet init` can ask before installing them. For unattended setup,
+pre-answer the VM-tools package prompt:
 
 ```bash
 yeet init --install-vm-tools root@<machine-host>

@@ -38,15 +38,16 @@ See [Data Layout](/docs/concepts/data-layout) for host storage and
 
 During `catch install`, catch requires Docker for container payloads. If Docker
 is missing, interactive installs can prompt to install it. This is host
-plumbing, not an app dependency.
+setup, not something each app needs to ship.
 
 For normal installs, prefer:
 
 ```bash
-yeet init --install-docker root@<machine-host>
+yeet init root@<machine-host>
 ```
 
-For manual non-interactive catch installs on Debian/Ubuntu-style hosts, set:
+For non-interactive Docker install on Debian/Ubuntu-style hosts, use
+`yeet init --install-docker` or set this for manual catch installs:
 
 ```bash
 CATCH_INSTALL_DOCKER=1

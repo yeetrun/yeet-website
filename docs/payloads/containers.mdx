@@ -151,8 +151,10 @@ they do not make the data disposable.
 
 ## Host requirements
 
-Docker hosts need Docker with Compose support. For local image pushes, let
-`yeet init --install-docker` configure Docker during catch install.
+Docker hosts need Docker with Compose support. On Debian/Ubuntu-style hosts,
+interactive `yeet init` asks before installing Docker and configures the Docker
+settings needed for local image pushes. For unattended setup, use
+`yeet init --install-docker`.
 
 See [DNS](/docs/concepts/dns) for resolver behavior,
 [Installation](/docs/getting-started/installation) for host setup, and
