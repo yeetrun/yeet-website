@@ -102,14 +102,13 @@ export default function Home({ docsNavTree }: HomePageProps) {
                 Yeet workloads onto Linux. Skip the platform.
               </H1>
               <P className={s.heroSubtitle} weight="regular">
-                Start with a Debian or Ubuntu host and a local CLI instead of a
-                control panel. Send yeet a binary, script, Docker image,
-                Dockerfile, compose.yml, cron job, or microVM. Ubuntu and NixOS
-                work out of the box; custom images import as{" "}
-                <code>vm://&lt;name&gt;</code>. Catch turns the payload into
-                inspectable Linux state: systemd units, Docker projects,
-                service networks, Tailscale identities, ZFS-backed roots, logs,
-                and cleanup.
+                Yeet is a FOSS homelab CLI for people who want the power
+                without the appliance. Point it at a Debian or Ubuntu host and
+                deploy the things you already have: Compose apps, Dockerfiles,
+                images, binaries, scripts, cron jobs, and microVMs. You still
+                get the serious parts: Tailscale-backed access, service
+                networks, ZFS-backed roots and snapshots, catalog and imported
+                VM images, logs, cleanup, and plain Linux state you can inspect.
               </P>
               <div className={s.heroActions}>
                 <ButtonLink
