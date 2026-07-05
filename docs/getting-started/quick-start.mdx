@@ -61,20 +61,16 @@ For install options, nightly builds, and upgrades, use the
 
 ## 3. Install catch on one host
 
-Run one of these from your workstation. The target is the SSH machine host:
+Run this from your workstation. The target is the SSH machine host:
 
 ```bash
 yeet init root@<machine-host>
 ```
 
-If Docker may be missing on a Debian/Ubuntu-style host, let init offer to install
-it:
-
-```bash
-yeet init --install-docker root@<machine-host>
-```
-
 During first setup, paste the Tailscale OAuth client secret from step 1.
+If Docker is missing on a Debian/Ubuntu-style host, interactive init asks before
+installing it. Use the [Installation guide](/docs/getting-started/installation)
+for unattended flags such as `--install-docker`.
 
 Use `root@<machine-host>` for SSH setup. After setup, normal commands target
 the catch hostname on your tailnet. That split sounds fussy until you have more
