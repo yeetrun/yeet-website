@@ -63,9 +63,13 @@
 }
 
 .heroTitle {
-  font-size: clamp(36px, 5vw, 56px);
-  letter-spacing: -0.02em;
+  font-size: 56px;
+  letter-spacing: 0;
   color: var(--gray-9);
+}
+
+.heroTitle span {
+  display: block;
 }
 
 .heroSubtitle {
@@ -379,6 +383,10 @@
     grid-column: 1 / -1;
   }
 
+  .heroTitle {
+    font-size: 48px;
+  }
+
   .featureGrid,
   .docsGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -405,6 +413,10 @@
 @media (max-width: 640px) {
   .hero {
     padding-top: 72px;
+  }
+
+  .heroTitle {
+    font-size: 36px;
   }
 
   .deployCopy h2 {

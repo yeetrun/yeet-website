@@ -99,7 +99,8 @@ export default function Home({ docsNavTree }: HomePageProps) {
                 FOSS homelab ops without the appliance.
               </div>
               <H1 className={s.heroTitle}>
-                Yeet workloads onto Linux. Skip the platform.
+                Yeet workloads onto Linux.
+                <span>Skip the platform.</span>
               </H1>
               <P className={s.heroSubtitle} weight="regular">
                 Yeet is a FOSS homelab CLI for people who want the power
