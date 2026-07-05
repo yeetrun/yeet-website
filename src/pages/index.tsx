@@ -86,16 +86,17 @@ export default function Home({ docsNavTree }: HomePageProps) {
           <GridContainer className={s.heroGrid}>
             <div className={s.heroContent}>
               <div className={s.heroBadge}>
-                Deploy from your workstation.
+                Workstation-to-host deploys.
               </div>
               <H1 className={s.heroTitle}>
-                Run services and VMs on Linux hosts over your tailnet.
+                Deploy services and VMs from your workstation.
               </H1>
               <P className={s.heroSubtitle} weight="regular">
-                Yeet runs on your workstation. The catch daemon runs on the
-                host. Together they turn compose stacks, images, Dockerfiles,
-                binaries, scripts, cron jobs, and Firecracker VMs into systemd
-                units, Docker projects, files, logs, and VM data you can inspect.
+                Yeet runs locally. The catch daemon runs on each Linux host.
+                Commands go over your tailnet; catch turns compose stacks,
+                images, Dockerfiles, binaries, scripts, cron jobs, and
+                Firecracker VMs into systemd units, Docker projects, files,
+                logs, and VM data you can inspect.
               </P>
               <div className={s.heroActions}>
                 <ButtonLink
