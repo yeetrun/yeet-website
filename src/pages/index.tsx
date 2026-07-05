@@ -95,8 +95,9 @@ export default function Home({ docsNavTree }: HomePageProps) {
                 Yeet runs on your workstation. The catch daemon runs on the
                 host. Together they deploy compose stacks, images, Dockerfiles,
                 binaries, scripts, cron jobs, and Firecracker VMs over your
-                tailnet. The output is normal Linux state you can inspect when
-                the machine starts having opinions.
+                tailnet. The result is ordinary Linux state: systemd units,
+                Docker projects, files, logs, and VM data you can inspect
+                directly.
               </P>
               <div className={s.heroActions}>
                 <ButtonLink
