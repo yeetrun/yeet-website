@@ -17,7 +17,7 @@ const commonWorkflows = [
     id: "compose",
     title: "Compose stack",
     description:
-      "Run the compose file you already have. Pull and redeploy when it changes.",
+      "Bring the compose file you already have. Yeet keeps the deploy recipe.",
     code: `yeet run <svc> ./compose.yml
 yeet run --pull <svc> ./compose.yml
 yeet logs -f <svc>`,
@@ -26,27 +26,38 @@ yeet logs -f <svc>`,
     id: "dockerfile",
     title: "Dockerfile",
     description:
-      "Hand yeet a Dockerfile. The host builds it and runs the result.",
+      "Build locally, push to the host, and run the resulting image.",
     code: `yeet run <svc> ./Dockerfile
 yeet status <svc>`,
   },
   {
     id: "vm",
-    title: "Linux VM",
+    title: "MicroVM",
     description:
-      "Create a Firecracker guest when the workload needs a full OS.",
-    code: `yeet run <vm> vm://ubuntu/26.04
+      "Run Ubuntu, NixOS, or an imported image when you need a full OS.",
+    code: `yeet vm images catalog
+yeet run <vm> vm://ubuntu/26.04
+yeet run <vm> vm://nixos/26.05
 yeet ssh <vm>
-yeet vm console <vm>`,
+yeet vm images import lab/debian ./dist/my-vm`,
   },
   {
     id: "binary",
     title: "Binary",
     description:
-      "Build the Linux binary locally. Install it as a systemd service.",
+      "Ship one executable or script as a plain systemd service.",
     code: `GOOS=linux GOARCH=amd64 go build -o ./bin/<svc>
 yeet run <svc> ./bin/<svc>
 yeet logs -f <svc>`,
+  },
+  {
+    id: "cron",
+    title: "Cron job",
+    description:
+      "Install a scheduled script or binary as a systemd timer.",
+    code: `yeet cron <svc> ./job.sh "0 3 * * *"
+yeet logs -f <svc>
+yeet rm <svc>`,
   },
 ];
 
@@ -74,10 +85,9 @@ export default function Home({ docsNavTree }: HomePageProps) {
     <NavFooterLayout
       docsNavTree={docsNavTree}
       meta={{
-        title:
-          "yeet: Homelab Service Manager for Containers, VMs, and Binaries",
+        title: "yeet: FOSS Homelab CLI for Containers, VMs, and Cron",
         description:
-          "Deploy containers, VMs, binaries, scripts, and cron jobs from your workstation to Linux hosts.",
+          "A lightweight FOSS CLI for deploying containers, binaries, cron jobs, and microVMs to ordinary Linux hosts.",
         path: "/",
       }}
     >
@@ -86,17 +96,20 @@ export default function Home({ docsNavTree }: HomePageProps) {
           <GridContainer className={s.heroGrid}>
             <div className={s.heroContent}>
               <div className={s.heroBadge}>
-                Workstation-to-host deploys.
+                FOSS homelab ops without the appliance.
               </div>
               <H1 className={s.heroTitle}>
-                Deploy services and VMs from your workstation.
+                Yeet workloads onto Linux. Skip the platform.
               </H1>
               <P className={s.heroSubtitle} weight="regular">
-                Yeet runs locally. The catch daemon runs on each Linux host.
-                Commands go over your tailnet; catch turns compose stacks,
-                images, Dockerfiles, binaries, scripts, cron jobs, and
-                Firecracker VMs into systemd units, Docker projects, files,
-                logs, and VM data you can inspect.
+                Start with a Debian or Ubuntu host and a local CLI instead of a
+                control panel. Send yeet a binary, script, Docker image,
+                Dockerfile, compose.yml, cron job, or microVM. Ubuntu and NixOS
+                work out of the box; custom images import as{" "}
+                <code>vm://&lt;name&gt;</code>. Catch turns the payload into
+                inspectable Linux state: systemd units, Docker projects,
+                service networks, Tailscale identities, ZFS-backed roots, logs,
+                and cleanup.
               </P>
               <div className={s.heroActions}>
                 <ButtonLink
@@ -112,15 +125,15 @@ export default function Home({ docsNavTree }: HomePageProps) {
                 />
               </div>
               <div className={s.heroNote}>
-                Yeet is for single-operator homelabs and small private
-                infrastructure. It expects Linux, SSH for first setup, systemd,
-                Tailscale or tsnet connectivity, and Docker when you run
-                container payloads. It is not a multi-tenant platform.
+                This is the anti-clickops path for single-operator homelabs and
+                small private infrastructure: declarative config, mesh
+                networking, ZFS support when you want it, and normal Linux
+                underneath. Not a multi-tenant cloud in a box.
               </div>
             </div>
 
             <div className={s.heroPanel}>
-              <div className={s.panelHeader}>First useful run</div>
+              <div className={s.panelHeader}>Yeet it up</div>
               <CodeBlock>
                 <code>{`# install yeet
 curl -fsSL https://yeetrun.com/install.sh | sh
@@ -128,11 +141,12 @@ curl -fsSL https://yeetrun.com/install.sh | sh
 # bootstrap a host
 yeet init root@<machine-host>
 
-# deploy a compose stack
+# deploy whatever shape you already have
 yeet run <svc> ./compose.yml
-
-# create a VM
+yeet run <svc> ./Dockerfile
+yeet cron <job> ./backup.sh "0 3 * * *"
 yeet run <vm> vm://ubuntu/26.04
+yeet run <vm> vm://nixos/26.05
 yeet ssh <vm>`}</code>
               </CodeBlock>
               <div className={s.panelFooter}>
@@ -150,18 +164,20 @@ yeet ssh <vm>`}</code>
           <div className={s.deployPaths}>
             <div className={s.deployCopy}>
               <H2>
-                Use the terminal when you know the shape. Use the browser when
-                you do not.
+                CLI first. Browser optional. The recipe stays declarative.
               </H2>
               <P>
-                The CLI is fastest when the command is already in your hands.{" "}
-                <code>yeet run --web</code> gives you a guided deploy for the
-                first pass, saves the same config to <code>yeet.toml</code>, and
+                The durable object is <code>yeet.toml</code>, not a trail of
+                clicks. Use the terminal when you already know the payload,
+                network mode, and storage root. Use <code>yeet run --web</code>
+                when you want a guided first pass. It saves the same config and
                 mirrors terminal output in the browser.
               </P>
               <pre className={s.deployCode}>
-                <code>{`yeet run --web
-yeet run <svc> ./compose.yml`}</code>
+                <code>{`yeet run <svc> ./compose.yml --net=svc,ts
+yeet run <svc> ./compose.yml --service-root=tank/apps/<svc> --zfs
+yeet vm images import lab/debian ./dist/my-vm
+yeet run --web`}</code>
               </pre>
             </div>
             <figure className={s.webRunShotFrame}>
@@ -178,36 +194,42 @@ yeet run <svc> ./compose.yml`}</code>
 
         <SectionWrapper className={s.section}>
           <div className={s.sectionHeader}>
-            <H2>The moving parts</H2>
-            <P>Local CLI, host daemon, tailnet connection, and host state.</P>
+            <H2>Everything you need. Nothing that wants to become your cloud.</H2>
+            <P>
+              Yeet gives the boring host primitives a useful control plane
+              without hiding the host from you.
+            </P>
           </div>
           <div className={s.featureGrid}>
             <div className={s.featureCard}>
-              <h3>yeet CLI</h3>
+              <h3>Normal Linux underneath</h3>
               <p>
-                Your local control surface. It packages payloads, writes{" "}
-                <code>yeet.toml</code>, and sends work to catch.
+                Catch manages systemd units, Docker projects, VM data, logs,
+                files, and cleanup on the host. You can still inspect the
+                pieces directly.
               </p>
             </div>
             <div className={s.featureCard}>
-              <h3>catch on each host</h3>
+              <h3>One CLI for every payload</h3>
               <p>
-                The small daemon on the host. It owns systemd units, Docker
-                projects, logs, files, and cleanup.
+                Compose stacks, image refs, Dockerfiles, binaries, scripts,
+                cron jobs, and microVMs all enter through the same workstation
+                command model.
               </p>
             </div>
             <div className={s.featureCard}>
-              <h3>Tailnet connection</h3>
+              <h3>Mesh networking built in</h3>
               <p>
-                SSH installs catch. After that, yeet talks to catch through
-                embedded Tailscale nodes.
+                Catch joins your tailnet. Services can use private yeet DNS,
+                LAN or VLAN presence, Tailscale identities, or combined modes
+                when the access path needs it.
               </p>
             </div>
             <div className={s.featureCard}>
-              <h3>Local image push</h3>
+              <h3>ZFS when storage matters</h3>
               <p>
-                For images that only exist on your workstation. Push them to the
-                host, then run that image.
+                Optional ZFS service roots give you dataset-backed app data,
+                snapshots before risky changes, and faster VM disk clones.
               </p>
             </div>
           </div>
@@ -217,7 +239,8 @@ yeet run <svc> ./compose.yml`}</code>
           <div className={s.sectionHeader}>
             <H2>Bring the thing you already have</H2>
             <P>
-              Compose file, Dockerfile, VM image, binary. Yeet routes the work.
+              Binary, script, Dockerfile, compose.yml, cron job, or microVM.
+              Yeet routes the work to the boring host primitive that fits.
             </P>
           </div>
           <div className={s.workflowShell}>
@@ -294,8 +317,8 @@ yeet run <svc> ./compose.yml`}</code>
             <Link className={s.docsCard} href="/docs/payloads">
               <h3>Payloads</h3>
               <p>
-                Choose containers, VMs, binaries, scripts, or cron jobs by what
-                the workload needs.
+                Choose containers, binaries, scripts, cron jobs, or microVMs by
+                what the workload needs.
               </p>
             </Link>
             <Link className={s.docsCard} href="/docs/operations/workflows">

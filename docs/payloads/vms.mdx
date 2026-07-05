@@ -1,10 +1,12 @@
 ---
 title: VMs
-description: Create long-lived Linux guests for workloads that need a full OS.
+description: Create Ubuntu, NixOS, or imported Linux microVMs for workloads that need a full OS.
 ---
 
 Use a VM payload when a workload needs a long-lived Linux guest, its own init
-system, or stronger isolation than a container.
+system, or stronger isolation than a container. Yeet calls these VMs in the
+CLI, but the useful product shape is a microVM: small enough for homelab
+service work, still a real guest OS.
 
 VM payloads require a Linux catch host with KVM. If you are setting up a host
 for the first time, run the container smoke test before starting here.
@@ -16,22 +18,42 @@ Run VM creation commands from a
 [Service Workspace](/docs/getting-started/service-workspace). The first
 successful VM deploy writes `yeet.toml` in the current directory.
 
-## Create a VM
+## Choose an image
 
-List the official catalog:
+Yeet currently has two official catalog images:
+
+| Payload | Guest |
+| --- | --- |
+| `vm://ubuntu/26.04` | Ubuntu 26.04 |
+| `vm://nixos/26.05` | NixOS 26.05 |
+
+List what the selected catch host can use:
 
 ```bash
 yeet vm images catalog
 ```
 
-Create an Ubuntu VM:
+If you have your own root filesystem, import it under a local name and run it
+as `vm://<name>`:
+
+```bash
+yeet vm images import lab/debian ./dist/my-vm
+yeet run devbox vm://lab/debian
+```
+
+See [Bring your own microVM image](#bring-your-own-microvm-image) for the
+bundle shape.
+
+## Create a microVM
+
+Create an Ubuntu microVM:
 
 ```bash
 yeet run <vm> vm://ubuntu/26.04
 yeet ssh <vm>
 ```
 
-Create a NixOS VM:
+Create a NixOS microVM:
 
 ```bash
 yeet run <vm> vm://nixos/26.05
@@ -297,20 +319,60 @@ Use disk restore unless you specifically need to resume from a Firecracker
 checkpoint. Full checkpoints are for Firecracker checkpoint recovery, not normal
 disk restore.
 
-## Import a local VM image
+## Bring your own microVM image
 
-Use local images when you have built your own root filesystem bundle and want
-catch to cache it by name:
+Use an imported image when Ubuntu and NixOS are not the guest shape you want.
+The bundle is a local directory. Yeet tars it, streams it to catch, and catch
+stores it in the host image cache. The imported ref becomes `vm://<name>`.
+
+The smallest useful bundle is one root filesystem:
+
+```text
+dist/my-vm/
+  rootfs.ext4
+```
+
+`rootfs.ext4.zst` also works. Use a lowercase image name such as `lab/debian`
+or `team/nixos-fast`. Names under official catalog prefixes such as `ubuntu/...`
+and `nixos/...` are reserved for the catalog.
+
+Import and run it:
 
 ```bash
 yeet vm images import lab/ubuntu ./dist/my-vm
 yeet run devbox vm://lab/ubuntu
 ```
 
-The import directory must contain `rootfs.ext4` or `rootfs.ext4.zst`. If it
-also contains a yeet VM `manifest.json`, yeet uses the guest settings from that
-manifest. Re-importing the same image name affects new VMs only; existing VMs
-keep the image version from their original create.
+The easy path omits the kernel. Yeet uses its managed kernel and runtime assets
+with your root filesystem. If the bundle includes `vmlinux`, import rejects it
+unless you opt in:
+
+```bash
+yeet vm images import kernel/test ./dist/my-vm --allow-local-kernel
+```
+
+Use a local kernel only when you know it matches the root filesystem. A
+mismatched kernel/rootfs pair usually fails at boot, and yeet cannot make that
+debuggable after the fact.
+
+If the guest needs metadata that yeet cannot infer from the root filesystem,
+add `manifest.json` beside `rootfs.ext4`:
+
+```json
+{
+  "default_user": "debian",
+  "metadata_driver": "ubuntu"
+}
+```
+
+`default_user` controls the user `yeet ssh` and `yeet copy` try first.
+`metadata_driver` can be `ubuntu` or `nixos`. For NixOS-style images that use
+yeet guest init, include `guest_system_init` when the system init path is not
+the default path the image expects.
+
+Re-importing the same image name affects new VMs only. Existing VMs keep the
+image version from their original create. That is the point: a running guest
+should not mutate because an image ref moved.
 
 Remove an imported image:
 

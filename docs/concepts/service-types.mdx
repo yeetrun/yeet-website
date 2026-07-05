@@ -23,7 +23,7 @@ will use before the command changes anything.
     },
     {
       title: "VMs",
-      description: "Firecracker-backed Linux guests with yeet-managed image bundles.",
+      description: "Linux microVMs from the yeet catalog or imported image bundles.",
       href: "/docs/payloads/vms",
     },
     {
@@ -80,6 +80,7 @@ will use before the command changes anything.
 
 - `vm://ubuntu/26.04` creates a long-lived Ubuntu VM service.
 - `vm://nixos/26.05` creates a long-lived NixOS VM service.
+- Imported images run as `vm://<name>` after `yeet vm images import`.
 - Requires a Linux catch host with KVM available.
 - Uses yeet-owned VM image bundles published at
   `github.com/yeetrun/yeet-vm-images`.
