@@ -40,8 +40,7 @@ tailnet policy shape.
 ## `yeet init` says catch needs a tag
 
 Catch rejects user-owned tsnet nodes. It must join the tailnet with a tag-based
-identity. That rule is not cosmetic; it keeps the daemon in the server side of
-the trust model.
+identity. That keeps the daemon in the server side of the trust model.
 
 Fix the Tailscale policy first, then rerun init:
 
@@ -191,7 +190,7 @@ See [VMs](/docs/payloads/vms) for image cache and console diagnostics.
 ## Binary architecture mismatch
 
 Build binaries for the catch host architecture. If the CPU cannot execute the
-file, no amount of service management will make it brave:
+file, the service cannot start it:
 
 ```bash
 GOOS=linux GOARCH=amd64 go build -o ./bin/<svc> ./cmd/<svc>
@@ -254,5 +253,4 @@ yeet rm <svc>
 ```
 
 Use `--clean` only when you also want to delete the service data and remove the
-local `yeet.toml` entry. Data deletion is a separate decision, not a louder
-version of "try again."
+local `yeet.toml` entry. Data deletion is separate from retrying a remove.

@@ -104,8 +104,7 @@ yeet init --zfs --data-dir=flash/yeet/data --services-root=flash/yeet/services r
 ```
 
 Rerunning `yeet init` for an existing catch install keeps the current storage
-layout and upgrades catch without asking the storage questions again. The
-default is stability, not "surprise, your data moved."
+layout and upgrades catch without asking the storage questions again.
 
 Interactive `yeet init` can also ask before installing missing Debian/Ubuntu
 packages. On VM-capable Debian/Ubuntu hosts, it can ask to prepare VM LAN
@@ -118,8 +117,8 @@ the host bridge. If you skip it, the first `yeet run <vm> ... --net=lan`
 prompts before creating the VM service.
 
 Many VPS providers do not expose nested virtualization. That is a host
-constraint, not a motivational challenge. On hosts that are not VM capable,
-yeet warns and containers, binaries, scripts, and cron jobs still work.
+constraint. On hosts that are not VM capable, yeet warns and containers,
+binaries, scripts, and cron jobs still work.
 
 ## Confirm the install
 

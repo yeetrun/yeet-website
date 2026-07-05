@@ -6,9 +6,8 @@ description: Decide who can observe, mutate, and open shells through catch.
 Use Tailscale grants to decide who can connect to catch and what they can do
 after they reach it.
 
-Reachability is not authorization. Your workstation can reach the catch tsnet
-address and still be denied by the app grant. That is not a contradiction. It
-is the point.
+Reachability is not authorization. Your workstation must reach the catch tsnet
+address, and the app grant must allow the requested yeet permission.
 
 ## Start With One Admin Grant
 
@@ -76,16 +75,14 @@ and service shells still require `ssh`.
 Catch embeds tsnet, but the local `yeet` CLI does not. Tailscale grants decide
 what a caller may do after it reaches catch, but your workstation must still be
 able to reach the catch tsnet address. In the normal setup, install Tailscale on
-the workstation and connect it to the same tailnet. Policy cannot authorize a
-packet that never arrives.
+the workstation and connect it to the same tailnet before testing grants.
 
 ## Split Access Later
 
 After the first host is working, split access if you need tighter roles. Keep
 the same app capability key and change the `src` groups and `allow` lists.
 When you define policy-file groups, list the users in those groups directly.
-This is where you trade one broad admin grant for smaller roles with clearer
-blast radius.
+Give each group only the permissions it needs.
 
 ```jsonc
 {

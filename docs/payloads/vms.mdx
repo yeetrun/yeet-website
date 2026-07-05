@@ -55,8 +55,7 @@ yeet run <vm> vm://ubuntu/26.04 --vcpus=4 --memory=4g --disk=128g
 
 `--memory` is the VM's maximum RAM. New VMs enable Firecracker ballooning by
 default, so catch can reclaim guest memory under host pressure without lowering
-the configured maximum. This is a pressure valve, not a promise that memory is
-infinite.
+the configured maximum. This does not increase available host memory.
 
 Set the minimum floor when you create the VM:
 
@@ -212,8 +211,7 @@ network.
 
 Many VPS providers do not expose nested virtualization. Use containers,
 binaries, scripts, and cron jobs on those hosts, and run VMs on a KVM-capable
-machine. This is not a yeet limitation so much as physics with a provider
-invoice.
+machine.
 
 ## Image cache
 
@@ -229,8 +227,7 @@ yeet vm images prune --dry-run
 ```
 
 `yeet vm images update` refreshes official image families for future VM
-creates. It does not rewrite existing VM disks. Existing VMs are stateful
-guests, not templates waiting to be surprised.
+creates. It does not rewrite existing VM disks.
 
 When creating a VM with a stale cached image, interactive runs prompt by
 default. For non-interactive runs, choose explicitly:

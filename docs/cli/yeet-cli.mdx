@@ -12,8 +12,7 @@ yeet vm images --help-agent
 ```
 
 For recipes, start with [Workflows](/docs/operations/workflows). Use this
-reference after you know the shape of the job. Reference docs are not a
-personality test; nobody wins by reading them top to bottom first.
+page as a command reference once you know the workflow you need.
 
 ## Global flags
 
@@ -522,8 +521,7 @@ datasets such as `flash/yeet/services/<svc>`.
 Without `--yes`, yeet prints the plan and asks before applying it. If
 `--migrate-services` is omitted in an interactive terminal, yeet asks whether
 to migrate affected services. With `--yes`, pass the migration mode explicitly.
-Automation should declare whether services move; a hidden default here would be
-a bad joke.
+Automation should declare whether services move.
 
 When services move, yeet updates matching entries in the local `yeet.toml`.
 Pass `--config ./yeet.toml` when the project config is somewhere else.

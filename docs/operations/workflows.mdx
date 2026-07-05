@@ -146,8 +146,8 @@ yeet docker update --outdated
 ```
 
 Use `--force` when you want to redeploy even if yeet detects no payload or
-config change. This is a deliberate poke, not a troubleshooting strategy by
-itself:
+config change. It reruns the deploy; it does not diagnose why the previous
+state was wrong:
 
 ```bash
 yeet run --force <svc> ./compose.yml

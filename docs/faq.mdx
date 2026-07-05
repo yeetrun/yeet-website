@@ -26,11 +26,8 @@ with [Tailscale Access Grants](/docs/security/tailscale-access-grants).
 
 ## Do services run as root?
 
-Yes. This is acceptable for a single-operator homelab, but not recommended for
-shared or multi-tenant environments.
-
-This is one of those details that is boring until it is the whole security
-model.
+Yes. Services run as root-owned systemd units on the catch host. Use yeet for
+single-operator hosts you control, not shared or multi-tenant environments.
 
 ## Can I use docker compose?
 
@@ -71,4 +68,4 @@ SSH installs the daemon. Tailscale operates it. That split is the model.
 `yeet rm <svc>` removes the service but keeps service data. It prompts before
 removing the local config entry. Use `yeet rm --clean <svc>` when you also want
 to delete the managed data root or VM disk and remove the local `yeet.toml`
-entry. Read the prompt; data deletion is not a place for optimistic clicking.
+entry. Read the prompt before accepting.

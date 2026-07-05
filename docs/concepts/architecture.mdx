@@ -12,9 +12,8 @@ You use `yeet init` once per host to install catch. After that, yeet talks to
 catch over Tailscale/tsnet and asks it to install, update, inspect, and remove
 services.
 
-That is the whole model. Yeet is not a cloud scheduler hiding somewhere else.
-The state lives on hosts you control, and the CLI is the handle you use to move
-that state deliberately.
+There is no hidden scheduler. The state lives on hosts you control, and the CLI
+is the handle you use to move that state deliberately.
 
 ## Deploy flow
 
@@ -101,7 +100,7 @@ See [Networking](/docs/concepts/networking), [DNS](/docs/concepts/dns), and
 Catch must run as a tagged Tailscale node, such as `tag:catch`. Your tailnet
 policy decides which devices and tags can reach catch. Catch rejects untagged,
 user-owned nodes because it is server infrastructure. Identity is part of the
-control plane, not an afterthought bolted onto the port.
+control plane.
 
 See [Tailscale Setup](/docs/concepts/tailscale#first-time-host-setup) for the
 policy shape.

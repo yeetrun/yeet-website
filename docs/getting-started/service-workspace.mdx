@@ -12,10 +12,8 @@ Run deploy and service commands from this directory. Yeet reads and writes
 saved payload paths, hosts, network flags, service roots, snapshots, cron
 schedules, and payload args.
 
-This is not ceremony. It is a cheap way to stop deployment state from spreading
-across shell history, memory, and whichever directory happened to be open when
-the service first worked. Hidden state is where future debugging time goes to
-retire.
+Use one workspace so deployment state stays with the files it describes,
+instead of spreading across shell history and unrelated directories.
 
 ## Create a workspace
 
@@ -122,8 +120,7 @@ yeet run sensor-collector ./bin/sensor-collector
 ```
 
 Relative paths make the workspace easier to back up, move, or sync. They also
-keep `yeet.toml` readable. Absolute paths are fine until you move machines and
-discover your deployment plan was secretly a filesystem autobiography.
+keep `yeet.toml` readable when the workspace moves.
 
 ## Use service folders
 
@@ -132,8 +129,7 @@ and app-specific config. Use shared folders such as `bin/` and `jobs/` for
 small custom payloads.
 
 Avoid running deploy commands from random directories. If yeet cannot find the
-right `yeet.toml`, it cannot reuse the saved service entry. The tool is not
-confused. It is obeying the directory you gave it.
+right `yeet.toml`, it cannot reuse the saved service entry.
 
 Service names must use 1-63 lowercase letters, numbers, and dashes. Start with
 a letter and end with a letter or number.
