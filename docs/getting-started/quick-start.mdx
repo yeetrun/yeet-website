@@ -1,152 +1,116 @@
 ---
 title: Quick Start
-description: Get from zero to one disposable service without learning the whole system first.
+description: Fast path from empty host to one disposable service.
 ---
 
-Use this path for the first successful deploy. It installs `yeet` locally,
-bootstraps `catch` on one Linux host, creates a service workspace, and runs a
-disposable container.
+This is the shortest useful path: install `yeet`, prepare Tailscale, install
+`catch`, run a disposable container, and remove it.
 
-The goal is not to make every decision now. The goal is to prove the control
-loop works: workstation -> catch -> service -> logs -> cleanup. Once that loop
-works, the rest of the manual becomes a set of knobs instead of a scavenger
-hunt.
+You are not designing the final setup yet. You are proving the loop works:
+workstation -> catch -> service -> logs -> cleanup. Once that loop works, the
+rest of the manual is detail you can pull in when you need it.
 
-## Before you start
+## TLDR
 
 You need:
 
 - A Linux host with systemd and SSH access.
-- Tailscale admin access for the first catch enrollment.
-- A Tailscale OAuth client secret that can create a tagged auth key for catch.
 - Tailscale installed on your workstation and connected to the same tailnet.
+- Tailscale admin access for first setup.
+- A Tailscale OAuth client secret for catch.
+- Docker on the host for the disposable container test.
 
-Catch uses embedded tsnet, but the local `yeet` CLI does not. After `yeet init`,
-normal commands connect to the catch tsnet hostname from your workstation. In
-plain terms: your workstation still needs to reach the tailnet address.
+Skip VMs for the first run. Containers prove the basic path with less host
+drama.
 
-Skip VMs for the first run unless you already know the host has KVM. Containers
-are a smaller first test. They prove the basic path without asking your host
-network to perform a magic trick.
+## 1. Prepare Tailscale
 
-## 1) Install yeet on your workstation
+Do this before `yeet init`.
+
+Catch joins your tailnet as a tagged device, usually `tag:catch`. Your setup
+user also needs the `yeetrun.com/app/yeet` permissions `read`, `manage`, and
+`ssh` on TCP `41548`.
+
+The short version:
+
+1. Open [Tailscale Setup](/docs/concepts/tailscale#first-time-host-setup).
+2. Create the tag policy and OAuth credential there.
+3. Keep the `tskey-client-...` OAuth client secret ready.
+4. Make sure your workstation is connected to the same tailnet.
+
+The policy details matter, but they do not belong inline in the Quick Start. A
+partial policy copy creates setup errors that look unrelated until you check
+the tailnet rules. Use the setup page for that part.
+
+## 2. Install yeet
+
+Run this on your workstation:
 
 ```bash
 curl -fsSL https://yeetrun.com/install.sh | sh
 ```
 
-Nightly build:
+Check that the CLI is available:
 
 ```bash
-curl -fsSL https://yeetrun.com/install.sh | sh -s -- --nightly
+yeet --help
 ```
 
-## 2) Prepare Tailscale access
+For install options, nightly builds, and upgrades, use the
+[Installation guide](/docs/getting-started/installation).
 
-Do this before running `yeet init`. Catch must join your tailnet as a tagged
-device, usually `tag:catch`. A user-owned catch node is rejected, because a
-server daemon with user-device identity is how access control turns into vibes.
+## 3. Install catch on one host
 
-Your tailnet policy must also let your setup user reach catch on TCP port
-`41548` with the `yeetrun.com/app/yeet` app permissions `read`, `manage`, and
-`ssh`. First setup requires all three because `yeet init` enrolls catch,
-checks the install, and may run shell-backed validation.
-
-In the Tailscale admin console, open `Trust credentials` -> `Credential` ->
-`OAuth`.
-
-You have two choices. The broad one is easy. The narrow one is better once you
-care exactly which tags this credential can mint.
-
-- Simple broad setup: choose `All - Read & Write` if you are comfortable giving
-  the credential broad Tailscale API access.
-- Least-privilege setup: choose custom scopes with Auth Keys write
-  (`auth_keys`) and select `tag:catch`. If you plan to use service `--net=ts`
-  later, select an owner tag such as `tag:yeet` that owns `tag:catch` and
-  service tags such as `tag:app`.
-
-Keep the `tskey-client-...` OAuth client secret ready. Interactive `yeet init`
-asks for it during first setup. Treat it like a credential, not like an example
-string you paste into chat logs.
-
-For the minimal policy snippet, see
-[Tailscale Setup](/docs/concepts/tailscale#first-time-host-setup). For the
-permission model and split-role examples, see
-[Tailscale Access Grants](/docs/security/tailscale-access-grants).
-For service network choices, use [Networking](/docs/concepts/networking) before
-deploying `--net=ts`; most services that need Tailscale should use `svc,ts`.
-
-## 3) Bootstrap catch on a host
-
-Run this from your workstation. The target here is the SSH machine host, not
-the catch hostname that will exist after setup:
+Run one of these from your workstation. The target is the SSH machine host:
 
 ```bash
 yeet init root@<machine-host>
 ```
 
-`<machine-host>` is the SSH target. If you use a non-root user, yeet runs the
-remote install with sudo.
+If Docker may be missing on a Debian/Ubuntu-style host, let init offer to install
+it:
 
-During first setup, `yeet init` prompts for the Tailscale OAuth client secret
-unless you pass `--ts-client-secret=<secret>` or `--ts-auth-key=<key>`. Paste
-the secret you created in the previous step.
+```bash
+yeet init --install-docker root@<machine-host>
+```
 
-Fresh installs also ask where catch should store host data. The default is
-`$HOME/yeet-data` on the catch host, with services under that path. This is the
-host-side state. Know where it is before you deploy anything important.
+During first setup, paste the Tailscale OAuth client secret from step 1.
 
-If the tailnet policy is not ready, finish
-[Tailscale Setup](/docs/concepts/tailscale#first-time-host-setup) before
-running `yeet init`.
+Use `root@<machine-host>` for SSH setup. After setup, normal commands target
+the catch hostname on your tailnet. That split sounds fussy until you have more
+than one host. Then it is just bookkeeping.
 
-If Docker is missing on a Debian/Ubuntu-style host, interactive `yeet init` can
-ask to install it. On Debian/Ubuntu hosts that expose KVM and TUN/TAP, init can
-also ask before installing missing VM tools and preparing VM LAN bridge support.
-If the host is not VM capable, yeet warns and containers, binaries, scripts,
-and cron jobs still work.
+## 4. Confirm yeet can reach catch
 
-## 4) Confirm yeet can reach catch
-
-After `yeet init`, commands target the catch hostname, not the SSH machine
-hostname. This split is slightly annoying and very useful: SSH installs the
-daemon; Tailscale operates it. If yeet saved a default host, these should work:
+If setup saved a default host, these should work:
 
 ```bash
 yeet version
 yeet status
 ```
 
-For multiple hosts, pass the catch hostname explicitly:
+If you have more than one catch host, be explicit:
 
 ```bash
 yeet --host=<catch-host> status
 ```
 
-See [How Commands Work](/docs/cli/cli-overview) if `root@<machine-host>`,
-`<catch-host>`, and `<svc>@<host>` are still unclear.
+## 5. Create a service workspace
 
-## 5) Create a service workspace
-
-Do this before your first `yeet run`. A successful deploy writes `yeet.toml` in
-the current directory. Put that file somewhere boring and intentional.
+Run services from a directory you plan to keep. A successful deploy writes
+`yeet.toml` there.
 
 ```bash
 mkdir -p ~/yeet-services
 cd ~/yeet-services
 ```
 
-Use this directory for real homelab services too. It keeps the deploy recipe
-near the files it describes, which is less glamorous than a database and much
-easier to inspect at 11 p.m.
+This is boring local state. Good. Hidden state is how simple tools become
+surprises.
 
-See [Service Workspace](/docs/getting-started/service-workspace) before
-deploying third-party Compose apps, env files, Dockerfiles, scripts, or
-binaries.
+## 6. Run a disposable service
 
-## 6) Deploy a disposable service
-
-Start with a small container. It is disposable on purpose:
+Start with nginx. It is small, familiar, and easy to delete.
 
 ```bash
 yeet run -p 18080:80 hello nginx:alpine
@@ -160,21 +124,18 @@ Check the published port from the host:
 yeet ssh -- curl -fsS http://127.0.0.1:18080/ >/dev/null
 ```
 
-## 7) Remove the disposable service
+## 7. Clean it up
 
 ```bash
 yeet rm --clean hello
 ```
 
-`--clean` deletes the service data and removes the disposable `yeet.toml`
-entry, so read the confirmation prompt before accepting. Cleanup flags are not
-where you want muscle memory doing product management.
+`--clean` deletes service data and removes the disposable `yeet.toml` entry.
+Read the prompt. Cleanup is not the place for autopilot.
 
-## Next steps
+## Next
 
-- Run the [First-Run Validation](/docs/getting-started/first-run-validation)
-  playbook if this is a new host.
-- Open [Workflows](/docs/operations/workflows) for day-to-day deploy and update
-  commands.
-- Open [Payload Guides](/docs/payloads) to choose containers, binaries, scripts,
-  cron jobs, or VMs.
+- New host: run [First-Run Validation](/docs/getting-started/first-run-validation).
+- Real service: read [Service Workspace](/docs/getting-started/service-workspace).
+- Day-to-day deploys: open [Workflows](/docs/operations/workflows).
+- Payload choices: start with [Payload Guides](/docs/payloads).
