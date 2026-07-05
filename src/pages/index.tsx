@@ -77,7 +77,7 @@ export default function Home({ docsNavTree }: HomePageProps) {
         title:
           "yeet: Homelab Service Manager for Containers, VMs, and Binaries",
         description:
-          "Run containers, VMs, binaries, scripts, and cron jobs on Linux hosts you control.",
+          "Deploy containers, VMs, binaries, scripts, and cron jobs from your workstation to Linux hosts.",
         path: "/",
       }}
     >
@@ -86,17 +86,16 @@ export default function Home({ docsNavTree }: HomePageProps) {
           <GridContainer className={s.heroGrid}>
             <div className={s.heroContent}>
               <div className={s.heroBadge}>
-                Linux hosts you control.
+                Deploy from your workstation.
               </div>
               <H1 className={s.heroTitle}>
-                Run services and VMs on your own Linux hosts.
+                Run services and VMs on Linux hosts over your tailnet.
               </H1>
               <P className={s.heroSubtitle} weight="regular">
                 Yeet runs on your workstation. The catch daemon runs on the
-                host. Together they deploy compose stacks, images, Dockerfiles,
-                binaries, scripts, cron jobs, and Firecracker VMs over your
-                tailnet. The host still has systemd units, Docker projects,
-                files, logs, and VM data you can inspect directly.
+                host. Together they turn compose stacks, images, Dockerfiles,
+                binaries, scripts, cron jobs, and Firecracker VMs into systemd
+                units, Docker projects, files, logs, and VM data you can inspect.
               </P>
               <div className={s.heroActions}>
                 <ButtonLink
