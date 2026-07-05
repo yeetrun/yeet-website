@@ -64,6 +64,27 @@ Use this structure by default:
 For long pages, start with a short "Start here" or "Choose your path" section.
 Do not make readers scan the whole page to find their entry point.
 
+## Avoid Overlabeling
+
+Do not spend the first paragraph naming the page again. The title, nav label,
+and description already did that work.
+
+Avoid:
+
+- "This page is the upgrade ledger."
+- "Use this page as a command index."
+- "This guide explains how networking works."
+
+Prefer opening with the decision, rule, or first useful fact:
+
+- "Start with the latest version entry."
+- "Network mode choice decides who can reach the workload."
+- "Client preferences answer which catch host yeet targets by default."
+
+Overlabeling is especially wasteful on changelog, reference, and overview pages.
+If the first sentence only tells the reader what kind of page they are reading,
+delete it or replace it with information they can act on.
+
 ## Headings
 
 Use headings as a map, not as decoration.
