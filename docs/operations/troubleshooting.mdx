@@ -49,19 +49,6 @@ Fix the Tailscale policy first, then rerun init:
 yeet init root@<machine-host>
 ```
 
-For repeatable setup, pass an OAuth client secret that can assign the catch
-tag:
-
-```bash
-yeet init --ts-client-secret=<secret> root@<machine-host>
-```
-
-Advanced users can pass a preauthorized Tailscale auth key instead:
-
-```bash
-yeet init --ts-auth-key=<key> root@<machine-host>
-```
-
 ## `yeet init` got a different catch hostname
 
 Tailscale assigned a suffix such as `catch-1` because another device already
@@ -85,15 +72,9 @@ hosts, interactive init can ask before installing it:
 yeet init root@<machine-host>
 ```
 
-For unattended setup, pre-answer the Docker prompt:
-
-```bash
-yeet init --install-docker root@<machine-host>
-```
-
 If local image pushes do not show up on the host, rerun bootstrap and allow
-Docker setup. For unattended setup, `--install-docker` also configures the
-Docker settings yeet needs during catch install.
+Docker setup. Yeet configures the Docker settings it needs during catch
+install.
 
 For Compose services:
 
@@ -199,11 +180,10 @@ done
 
 If KVM is missing, use containers, binaries, scripts, and cron jobs on that
 host. If KVM and TUN/TAP exist but tools are missing on Debian/Ubuntu,
-interactive `yeet init` can ask before installing them. For unattended setup,
-pre-answer the VM-tools package prompt:
+interactive `yeet init` can ask before installing them:
 
 ```bash
-yeet init --install-vm-tools root@<machine-host>
+yeet init root@<machine-host>
 ```
 
 See [VMs](/docs/payloads/vms) for image cache and console diagnostics.

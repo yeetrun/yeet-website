@@ -91,7 +91,7 @@ owner-tag pattern is more flexible. Flexibility here means the credential can
 mint the future service tags you deliberately allowed, not whatever tag happens
 to be fashionable next week.
 
-## Run init with the secret
+## Run init
 
 Interactive init prompts for the OAuth client secret during first setup:
 
@@ -99,27 +99,9 @@ Interactive init prompts for the OAuth client secret during first setup:
 yeet init root@<machine-host>
 ```
 
-For unattended catch enrollment, pass the OAuth secret:
-
-```bash
-yeet init --ts-client-secret=<secret> root@<machine-host>
-```
-
-Add package flags only when automation should pre-answer install prompts:
-
-```bash
-yeet init --install-docker --install-vm-tools --ts-client-secret=<secret> root@<machine-host>
-```
-
-Advanced users can pass a preauthorized auth key for the catch node:
-
-```bash
-yeet init --ts-auth-key=<key> root@<machine-host>
-```
-
-The secret or auth key belongs to catch itself. If the resulting catch node is
-not tagged, catch refuses connections. The install may have succeeded; the
-identity still failed.
+The OAuth secret belongs to catch itself. If the resulting catch node is not
+tagged, catch refuses connections. The install may have succeeded; the identity
+still failed.
 
 ## Host naming
 

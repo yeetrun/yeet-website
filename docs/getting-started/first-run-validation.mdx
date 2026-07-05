@@ -42,16 +42,10 @@ reachability from your workstation.
 
 If `yeet status` cannot connect, confirm `yeet init` stored a Tailscale OAuth
 client secret or catch-node auth key, and confirm the catch node has the
-required tag. For repeatable setup, rerun init with the OAuth client secret:
+required tag. After fixing the tag or policy, rerun init:
 
 ```bash
-yeet init --ts-client-secret=<secret> root@<machine-host>
-```
-
-Advanced users can rerun init with a direct catch-node auth key:
-
-```bash
-yeet init --ts-auth-key=<key> root@<machine-host>
+yeet init root@<machine-host>
 ```
 
 See [Tailscale](/docs/concepts/tailscale) if the SSH machine host and catch
@@ -157,9 +151,8 @@ done
 ```
 
 If the VM devices exist but tools are missing on a Debian/Ubuntu host,
-interactive `yeet init` can ask before installing them. For unattended setup,
-use `yeet init --install-vm-tools root@<machine-host>` or install the packages
-listed in [VMs](/docs/payloads/vms#host-requirements).
+interactive `yeet init` can ask before installing them. You can also install
+the packages listed in [VMs](/docs/payloads/vms#host-requirements).
 
 On a VM-capable Debian/Ubuntu host, interactive `yeet init` can also ask to
 prepare VM LAN bridge support. Say yes when you plan to run VMs with

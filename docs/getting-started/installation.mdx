@@ -89,8 +89,7 @@ yeet init root@<machine-host>
 ```
 
 During first catch enrollment, interactive `yeet init` prompts for the
-Tailscale OAuth client secret unless you pass `--ts-client-secret=<secret>` or
-`--ts-auth-key=<key>`. Paste the secret from the Tailscale setup step.
+Tailscale OAuth client secret. Paste the secret from the Tailscale setup step.
 
 Fresh interactive installs also ask where catch should store host data. The
 default is `$HOME/yeet-data` on the catch host, with services under
@@ -110,63 +109,17 @@ default is stability, not "surprise, your data moved."
 
 Interactive `yeet init` can also ask before installing missing Debian/Ubuntu
 packages. On VM-capable Debian/Ubuntu hosts, it can ask to prepare VM LAN
-bridge support too. `--install-docker` and `--install-vm-tools` are unattended
-yes flags for the package prompts.
+bridge support too.
 
 If you use a non-root SSH user, yeet runs the remote install with sudo.
-
-## Pre-answer package prompts
-
-For interactive setup, run plain `yeet init`. If Docker or VM tools are missing
-on supported hosts, init asks before installing them.
-
-For unattended container bootstrap on a Debian/Ubuntu-style host, pre-answer the
-Docker prompt:
-
-```bash
-yeet init --install-docker root@<machine-host>
-```
-
-For unattended VM payload setup on a KVM-capable host, pre-answer Docker and VM
-tool prompts:
-
-```bash
-yeet init --install-docker --install-vm-tools root@<machine-host>
-```
 
 If you plan to run VMs with `--net=lan`, answer yes when init asks to prepare
 the host bridge. If you skip it, the first `yeet run <vm> ... --net=lan`
 prompts before creating the VM service.
 
-Use `--install-vm-tools` only on hosts that expose KVM and TUN/TAP. Many VPS
-providers do not expose nested virtualization. That is a host constraint, not a
-motivational challenge. On hosts that are not VM capable, yeet warns and
-containers, binaries, scripts, and cron jobs still work.
-
-## Run unattended setup
-
-For repeatable catch enrollment, pass the Tailscale OAuth client secret:
-
-```bash
-yeet init --ts-client-secret=<secret> root@<machine-host>
-```
-
-Advanced users can pass a preauthorized Tailscale auth key instead:
-
-```bash
-yeet init --ts-auth-key=<key> root@<machine-host>
-```
-
-If your automation also needs host packages installed, add the package flags it
-should answer yes to:
-
-```bash
-yeet init --install-docker --install-vm-tools --ts-client-secret=<secret> root@<machine-host>
-```
-
-The secret or auth key belongs to the catch node. Catch accepts connections only
-after the node has the required tag. If the tag is wrong, the daemon may exist,
-but the access model is still not valid.
+Many VPS providers do not expose nested virtualization. That is a host
+constraint, not a motivational challenge. On hosts that are not VM capable,
+yeet warns and containers, binaries, scripts, and cron jobs still work.
 
 ## Confirm the install
 

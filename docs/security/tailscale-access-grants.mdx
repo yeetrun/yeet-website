@@ -16,8 +16,7 @@ For first setup, keep the policy simple. Let Tailscale admins reach catch on
 its RPC port and give those admins every yeet permission. Tailscale's built-in
 admin autogroup is `autogroup:admin`.
 
-You can split the roles later. Do not make the first install fail because you
-tried to design the final org chart before the daemon had a tag.
+You can split the roles later. First get the host enrolled with one admin grant.
 
 ```jsonc
 {
@@ -59,37 +58,18 @@ Keep it if you run more than one catch host.
 
 ## Permission Levels
 
-`read` allows observation commands. Use it for status, service information,
-logs, events, VM defaults, artifact hashes, and other commands that inspect
-catch state without changing it.
-
-`manage` allows high-trust changes. Use it for deploys, updates, service
-removal, `yeet rm --clean`, config changes, snapshot restore or deletion, VM
-lifecycle commands, catch upgrades, Tailscale service changes, and registry
-pushes over the tailnet.
-
-`ssh` allows catch-mediated shell access. Use it for `yeet ssh` into the catch
-host or into a service namespace.
+| Permission | Allows | Common examples |
+| --- | --- | --- |
+| `read` | Observing catch state | `yeet status`, `yeet info`, logs, events, VM defaults, artifact hashes |
+| `manage` | Changing services or host state | Deploys, updates, removals, `yeet rm --clean`, config changes, snapshots, VM lifecycle commands, catch upgrades, Tailscale service changes, local image pushes |
+| `ssh` | Opening catch-mediated shells | `yeet ssh`, `yeet ssh <svc>`, commands run inside a service namespace |
 
 `manage` does not imply `read`, and `ssh` does not imply either one. Include
-every permission a role needs. Permission bundles are explicit so a policy
-reader does not have to guess which powerful verb smuggles in which other
-powerful verb.
+every permission a role needs.
 
-## VM SSH
-
-`yeet ssh <vm>` only needs `read` at the yeet permission layer because the VM
-guest still enforces normal SSH authentication with its own key. This is
-different from `yeet ssh` into the catch host or a service namespace, which is
-authorized by catch and requires `ssh`. The VM is a separate machine; it gets
-to keep its own lock.
-
-## Registry Access
-
-The tailnet registry endpoint requires `manage`. The registry is mainly useful
-for pushing deploy artifacts, so yeet does not expose a separate read-only
-registry permission over the tailnet. Internal loopback reads used by catch stay
-local to the host.
+`yeet ssh <vm>` is the exception to remember. Yeet needs `read` to find the VM
+connection details, then the VM guest uses normal SSH keys for login. Catch-host
+and service shells still require `ssh`.
 
 ## Workstation Access
 
@@ -164,7 +144,8 @@ https://yeetrun.com/docs/security/tailscale-access-grants
 
 Update the matching Tailscale grant, wait for the policy to apply, then rerun
 the command from a workstation that can reach the catch hostname. If the error
-says `manage`, adding SSH reachability will not help. Wrong layer.
+says `manage`, adding SSH reachability will not help; update the app
+permission instead.
 
 ## Related Pages
 

@@ -203,12 +203,7 @@ VM payloads require:
 - `qemu-img`, `zstd`, `e2fsck`, `resize2fs`, `mount`, `umount`, and `ip`.
 
 On Debian/Ubuntu hosts with KVM and TUN/TAP available, interactive `yeet init`
-can prompt to install missing VM tools and prepare VM LAN bridge support. For
-unattended VM tool setup, pre-answer that prompt with:
-
-```bash
-yeet init --install-vm-tools root@<machine-host>
-```
+can prompt to install missing VM tools and prepare VM LAN bridge support.
 
 Automatic VM LAN bridge preparation currently supports Debian/Ubuntu
 netplan-networkd hosts with a physical default-route LAN uplink. Hosts that
