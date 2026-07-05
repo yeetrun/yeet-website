@@ -25,8 +25,7 @@ export default function NotFound({ docsNavTree }: NotFoundProps) {
       docsNavTree={docsNavTree}
       meta={{
         title: "Page not found | yeet",
-        description:
-          "We could not find that page. Use the docs or return home.",
+        description: "That yeet page is not here. Use the docs or return home.",
       }}
     >
       <main className={s.notFoundPage}>
@@ -43,10 +42,10 @@ export default function NotFound({ docsNavTree }: NotFoundProps) {
             </span>
             <span className={s.logoText}>yeet</span>
           </div>
-          <H2>This page could not be found.</H2>
+          <H2>That page is not here.</H2>
           <P>
-            Use the docs navigation or return to the homepage. If this link
-            should exist, double-check the URL.
+            Use the docs navigation or go back home. If the link should work,
+            the URL is the first boring thing to check.
           </P>
           <div className={s.actions}>
             <ButtonLink href="/docs" text="Docs" size="large" />

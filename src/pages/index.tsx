@@ -16,7 +16,8 @@ const commonWorkflows = [
   {
     id: "compose",
     title: "Compose stack",
-    description: "Ship a compose file, then pull and redeploy when needed.",
+    description:
+      "Run the compose file you already have. Pull and redeploy when it changes.",
     code: `yeet run <svc> ./compose.yml
 yeet run --pull <svc> ./compose.yml
 yeet logs -f <svc>`,
@@ -24,7 +25,8 @@ yeet logs -f <svc>`,
   {
     id: "dockerfile",
     title: "Dockerfile",
-    description: "Build a local Dockerfile on the catch host and run it.",
+    description:
+      "Hand yeet a Dockerfile. The host builds it and runs the result.",
     code: `yeet run <svc> ./Dockerfile
 yeet status <svc>`,
   },
@@ -32,7 +34,7 @@ yeet status <svc>`,
     id: "vm",
     title: "Linux VM",
     description:
-      "Create a Firecracker-backed Ubuntu or NixOS guest and SSH through yeet.",
+      "Create a Firecracker guest when a container is the wrong box for the job.",
     code: `yeet run <vm> vm://ubuntu/26.04
 yeet ssh <vm>
 yeet vm console <vm>`,
@@ -40,7 +42,8 @@ yeet vm console <vm>`,
   {
     id: "binary",
     title: "Binary",
-    description: "Build a Linux binary locally and install it as a service.",
+    description:
+      "Build the Linux binary locally. Install it as a boring service.",
     code: `GOOS=linux GOARCH=amd64 go build -o ./bin/<svc>
 yeet run <svc> ./bin/<svc>
 yeet logs -f <svc>`,
@@ -74,7 +77,7 @@ export default function Home({ docsNavTree }: HomePageProps) {
         title:
           "yeet: Homelab Service Manager for Containers, VMs, and Binaries",
         description:
-          "Homelab service manager for shipping containers, VMs, and host services to remote Linux machines over your tailnet.",
+          "Run containers, VMs, binaries, scripts, and cron jobs on Linux hosts you control, without building a tiny cloud by accident.",
         path: "/",
       }}
     >
@@ -83,14 +86,17 @@ export default function Home({ docsNavTree }: HomePageProps) {
           <GridContainer className={s.heroGrid}>
             <div className={s.heroContent}>
               <div className={s.heroBadge}>
-                Homelab-first • Tailnet access • Containers + VMs
+                Linux hosts you control. No tiny cloud required.
               </div>
-              <H1 className={s.heroTitle}>Run services fast with yeet.</H1>
+              <H1 className={s.heroTitle}>
+                Run services and VMs on your own Linux hosts.
+              </H1>
               <P className={s.heroSubtitle} weight="regular">
-                Yeet deploys and manages services on remote Linux hosts you
-                control. Use one CLI to ship compose stacks, Dockerfiles,
-                images, binaries, scripts, cron jobs, and Firecracker-backed
-                Linux VMs over your tailnet.
+                Yeet runs on your workstation. The catch daemon runs on the
+                host. Together they deploy compose stacks, images, Dockerfiles,
+                binaries, scripts, cron jobs, and Firecracker VMs over your
+                tailnet. The output is normal Linux state you can inspect when
+                the machine starts having opinions.
               </P>
               <div className={s.heroActions}>
                 <ButtonLink
@@ -106,15 +112,16 @@ export default function Home({ docsNavTree }: HomePageProps) {
                 />
               </div>
               <div className={s.heroNote}>
-                <strong>Read this first:</strong> Yeet targets opinionated
-                homelab workflows. It expects Linux hosts, SSH access,
-                Tailscale/tsnet connectivity, systemd, and Docker for
-                container payloads.
+                <strong>Read this first:</strong> Yeet is for single-operator
+                homelabs and small private infrastructure. It expects Linux, SSH
+                for first setup, systemd, Tailscale or tsnet connectivity, and
+                Docker when you run container payloads. It is not a multi-tenant
+                platform. That boundary is intentional.
               </div>
             </div>
 
             <div className={s.heroPanel}>
-              <div className={s.panelHeader}>Quick bootstrap</div>
+              <div className={s.panelHeader}>First useful run</div>
               <CodeBlock>
                 <code>{`# install yeet
 curl -fsSL https://yeetrun.com/install.sh | sh
@@ -130,8 +137,11 @@ yeet run <vm> vm://ubuntu/26.04
 yeet ssh <vm>`}</code>
               </CodeBlock>
               <div className={s.panelFooter}>
-                Want the full workflow? Read the{" "}
-                <Link href="/docs/operations/workflows">Workflows guide</Link>.
+                Need the setup details before touching a host? Read the{" "}
+                <Link href="/docs/getting-started/quick-start">
+                  Quick Start
+                </Link>
+                .
               </div>
             </div>
           </GridContainer>
@@ -140,12 +150,16 @@ yeet ssh <vm>`}</code>
         <SectionWrapper className={s.section}>
           <div className={s.deployPaths}>
             <div className={s.deployCopy}>
-              <H2>Deploy from the terminal or the browser</H2>
+              <H2>
+                Use the terminal when you know the shape. Use the browser when
+                you do not.
+              </H2>
               <P>
-                Use the CLI when you know the flags. Use{" "}
-                <code>yeet run --web</code> for a guided first deploy with the
-                same config saved to <code>yeet.toml</code> and terminal output
-                mirrored in the browser.
+                The CLI is fastest when the command is already in your hands.{" "}
+                <code>yeet run --web</code> gives you a guided deploy for the
+                first pass, saves the same config to <code>yeet.toml</code>, and
+                mirrors terminal output in the browser. Same machinery, less
+                flag archaeology.
               </P>
               <pre className={s.deployCode}>
                 <code>{`yeet run --web
@@ -166,35 +180,47 @@ yeet run <svc> ./compose.yml`}</code>
 
         <SectionWrapper className={s.section}>
           <div className={s.sectionHeader}>
-            <H2>Core pieces</H2>
-            <P>Yeet keeps the surface area small and explicit.</P>
+            <H2>The moving parts</H2>
+            <P>There are not many. That is the point.</P>
           </div>
           <div className={s.featureGrid}>
             <div className={s.featureCard}>
               <h3>yeet CLI</h3>
               <p>
-                Packages payloads, ships artifacts, and drives the workflow.
+                Your local control surface. It packages payloads, writes{" "}
+                <code>yeet.toml</code>, and sends work to catch.
               </p>
             </div>
             <div className={s.featureCard}>
               <h3>catch on each host</h3>
-              <p>Runs services, streams logs, and reports status.</p>
+              <p>
+                The small daemon on the host. It owns systemd units, Docker
+                projects, logs, files, and cleanup.
+              </p>
             </div>
             <div className={s.featureCard}>
               <h3>Tailnet connection</h3>
-              <p>Connects yeet to catch through embedded Tailscale nodes.</p>
+              <p>
+                SSH installs catch. After that, yeet talks to catch through
+                embedded Tailscale nodes.
+              </p>
             </div>
             <div className={s.featureCard}>
               <h3>Local image push</h3>
-              <p>Ships local container images to the host before running them.</p>
+              <p>
+                For images that only exist on your workstation. Push them to the
+                host, then run the thing you actually built.
+              </p>
             </div>
           </div>
         </SectionWrapper>
 
         <SectionWrapper className={s.sectionAlt}>
           <div className={s.sectionHeader}>
-            <H2>Common workflows</H2>
-            <P>Run what you already have. Yeet detects the payload type.</P>
+            <H2>Bring the thing you already have</H2>
+            <P>
+              Compose file, Dockerfile, VM image, binary. Yeet routes the work.
+            </P>
           </div>
           <div className={s.workflowShell}>
             <div
@@ -244,8 +270,11 @@ yeet run <svc> ./compose.yml`}</code>
 
         <SectionWrapper className={s.section}>
           <div className={s.sectionHeader}>
-            <H2>Explore the docs</H2>
-            <P>Start with setup, then move into payloads, workflows, and CLI reference.</P>
+            <H2>Docs for the next decision</H2>
+            <P>
+              Start with setup if the host is new. Jump to payloads or workflows
+              when you already know what needs to run.
+            </P>
           </div>
           <div className={s.docsGrid}>
             <Link
@@ -253,24 +282,29 @@ yeet run <svc> ./compose.yml`}</code>
               href="/docs/getting-started/quick-start"
             >
               <h3>Quick Start</h3>
-              <p>Fastest path to a working deployment.</p>
+              <p>Shortest path from empty host to a disposable service.</p>
             </Link>
             <Link
               className={s.docsCard}
               href="/docs/getting-started/installation"
             >
               <h3>Installation</h3>
-              <p>Toolchain setup, host bootstrap, and runtime requirements.</p>
+              <p>
+                Install yeet, bootstrap catch, and check the host assumptions.
+              </p>
             </Link>
             <Link className={s.docsCard} href="/docs/payloads">
               <h3>Payloads</h3>
               <p>
-                Dive into containers, VMs, binaries, scripts, and cron jobs.
+                Choose containers, VMs, binaries, scripts, or cron jobs by what
+                the workload needs.
               </p>
             </Link>
             <Link className={s.docsCard} href="/docs/operations/workflows">
               <h3>Workflows</h3>
-              <p>Day-to-day deploy, update, and maintenance flows.</p>
+              <p>
+                Deploy, update, tail logs, stage config, and clean up services.
+              </p>
             </Link>
           </div>
         </SectionWrapper>

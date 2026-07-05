@@ -31,7 +31,7 @@ export default function InstallPage({ docsNavTree }: InstallPageProps) {
       meta={{
         title: "Install yeet",
         description:
-          "Install yeet locally, bootstrap catch on a host, and start deploying services.",
+          "Install yeet on your workstation, install catch on a Linux host, and confirm the host is ready before deploying real services.",
         path: "/install",
       }}
     >
@@ -40,9 +40,10 @@ export default function InstallPage({ docsNavTree }: InstallPageProps) {
           <header className={s.header}>
             <H1>Install yeet</H1>
             <P className={s.subtitle} weight="regular">
-              Install the CLI on your laptop or workstation and bootstrap a
-              Linux host running catch. Yeet embeds Tailscale via tsnet, so you
-              don’t need Tailscale installed on either machine.
+              Install the CLI where you work. Then use SSH once to install catch
+              on a Linux host. After that, yeet talks to catch over tsnet, so
+              neither machine needs the Tailscale client installed just to make
+              yeet work.
             </P>
             <div className={s.actions}>
               <ButtonLink
@@ -52,13 +53,13 @@ export default function InstallPage({ docsNavTree }: InstallPageProps) {
               />
               <ButtonLink
                 href="/docs/getting-started/installation"
-                text="Full Installation Guide"
+                text="Installation Guide"
                 size="large"
                 theme="neutral"
               />
               <ButtonLink
                 href="/docs/getting-started/first-run-validation"
-                text="Validate a Fresh Host"
+                text="Validate Host"
                 size="large"
                 theme="neutral"
               />
@@ -70,16 +71,18 @@ export default function InstallPage({ docsNavTree }: InstallPageProps) {
           <div className={s.grid}>
             <section className={s.card}>
               <H2>Install yeet</H2>
-              <P>Recommended release install:</P>
+              <P>Install the current release on your workstation:</P>
               <CodeBlock>
                 <code>{`curl -fsSL https://yeetrun.com/install.sh | sh`}</code>
               </CodeBlock>
-              <P className={s.note}>Nightly builds:</P>
+              <P className={s.note}>
+                Use nightly when you need a fix that has not been tagged yet:
+              </P>
               <CodeBlock>
                 <code>{`curl -fsSL https://yeetrun.com/install.sh | sh -s -- --nightly`}</code>
               </CodeBlock>
               <P className={s.note}>
-                For host setup details and upgrade commands, see the{" "}
+                For upgrade commands and install options, use the{" "}
                 <Link href="/docs/getting-started/installation">
                   installation guide
                 </Link>
@@ -90,21 +93,24 @@ export default function InstallPage({ docsNavTree }: InstallPageProps) {
             <section className={s.card}>
               <H2>Bootstrap a host</H2>
               <P>
-                Prepare the Tailscale tag policy first, then install catch on a
-                remote Linux host via SSH. Interactive setup asks for the
-                Tailscale OAuth client secret and can ask before installing
-                missing Debian/Ubuntu packages.
+                Prepare the Tailscale tag policy first. Then install catch on a
+                remote Linux host over SSH. Interactive setup asks for the
+                Tailscale OAuth client secret and asks before installing missing
+                Debian or Ubuntu packages.
               </P>
               <CodeBlock>
                 <code>{`yeet init root@<machine-host>`}</code>
               </CodeBlock>
               <P className={s.note}>
-                KVM-capable VM host, unattended package install:
+                If the host can run VMs, let yeet install the VM tools:
               </P>
               <CodeBlock>
                 <code>{`yeet init --install-vm-tools root@<machine-host>`}</code>
               </CodeBlock>
-              <P className={s.note}>Unattended setup:</P>
+              <P className={s.note}>
+                For unattended setup, pass the package flags and OAuth secret
+                explicitly:
+              </P>
               <CodeBlock>
                 <code>{`yeet init --install-docker --install-vm-tools --ts-client-secret=<secret> root@<machine-host>`}</code>
               </CodeBlock>
@@ -118,7 +124,7 @@ export default function InstallPage({ docsNavTree }: InstallPageProps) {
                 <Link href="/docs/getting-started/first-run-validation">
                   first-run validation playbook
                 </Link>{" "}
-                to smoke-test the payload types your host supports.
+                to prove the host can run the payload types you plan to use.
               </P>
             </section>
           </div>
