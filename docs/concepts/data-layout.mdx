@@ -7,9 +7,8 @@ Catch stores live state on each host under its data directory. You usually do
 not need to edit these files directly, but the layout helps when you inspect a
 host or plan service roots.
 
-This page exists because storage is where abstractions go to become facts. You
-do not need to memorize the tree. You should know which directory is disposable
-and which one contains the thing you will be sad to delete.
+You do not need to memorize the tree. Know which directory is disposable and
+which one contains data you intend to keep.
 
 ## Data directory
 
@@ -69,7 +68,7 @@ Inside a service root, the common directories are:
 
 `yeet run` can set the root for a new service. Stop an existing service before
 moving its root with `yeet service set`. Moving storage while the process is
-writing to it is not clever. It is a race condition with better marketing.
+writing to it can corrupt or lose data.
 
 ```bash
 yeet stop <svc>
@@ -127,8 +126,7 @@ command outside the project directory.
 ## Local replay config
 
 `yeet.toml` stores the local recipe for future runs. Catch stores the live root
-on the host. The split is useful until it drifts; then it is a queue of future
-surprises.
+on the host. If they drift, sync the live settings back.
 
 If another checkout changes live service settings, sync them back:
 

@@ -16,8 +16,8 @@ You need:
 - A Tailscale OAuth client secret for catch.
 - Docker on the host for the disposable container test.
 
-Skip VMs for the first run. Containers prove the basic path with less host
-drama.
+Skip VMs for the first run. Containers prove the basic path with fewer host
+requirements.
 
 ## 1. Prepare Tailscale
 
@@ -91,8 +91,7 @@ mkdir -p ~/yeet-services
 cd ~/yeet-services
 ```
 
-This is boring local state. Good. Hidden state is how simple tools become
-surprises.
+This keeps local deploy state visible and easy to reuse.
 
 ## 6. Run a disposable service
 

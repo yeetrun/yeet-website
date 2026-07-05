@@ -9,7 +9,7 @@ the first connection problem.
 
 Most failures happen at a boundary: workstation to catch, catch to Docker,
 service to network, VM to KVM, or local config to live state. Debug the boundary
-first. Random retries are just latency with a command prompt.
+first.
 
 ## yeet cannot reach catch
 
@@ -116,8 +116,7 @@ yeet ip <svc>
 
 For `svc` networking, `yeet info` and `yeet ip` should show private
 service-network addresses. For `lan`, the host network must support macvlan and
-DHCP. A WAN-only VPS usually should not use `lan`. No LAN, no LAN address. It
-is rude, but clear.
+DHCP. A WAN-only VPS usually should not use `lan`.
 
 If the service was running before a network change, restart it:
 
@@ -137,8 +136,7 @@ yeet info <svc>
 yeet ip <svc>
 ```
 
-Use the mode to choose the next check. Egress follows the network mode, not the
-hope you had while typing it:
+Use the mode to choose the next check:
 
 - `svc` and `svc,ts` use the catch host's gateway for ordinary internet
   access. Confirm the catch host itself can reach the internet.
@@ -202,7 +200,7 @@ Use the host's actual architecture when it is not amd64.
 ## `edit` fails without a TTY
 
 `yeet edit` and `yeet env edit` launch an editor. Run them from an interactive
-shell. Editors are TTY-shaped problems.
+shell.
 
 ## Staged changes are confusing
 
@@ -226,8 +224,7 @@ yeet stage <svc> clear
 
 ## `copy` destination errors
 
-One side of a copy must be remote, such as `<svc>:path` or `<vm>:path`. Local to
-local copy already has a tool; it is called `cp`.
+One side of a copy must be remote, such as `<svc>:path` or `<vm>:path`.
 
 Examples:
 
@@ -243,8 +240,7 @@ Remote service paths are relative to the service data directory.
 
 Yeet fixes a service type after the first install. If you installed a service
 as Compose, you cannot later replace it with a binary using the same service
-name. The live service has a shape, and yeet does not silently swap it under
-the same name.
+name.
 
 Choose a new service name, or remove the old service first:
 

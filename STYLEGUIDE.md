@@ -112,6 +112,10 @@ Avoid:
 - Apologies or hedging when the behavior is known.
 - Sales language in manual pages.
 - Contributor-facing rationale in user-facing docs.
+- Punchline sentences after the useful warning has already landed.
+
+The voice can be human and direct. It should not make the reader parse around a
+joke to find the command, risk, or next step.
 
 ## Tense And Voice
 
@@ -229,5 +233,6 @@ Before publishing a page, check:
 - Every command has enough context to run safely.
 - Active voice and present tense dominate.
 - The page avoids internal details unless the user needs them.
+- Each paragraph earns its space with a command, decision, warning, or next step.
 - Related links point to the next useful step.
 - Examples use generic placeholders and no private information.

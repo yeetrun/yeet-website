@@ -6,9 +6,8 @@ description: Host-side catch commands for manual installs and startup debugging.
 Catch runs on remote Linux hosts and receives requests from yeet. For normal
 operation, install and update catch with `yeet init`.
 
-Most users should not run catch directly. If you are here, you are probably
-debugging startup, doing a manual install, or checking the binary on the host.
-That is fine. Just remember that direct catch commands bypass some of the
+Use catch directly only when you are debugging startup, doing a manual install,
+or checking the binary on the host. Direct catch commands bypass some of the
 guardrails `yeet init` gives you.
 
 ## Usage
@@ -54,11 +53,10 @@ CATCH_INSTALL_DOCKER=1
 
 ## When to run catch directly
 
-Most users should not need direct catch commands. Use direct catch invocation
-only when you are installing manually, checking the catch version on the host,
-or debugging catch startup. If the goal is to deploy or operate services, use
-the `yeet` command path so local config, host targeting, and auth behavior stay
-in the normal loop.
+Use direct catch invocation only when you are installing manually, checking the
+catch version on the host, or debugging catch startup. If the goal is to deploy
+or operate services, use the `yeet` command path so local config, host
+targeting, and auth behavior stay in the normal loop.
 
 Use [Installation](/docs/getting-started/installation) for the supported
 bootstrap path and [yeet Commands](/docs/cli/yeet-cli) for normal operations.

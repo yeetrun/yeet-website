@@ -52,8 +52,7 @@ Use one folder per app or custom service:
 
 Yeet creates `yeet.toml` after a successful deploy that saves project config.
 Create or enter the workspace before deploying so that file lands in the right
-place. You do not need to create it by hand. You do need to avoid creating it
-accidentally in `~/Downloads`.
+place. You do not need to create it by hand.
 
 ## Deploy third-party apps
 
@@ -66,8 +65,7 @@ yeet run --env-file=./vaultwarden/vaultwarden.env vaultwarden ./vaultwarden/comp
 ```
 
 After each successful deploy, yeet saves the service entry in `yeet.toml`.
-Future commands can reuse that saved payload path and deploy options. The
-workspace becomes the replay recipe, not just a folder with YAML in it.
+Future commands can reuse that saved payload path and deploy options.
 
 ## Deploy custom services
 
@@ -86,8 +84,7 @@ GOOS=linux GOARCH=amd64 go build -o ./bin/sensor-collector ./sensor-collector/cm
 yeet run sensor-collector ./bin/sensor-collector
 ```
 
-Put scheduled jobs beside the rest of the homelab payloads. Cron jobs become
-real services too, just with a timer pulling the trigger:
+Put scheduled jobs beside the rest of the homelab payloads:
 
 ```bash
 cd ~/yeet-services
@@ -106,8 +103,7 @@ yeet run mqtt-bridge
 
 Yeet reads `yeet.toml`, finds the saved payload path, and reuses saved options
 such as network mode, env file, service root, snapshot settings, and payload
-args. That means `yeet run <svc>` is only as good as the project file under
-your feet.
+args.
 
 ## Keep paths relative
 

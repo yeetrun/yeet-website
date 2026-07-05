@@ -24,7 +24,7 @@ export default function PreviewBanner() {
       <span>⚠️</span>
       <span>You are viewing the tip (nightly) docs site for yeet.</span>
       <span className="link">
-        <a href="https://yeetrun.com">Click here for the stable version.</a>
+        <a href="https://yeetrun.com">Open the stable docs.</a>
       </span>
     </div>
   );

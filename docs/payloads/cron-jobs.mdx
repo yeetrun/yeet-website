@@ -6,8 +6,7 @@ description: Install scheduled scripts or binaries as systemd timers.
 Cron payloads install a script or binary as a scheduled job. Catch implements
 them as systemd timer units, while yeet accepts a five-field cron expression.
 
-This is still a service. It just spends most of its life waiting for the timer
-queue to wake it up, which is exactly what schedulers are for.
+Cron jobs are still services. They have logs, state, cleanup, and saved config.
 
 Run these commands from a
 [Service Workspace](/docs/getting-started/service-workspace). The first
@@ -21,7 +20,7 @@ yeet cron <svc> ./job.sh "0 9 * * *" -- --job-arg foo
 ```
 
 Yeet saves arguments after `--` as payload args and replays them on future
-runs. The schedule is not the only state worth remembering.
+runs.
 
 ## Update a job
 
@@ -53,8 +52,7 @@ details.
 
 Cron jobs can use ZFS-backed service roots too, which is useful for jobs that
 write persistent state or process files under their managed data directory. If
-the job only prints a heartbeat, do not make storage more interesting than the
-job.
+the job only prints a heartbeat, a normal service root is usually enough.
 
 ```bash
 yeet cron <svc> ./job.sh "0 9 * * *"
@@ -77,4 +75,3 @@ yeet rm --clean <svc>
 
 `--clean` removes the managed service data root and local `yeet.toml` entry in
 addition to the scheduled job. Read the confirmation prompt before accepting.
-Deleting a timer is boring. Deleting the files it wrote is not.

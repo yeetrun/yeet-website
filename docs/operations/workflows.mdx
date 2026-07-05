@@ -27,8 +27,7 @@ yeet run --web <svc> ./compose.yml
 
 The form saves the same service config to `yeet.toml` that the CLI uses.
 Runtime errors appear in the browser and local terminal so you can edit and
-retry without restarting the command. It is still the same deploy model, just
-with fewer flags in your short-term memory.
+retry without restarting the command.
 
 ## Deploy a compose stack
 
@@ -81,8 +80,7 @@ yeet logs -f <svc>
 
 ## Deploy a binary or script
 
-Build binaries for the catch host architecture before deploying. The host does
-not care what architecture your laptop prefers:
+Build binaries for the catch host architecture before deploying:
 
 ```bash
 GOOS=linux GOARCH=amd64 go build -o ./bin/<svc> ./cmd/<svc>
@@ -234,7 +232,7 @@ yeet start <svc>
 
 Use `--empty` instead of `--copy` when you want a new empty root. See
 [ZFS](/docs/concepts/zfs) for dataset-backed roots and snapshots. Moving a
-root is a state migration. Read the plan like it matters, because it does.
+root is a state migration, so read the plan before applying it.
 
 ## Recover data
 
@@ -293,5 +291,4 @@ Remove service data and the local config entry too:
 yeet rm --clean <svc>
 ```
 
-Read the confirmation prompt before deleting data. A cleanup command should be
-boring only after you know what it will remove.
+Read the confirmation prompt before deleting data.

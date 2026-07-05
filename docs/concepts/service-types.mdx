@@ -6,9 +6,8 @@ description: How yeet decides what kind of service a payload becomes.
 Yeet detects payload type and installs the service accordingly. For step-by-step
 usage, start with [Payloads](/docs/payloads).
 
-The detection rules are intentionally boring: file shape in, service type out.
-That is the point. You should be able to look at a payload and predict which
-host mechanism catch will use before the command changes anything.
+You should be able to look at a payload and predict which host mechanism catch
+will use before the command changes anything.
 
 <CardLinks
   cards={[
@@ -40,15 +39,13 @@ host mechanism catch will use before the command changes anything.
 - ELF or Mach-O binary.
 - Catch installs it as a systemd service on the host.
 - Use `yeet run <svc> ./bin/<svc>`.
-- Build for the catch host architecture first, because systemd is not an
-  emulator.
+- Build for the catch host architecture first.
 
 ## Script
 
 - Shebang file (e.g., `#!/usr/bin/env bash`).
 - Catch treats it like a binary and installs it as a systemd service.
-- The interpreter must exist on the host. The shebang is a contract, not a
-  suggestion.
+- The interpreter must exist on the host.
 
 ## Docker Compose
 

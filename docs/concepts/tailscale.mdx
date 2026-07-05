@@ -17,14 +17,12 @@ the local Tailscale client API.
 
 There are two separate questions here: can your workstation reach catch, and
 what is the caller allowed to do after it reaches catch? Tailscale handles both
-layers, but they fail differently. That is annoying, and also the reason the
-model is useful.
+layers, but they fail differently.
 
 ## First-time host setup
 
 Catch must join your tailnet as a tagged node, usually `tag:catch`. Catch
-rejects user-owned nodes. A catch daemon is infrastructure, not somebody's
-laptop with better uptime.
+rejects user-owned nodes.
 
 Before you run `yeet init`, set up Tailscale in this order:
 
@@ -77,8 +75,7 @@ The first grant lets Tailscale admins run the first setup and normal admin
 commands. See [Tailscale Access Grants](/docs/security/tailscale-access-grants)
 for the `read`, `manage`, and `ssh` permissions attached to that grant.
 Keep `autogroup:admin` directly in the grant `src`; do not put it inside a
-custom policy-file group. Tailscale policy groups are not macros for
-autogroups.
+custom policy-file group.
 
 The catch node joins as `tag:catch`. With the least-privilege owner-tag setup,
 the OAuth client uses `tag:yeet` only so it can mint auth keys for `tag:catch`
@@ -87,9 +84,8 @@ and later service tags.
 If you are comfortable with broad Tailscale API access, `All - Read & Write` is
 the simplest OAuth scope choice. If you do not plan to use `--net=ts` for
 services, a least-privilege OAuth client can assign `tag:catch` directly. The
-owner-tag pattern is more flexible. Flexibility here means the credential can
-mint the future service tags you deliberately allowed, not whatever tag happens
-to be fashionable next week.
+owner-tag pattern is more flexible because the credential can mint the future
+service tags you deliberately allowed.
 
 ## Run init
 
@@ -117,7 +113,7 @@ yeet run <svc>@<catch-host> ./compose.yml
 If another tailnet device already owns the requested catch hostname, Tailscale
 may assign a suffixed name such as `catch-1`. Use that assigned catch host, or
 remove the stale/conflicting Tailscale device and rerun `yeet init`. Host names
-are state too; stale devices are just stale state with DNS.
+are state too.
 
 ## Service networking (`--net=ts`)
 
@@ -132,8 +128,7 @@ yeet run <svc> ./compose.yml --net=svc,ts --ts-tags=tag:app
 
 `svc,ts` keeps yeet DNS, private service-to-service traffic, and ordinary
 internet egress through the catch host. It also gives the service its own
-Tailscale identity. Most services want both halves. Plain `ts` is narrower
-than people usually mean on the first try.
+Tailscale identity.
 
 Use plain `ts` only for deliberately tailnet-only services:
 
@@ -156,8 +151,7 @@ yeet tailscale <svc> -- set --exit-node=<exit-node>
 ```
 
 Make sure the OAuth client saved during catch setup can assign every tag you
-pass with `--ts-tags`. If the credential cannot mint the tag, deployment fails
-where it should: at the identity boundary.
+pass with `--ts-tags`. If the credential cannot mint the tag, deployment fails.
 
 Options:
 

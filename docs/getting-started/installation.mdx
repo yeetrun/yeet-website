@@ -46,8 +46,8 @@ yeet --help
 ## Prepare Tailscale access
 
 Catch uses an embedded tsnet node. That node must join your tailnet with a tag,
-such as `tag:catch`. This is required before the first `yeet init`. Yeet treats
-an untagged user-owned catch node as the wrong security model, because it is.
+such as `tag:catch`. This is required before the first `yeet init` and keeps
+catch tied to server-side policy.
 
 Your tailnet policy must also grant the setup user access to catch on TCP port
 `41548` with the `yeetrun.com/app/yeet` app permissions `read`, `manage`, and
@@ -197,7 +197,7 @@ VM payloads:
 
 ZFS is optional. Use it when you want dataset-backed host storage, service
 roots, snapshots, or fast VM disk clones. Skip it when a normal filesystem path
-is enough. Storage choices have a way of becoming permanent by Wednesday.
+is enough.
 
 See
 [Data Layout](/docs/concepts/data-layout) and [ZFS](/docs/concepts/zfs).
@@ -205,8 +205,7 @@ See
 ## Manual catch install
 
 Use `yeet init` unless you have a specific reason to install catch manually.
-Manual install gives you more rope and fewer guardrails, which is sometimes
-exactly what you need and often exactly what you regret.
+Manual install has fewer guardrails.
 
 If you do install catch yourself, see the
 [catch reference](/docs/cli/catch-cli) for catch flags such as `--data-dir`

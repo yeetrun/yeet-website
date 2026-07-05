@@ -17,8 +17,7 @@ is the handle you use to move that state deliberately.
 
 ## Deploy flow
 
-When you run `yeet run <svc> <payload>`, the interesting part is not that a
-command ran. The interesting part is where responsibility moves:
+When you run `yeet run <svc> <payload>`, responsibility moves in this order:
 
 1. yeet detects the payload type.
 2. yeet ships the payload or deployment recipe to catch.
@@ -70,8 +69,7 @@ yeet service sync <svc>
 Each service can have generations. A new deploy creates a new generation, and
 rollback can return to the previous one when a previous generation is available.
 Generations recover deployed definitions and install artifacts. They are not
-storage snapshots, because naming two different recovery tools the same thing
-would be rude to future you.
+storage snapshots.
 
 Use staging when you want to upload a payload before applying it:
 
@@ -89,8 +87,8 @@ outbound internet: `svc` uses the catch host gateway, `lan` uses the LAN or
 VLAN gateway, and plain `ts` needs a Tailscale exit node for ordinary internet.
 VMs use the service network by default for management.
 
-Reachability, DNS, and egress are one system. If you choose only the inbound
-path and ignore the outbound path, the service will remind you at runtime.
+Reachability, DNS, and egress are one system. Choose all three before deploying
+a service with custom networking.
 
 See [Networking](/docs/concepts/networking), [DNS](/docs/concepts/dns), and
 [Tailscale](/docs/concepts/tailscale) for the details that affect operators.

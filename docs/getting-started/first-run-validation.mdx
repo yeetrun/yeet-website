@@ -8,8 +8,7 @@ to catch first, then the payload paths that should work on a normal
 Debian/Ubuntu-style server. Run the optional KVM, LAN, and ZFS checks only when
 you plan to use those features.
 
-Do the boring tests now. They are cheaper before a real app, real data, and a
-real outage all join the meeting.
+Run these tests before deploying a real app or storing real data.
 
 All examples use disposable service names. If you have more than one catch
 host, set `CATCH_HOST=<catch-host>` or pass `--host=<catch-host>` so every
@@ -18,8 +17,7 @@ command targets the fresh host.
 Run this playbook from your
 [Service Workspace](/docs/getting-started/service-workspace), or from a
 temporary validation directory. Smoke deploys write `yeet.toml` in the current
-directory. If you use a temporary directory, delete it when you are done so
-the test config does not become archaeological evidence.
+directory. If you use a temporary directory, delete it when you are done.
 
 ## 1) Confirm catch is reachable
 
@@ -55,8 +53,7 @@ changes before catch can use the tag you selected.
 ## 2) Smoke-test Docker image payloads
 
 This validates the most common path: Docker on the host, published host ports,
-service status, logs, and cleanup. It is a small service doing a large amount
-of useful proving.
+service status, logs, and cleanup.
 
 ```bash
 yeet run -p 18080:80 yeet-smoke-web nginx:alpine
@@ -114,8 +111,7 @@ yeet ssh -- systemctl status yeet-smoke-script.service
 ## 4) Smoke-test cron payloads
 
 Cron payloads are systemd timers. This validates timer creation and one
-scheduled run. It takes about one minute, which is the tax you pay for testing
-a scheduler honestly.
+scheduled run.
 
 ```bash
 cat > yeet-smoke-cron.sh <<'EOF'
@@ -178,8 +174,7 @@ host, and run VM payloads on a KVM-capable machine. See [VMs](/docs/payloads/vms
 
 LAN networking requires a host attached to a network where macvlan and DHCP
 make sense. A WAN-only VPS usually should skip this check. LAN services use
-the LAN or VLAN gateway for outbound internet, so the network's mistakes become
-the service's mistakes.
+the LAN or VLAN gateway for outbound internet.
 
 ```bash
 yeet run yeet-smoke-lan nginx:alpine --net=lan
@@ -222,4 +217,4 @@ yeet status
 
 If a service removal fails, rerun the remove command and then inspect
 [Troubleshooting](/docs/operations/troubleshooting) for the relevant payload
-type. A smoke test that cannot clean up after itself is still information.
+type.

@@ -5,7 +5,7 @@ description: Where local defaults live, and which file yeet trusts when it rerun
 
 There are two kinds of local state. Client preferences answer "what host do I
 usually mean?" Project config answers "how do I replay this set of services?"
-Mixing those is how defaults become spooky action at a distance.
+Keep those jobs separate.
 
 ## Client prefs
 
@@ -40,8 +40,7 @@ yeet prefs --save
 
 When you run yeet from a project directory, it can persist service defaults in
 a `yeet.toml` file. This file is the replay recipe for the services in that
-directory. It is deliberately plain text because deployment state should not
-require mind reading.
+directory.
 
 For homelab services, use a
 [Service Workspace](/docs/getting-started/service-workspace) so Compose files,
@@ -91,8 +90,7 @@ Notes:
 - `hosts` controls host-scoped commands like `yeet status` with no args.
 
 If the live host state changes from another checkout, use `yeet service sync`
-instead of editing around the drift by hand. Hand-edited drift is still drift;
-it just has fingerprints.
+instead of editing around the drift by hand.
 
 ## Environment variables
 

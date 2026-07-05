@@ -1,12 +1,10 @@
 ---
 title: Yeet Docs
-description: Install yeet, bootstrap catch, and run services without building a tiny cloud by accident.
+description: Install yeet, bootstrap catch, and run services on Linux hosts you control.
 ---
 
-Yeet runs from your workstation and asks catch to do the boring host work:
-install services, move files, start units, tail logs, and clean up after itself
-when you tell it to. The point is not to hide Linux. The point is to keep the
-state visible enough that you can debug it when Friday arrives with opinions.
+Yeet runs from your workstation. Catch runs on each Linux host. Together they
+install services, move files, start units, tail logs, and clean up when you ask.
 
 Start with setup. Then pick the guide for the thing you actually want to run.
 
@@ -61,12 +59,12 @@ Use these when the service or host has more specific requirements.
   cards={[
     {
       title: "Host targeting",
-      description: "Understand machine hosts, catch hosts, CATCH_HOST, and svc@host syntax before names become hidden state.",
+      description: "Understand machine hosts, catch hosts, CATCH_HOST, and svc@host syntax.",
       href: "/docs/cli/cli-overview",
     },
     {
       title: "Choose networking",
-      description: "Pick reachability, DNS, and outbound internet paths as one decision, because the network does not care which part you forgot.",
+      description: "Pick reachability, DNS, and outbound internet paths as one decision.",
       href: "/docs/concepts/networking",
     },
     {
@@ -76,7 +74,7 @@ Use these when the service or host has more specific requirements.
     },
     {
       title: "Use recovery points",
-      description: "Use ZFS service roots, snapshots, clone-first recovery, and VM restore before the rollback plan is a feeling.",
+      description: "Use ZFS service roots, snapshots, clone-first recovery, and VM restore.",
       href: "/docs/concepts/zfs",
     },
   ]}
@@ -85,7 +83,7 @@ Use these when the service or host has more specific requirements.
 ## Reference
 
 Use reference pages after you know the workflow you want. References are maps,
-not tutorials. If you start here, expect to walk in circles a little.
+not tutorials.
 
 <CardLinks
   cards={[

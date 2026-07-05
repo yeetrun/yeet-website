@@ -34,7 +34,7 @@ yeet status <svc>`,
     id: "vm",
     title: "Linux VM",
     description:
-      "Create a Firecracker guest when a container is the wrong box for the job.",
+      "Create a Firecracker guest when the workload needs a full OS.",
     code: `yeet run <vm> vm://ubuntu/26.04
 yeet ssh <vm>
 yeet vm console <vm>`,
@@ -43,7 +43,7 @@ yeet vm console <vm>`,
     id: "binary",
     title: "Binary",
     description:
-      "Build the Linux binary locally. Install it as a boring service.",
+      "Build the Linux binary locally. Install it as a systemd service.",
     code: `GOOS=linux GOARCH=amd64 go build -o ./bin/<svc>
 yeet run <svc> ./bin/<svc>
 yeet logs -f <svc>`,
@@ -77,7 +77,7 @@ export default function Home({ docsNavTree }: HomePageProps) {
         title:
           "yeet: Homelab Service Manager for Containers, VMs, and Binaries",
         description:
-          "Run containers, VMs, binaries, scripts, and cron jobs on Linux hosts you control, without building a tiny cloud by accident.",
+          "Run containers, VMs, binaries, scripts, and cron jobs on Linux hosts you control.",
         path: "/",
       }}
     >
@@ -86,7 +86,7 @@ export default function Home({ docsNavTree }: HomePageProps) {
           <GridContainer className={s.heroGrid}>
             <div className={s.heroContent}>
               <div className={s.heroBadge}>
-                Linux hosts you control. No tiny cloud required.
+                Linux hosts you control.
               </div>
               <H1 className={s.heroTitle}>
                 Run services and VMs on your own Linux hosts.
@@ -95,9 +95,8 @@ export default function Home({ docsNavTree }: HomePageProps) {
                 Yeet runs on your workstation. The catch daemon runs on the
                 host. Together they deploy compose stacks, images, Dockerfiles,
                 binaries, scripts, cron jobs, and Firecracker VMs over your
-                tailnet. The result is ordinary Linux state: systemd units,
-                Docker projects, files, logs, and VM data you can inspect
-                directly.
+                tailnet. The host still has systemd units, Docker projects,
+                files, logs, and VM data you can inspect directly.
               </P>
               <div className={s.heroActions}>
                 <ButtonLink
@@ -113,11 +112,10 @@ export default function Home({ docsNavTree }: HomePageProps) {
                 />
               </div>
               <div className={s.heroNote}>
-                <strong>Read this first:</strong> Yeet is for single-operator
-                homelabs and small private infrastructure. It expects Linux, SSH
-                for first setup, systemd, Tailscale or tsnet connectivity, and
-                Docker when you run container payloads. It is not a multi-tenant
-                platform. That boundary is intentional.
+                Yeet is for single-operator homelabs and small private
+                infrastructure. It expects Linux, SSH for first setup, systemd,
+                Tailscale or tsnet connectivity, and Docker when you run
+                container payloads. It is not a multi-tenant platform.
               </div>
             </div>
 
@@ -159,8 +157,7 @@ yeet ssh <vm>`}</code>
                 The CLI is fastest when the command is already in your hands.{" "}
                 <code>yeet run --web</code> gives you a guided deploy for the
                 first pass, saves the same config to <code>yeet.toml</code>, and
-                mirrors terminal output in the browser. Same machinery, less
-                flag archaeology.
+                mirrors terminal output in the browser.
               </P>
               <pre className={s.deployCode}>
                 <code>{`yeet run --web
@@ -182,7 +179,7 @@ yeet run <svc> ./compose.yml`}</code>
         <SectionWrapper className={s.section}>
           <div className={s.sectionHeader}>
             <H2>The moving parts</H2>
-            <P>There are not many. That is the point.</P>
+            <P>Local CLI, host daemon, tailnet connection, and host state.</P>
           </div>
           <div className={s.featureGrid}>
             <div className={s.featureCard}>
@@ -210,7 +207,7 @@ yeet run <svc> ./compose.yml`}</code>
               <h3>Local image push</h3>
               <p>
                 For images that only exist on your workstation. Push them to the
-                host, then run the thing you actually built.
+                host, then run that image.
               </p>
             </div>
           </div>

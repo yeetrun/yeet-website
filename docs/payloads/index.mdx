@@ -6,10 +6,8 @@ description: Choose the right deploy path for the thing you already have.
 A payload is the thing you give to `yeet run`, `yeet stage`, or `yeet cron`.
 Choose the guide that matches what you already have.
 
-That sounds obvious because it is. The trap is picking the most powerful shape
-instead of the simplest one that matches the workload. Containers are great.
-VMs are real machines. Cron jobs are timers with consequences. Choose the
-smallest mechanism that explains the service.
+Choose the smallest payload type that matches the workload. Use a VM only when
+the service needs a full guest OS or stronger isolation.
 
 <CardLinks
   cards={[
@@ -56,8 +54,7 @@ Before your first `yeet run` or `yeet cron`, create or enter a
 deploy writes `yeet.toml` in the current directory, so the workspace is where
 yeet saves relative payload paths and future run options.
 
-This file is the replay recipe. If it lands in the wrong directory, yeet will
-faithfully remember the wrong place.
+Keep `yeet.toml` with the files it references.
 
 ## Common flow
 
@@ -81,8 +78,7 @@ service needs them. Network modes also choose the outbound internet path:
 `svc` uses the catch host gateway, `lan` uses the LAN or VLAN gateway, and
 plain `ts` needs a Tailscale exit node for ordinary internet access.
 
-Do not treat networking and storage flags as garnish. They change the failure
-mode.
+Networking and storage flags change how the service runs and recovers.
 
 ```bash
 yeet run <svc> ./compose.yml --net=svc,ts

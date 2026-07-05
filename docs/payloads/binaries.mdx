@@ -7,8 +7,8 @@ Binary and script payloads become systemd services on the catch host. Use this
 path for a single long-running process that does not need a container.
 
 This is the direct path. Build or write the thing, hand it to yeet, and catch
-installs it as a host service. There is less packaging here, which is nice,
-and more dependence on the host environment, which is the bill.
+installs it as a host service. The host must have any runtime dependencies the
+payload expects.
 
 Run these commands from a
 [Service Workspace](/docs/getting-started/service-workspace). The first
@@ -27,8 +27,7 @@ yeet run <svc> ./bin/<svc>
 ## Scripts
 
 Scripts need a shebang and executable-compatible contents for the host. If the
-shebang points at an interpreter the host does not have, the service will fail
-exactly as requested.
+shebang points at a missing interpreter, the service will fail.
 
 ```bash
 yeet run <svc> ./script.sh
@@ -62,7 +61,7 @@ yeet run --force <svc> ./bin/<svc>
 Binary and script services can use a ZFS dataset as their service root. This is
 useful when the process writes persistent data and you want yeet-managed
 snapshots before redeploys. If the process is stateless, a normal path is
-probably enough.
+enough.
 
 ```bash
 yeet run <svc> ./bin/<svc> --service-root=tank/apps/<svc> --zfs
@@ -111,5 +110,4 @@ yeet rm --clean <svc>
 
 `--clean` removes the managed service data root and local `yeet.toml` entry in
 addition to uninstalling the systemd service. Read the confirmation prompt
-before accepting. Uninstalling a unit and deleting its data are different
-operations for a reason.
+before accepting.

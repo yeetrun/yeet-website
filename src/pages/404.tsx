@@ -45,7 +45,7 @@ export default function NotFound({ docsNavTree }: NotFoundProps) {
           <H2>That page is not here.</H2>
           <P>
             Use the docs navigation or go back home. If the link should work,
-            the URL is the first boring thing to check.
+            check the URL.
           </P>
           <div className={s.actions}>
             <ButtonLink href="/docs" text="Docs" size="large" />

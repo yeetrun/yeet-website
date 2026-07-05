@@ -114,7 +114,8 @@ description: Release notes for users deciding whether to install or upgrade.
 
 ### v0.8.11
 
-- `yeet init` now checks VM host readiness before install, prompts for missing VM packages only on KVM/TUN-capable Debian/Ubuntu hosts, and uses `--install-vm-tools` for unattended VM host setup.
+- `yeet init` now checks VM host readiness before install and prompts for
+  missing VM packages only on KVM/TUN-capable Debian/Ubuntu hosts.
 - First-run setup docs now clarify the Tailscale Trust Credentials OAuth flow and send missing VM tooling warnings to the correct host requirements section.
 
 ### v0.8.10
@@ -278,7 +279,8 @@ description: Release notes for users deciding whether to install or upgrade.
 
 ### v0.6.2
 
-- `yeet init` now prompts for a Tailscale OAuth client secret, with `--ts-client-secret` for non-interactive catch enrollment as a tagged host.
+- `yeet init` now prompts for a Tailscale OAuth client secret for catch
+  enrollment as a tagged host.
 - Catch saves that OAuth secret for later `--net=ts` services and gives policy guidance when it cannot assign a requested tag.
 - The Tailscale guide now gives first-time users a clear setup checklist for `tagOwners`, OAuth owner tags, catch enrollment, and validation.
 
@@ -295,14 +297,16 @@ description: Release notes for users deciding whether to install or upgrade.
 
 ### v0.5.13
 
-- `yeet init --install-vm-tools` can install VM host packages during Debian/Ubuntu host bootstrap.
+- `yeet init` can install VM host packages during Debian/Ubuntu host bootstrap.
 - `vm://ubuntu/26.04` now defaults to the v13 image, with root filesystem features normalized for common LTS host tooling.
 - Fresh-host VM access is more reliable: `yeet ssh <vm>` uses catch as the stable proxy hop, and catch warns when Tailscale assigns a different MagicDNS name such as `catch-1`.
 
 ### v0.5.12
 
-- `yeet init` can bootstrap fresh Docker hosts with `--install-docker` and prepares Docker for local image pushes.
-- Remote catch installs now surface Tailscale login progress and support `--ts-auth-key` for unattended catch tsnet setup.
+- `yeet init` can bootstrap fresh Docker hosts and prepares Docker for local
+  image pushes.
+- Remote catch installs now surface Tailscale login progress and support
+  unattended catch tsnet setup.
 - VM host readiness checks no longer prompt to install VM packages on hosts that cannot run VMs because KVM, TUN/TAP, or host architecture support is missing.
 
 ## June 6, 2026

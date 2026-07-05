@@ -39,12 +39,12 @@ export default function InstallPage({ docsNavTree }: InstallPageProps) {
         <SectionWrapper>
           <header className={s.header}>
             <H1>Install yeet</H1>
-            <P className={s.subtitle} weight="regular">
-              Install the CLI where you work. Then use SSH once to install catch
-              on a Linux host. After that, yeet talks to catch over tsnet, so
-              neither machine needs the Tailscale client installed just to make
-              yeet work.
-            </P>
+              <P className={s.subtitle} weight="regular">
+                Install the CLI where you work. Then use SSH once to install catch
+                on a Linux host. After that, yeet talks to the catch tsnet
+                hostname. Your workstation still needs network reachability to
+                that address.
+              </P>
             <div className={s.actions}>
               <ButtonLink
                 href="/docs/getting-started/quick-start"

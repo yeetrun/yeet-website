@@ -261,7 +261,6 @@ yeet service generations <svc>
 
 Generations track deployed definitions and install artifacts. They are not
 storage snapshots. Rollback changes what was deployed; snapshots recover data.
-That distinction matters most when you are already stressed.
 
 ### `service rollback`
 
@@ -380,8 +379,7 @@ Detach by pressing Enter, then typing `~.`.
 ## Snapshots
 
 Snapshots are yeet recovery points for ZFS-backed service roots and VM disks.
-They are for storage state, not for wishing every risky change had been
-documented.
+They are for storage state.
 
 ### Common flow
 
@@ -466,19 +464,15 @@ Install or update catch on a machine host over SSH:
 
 ```bash
 yeet init root@<machine-host>
-yeet init --ts-client-secret=<secret> root@<machine-host>
-yeet init --install-docker --install-vm-tools --ts-client-secret=<secret> root@<machine-host>
 yeet init --data-dir=/srv/yeet-data root@<machine-host>
 yeet init --zfs --data-dir=flash/yeet/data --services-root=flash/yeet/services root@<machine-host>
-yeet init --ts-auth-key=<key> root@<machine-host>
 yeet init
 ```
 
 Fresh interactive installs ask where catch should store host data. The default
 is `$HOME/yeet-data` on the catch host, with services under that data
 directory. Existing catch installs keep their current storage layout when you
-rerun `yeet init`. Re-running init is an upgrade path, not a storage migration
-surprise.
+rerun `yeet init`.
 
 For normal setup, run `yeet init root@<machine-host>` and answer the prompts.
 For unattended setup, these flags answer init prompts:
@@ -521,7 +515,6 @@ datasets such as `flash/yeet/services/<svc>`.
 Without `--yes`, yeet prints the plan and asks before applying it. If
 `--migrate-services` is omitted in an interactive terminal, yeet asks whether
 to migrate affected services. With `--yes`, pass the migration mode explicitly.
-Automation should declare whether services move.
 
 When services move, yeet updates matching entries in the local `yeet.toml`.
 Pass `--config ./yeet.toml` when the project config is somewhere else.

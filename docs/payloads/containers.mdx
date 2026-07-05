@@ -8,7 +8,7 @@ Compose services on the target host.
 
 Use this path when the workload already has a container shape or when you want
 its runtime dependencies packaged with it. Containers reduce host drift. They
-do not eliminate networking, storage, or update decisions. Sorry.
+do not eliminate networking, storage, or update decisions.
 
 Run these commands from a
 [Service Workspace](/docs/getting-started/service-workspace). The first
@@ -78,8 +78,7 @@ yeet run -p 8000:8000 <svc> ./server.ts
 
 For Compose services, `yeet run` reuses existing images unless you ask for a
 pull. Use `--pull` for a deploy-time refresh, or use the Docker commands to
-inspect and update image state explicitly. Image freshness is state. Yeet does
-not pretend it is harmless.
+inspect and update image state explicitly.
 
 ```bash
 yeet run <svc> ./compose.yml
@@ -115,8 +114,7 @@ and service-root moves.
 
 Use `svc` when the service needs private yeet traffic, yeet DNS, and outbound
 internet through the catch host. Use `svc,ts` when the service also needs its
-own Tailscale identity. That combination is the normal answer for private apps
-that should still behave like apps.
+own Tailscale identity.
 
 Use `lan` when the service should request a LAN or VLAN address and use that
 network's DHCP gateway. Use `lan,ts` when the service needs both LAN presence
@@ -146,8 +144,7 @@ yeet rm <svc>
 
 Use `yeet rm --clean <svc>` when you also want to remove service data under the
 managed service root and delete the local `yeet.toml` entry. Read the
-confirmation prompt before accepting. Containers make the app easy to replace;
-they do not make the data disposable.
+confirmation prompt before accepting.
 
 ## Host requirements
 
