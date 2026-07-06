@@ -464,6 +464,7 @@ Install or update catch on a machine host over SSH:
 
 ```bash
 yeet init root@<machine-host>
+yeet --host=morpheus init root@<machine-host>
 yeet init --data-dir=/srv/yeet-data root@<machine-host>
 yeet init --zfs --data-dir=flash/yeet/data --services-root=flash/yeet/services root@<machine-host>
 yeet init
@@ -474,20 +475,23 @@ is `$HOME/yeet-data` on the catch host, with services under that data
 directory. Existing catch installs keep their current storage layout when you
 rerun `yeet init`.
 
+The default catch Tailscale hostname is `catch`. Use the global `--host` target
+before `init` when adding another catch host to the same tailnet.
+
 For normal setup, run `yeet init root@<machine-host>` and answer the prompts.
 For unattended setup, these flags answer init prompts:
 
-| Flag | What it does |
-| --- | --- |
-| `--ts-client-secret=<secret>` | Tailscale OAuth client secret for catch enrollment |
-| `--ts-auth-key=<key>` | Preauthorized Tailscale auth key for the catch node |
-| `--install-docker` | Answers yes to installing Docker when Docker is missing on a supported host |
-| `--install-vm-tools` | Answers yes to installing VM tools when the host can run VMs |
+| Flag                          | What it does                                                                |
+| ----------------------------- | --------------------------------------------------------------------------- |
+| `--ts-client-secret=<secret>` | Tailscale OAuth client secret for catch enrollment                          |
+| `--ts-auth-key=<key>`         | Preauthorized Tailscale auth key for the catch node                         |
+| `--install-docker`            | Answers yes to installing Docker when Docker is missing on a supported host |
+| `--install-vm-tools`          | Answers yes to installing VM tools when the host can run VMs                |
 
 On supported Debian/Ubuntu VM hosts, interactive `yeet init` can also prepare
 `br0` for VM `--net=lan` networking after confirmation.
 
-Use [Installation](/docs/getting-started/installation) for the full bootstrap
+Use [Host Setup](/docs/getting-started/host-setup) for the full bootstrap
 flow.
 
 ### `host set`
@@ -553,7 +557,7 @@ yeet list-hosts
 
 This command uses the local Tailscale client for discovery. Normal yeet commands
 do not require a local Tailscale client API, but your workstation still needs
-network reachability to catch's tsnet address.
+network reachability to the catch Tailscale address.
 
 ## Host Mounts
 

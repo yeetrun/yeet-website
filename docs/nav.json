@@ -6,8 +6,16 @@
       "title": "Getting Started",
       "children": [
         { "type": "link", "path": "/quick-start", "title": "Quick Start" },
-        { "type": "link", "path": "/service-workspace", "title": "Service Workspace" },
-        { "type": "link", "path": "/installation", "title": "Install yeet and catch" }
+        {
+          "type": "link",
+          "path": "/service-workspace",
+          "title": "Service Workspace"
+        },
+        {
+          "type": "link",
+          "path": "/host-setup",
+          "title": "Host Setup"
+        }
       ]
     },
     { "type": "break" },
@@ -17,7 +25,11 @@
       "title": "Daily Workflows",
       "children": [
         { "type": "link", "path": "/workflows", "title": "Workflows" },
-        { "type": "link", "path": "/troubleshooting", "title": "Troubleshooting" }
+        {
+          "type": "link",
+          "path": "/troubleshooting",
+          "title": "Troubleshooting"
+        }
       ]
     },
     {
@@ -25,7 +37,11 @@
       "path": "/security",
       "title": "Security",
       "children": [
-        { "type": "link", "path": "/tailscale-access-grants", "title": "Tailscale Access Grants" }
+        {
+          "type": "link",
+          "path": "/tailscale-access-grants",
+          "title": "Tailscale Access Grants"
+        }
       ]
     },
     {
@@ -52,7 +68,11 @@
         { "type": "link", "path": "/service-types", "title": "Service Types" },
         { "type": "link", "path": "/data-layout", "title": "Data Layout" },
         { "type": "link", "path": "/zfs", "title": "ZFS" },
-        { "type": "link", "path": "/configuration-and-prefs", "title": "Configuration & Prefs" }
+        {
+          "type": "link",
+          "path": "/configuration-and-prefs",
+          "title": "Configuration & Prefs"
+        }
       ]
     },
     {
@@ -60,7 +80,11 @@
       "path": "/cli",
       "title": "CLI Reference",
       "children": [
-        { "type": "link", "path": "/cli-overview", "title": "How Commands Work" },
+        {
+          "type": "link",
+          "path": "/cli-overview",
+          "title": "How Commands Work"
+        },
         { "type": "link", "path": "/yeet-cli", "title": "yeet Commands" },
         { "type": "link", "path": "/catch-cli", "title": "catch Reference" }
       ]

@@ -21,11 +21,6 @@ rg -q '<loc>https://yeetrun.com/</loc>' public/sitemap.xml || {
   exit 1
 }
 
-rg -q '<loc>https://yeetrun.com/install</loc>' public/sitemap.xml || {
-  echo "expected install page in sitemap"
-  exit 1
-}
-
 rg -q '<loc>https://yeetrun.com/docs/getting-started/quick-start</loc>' public/sitemap.xml || {
   echo "expected docs page in sitemap"
   exit 1

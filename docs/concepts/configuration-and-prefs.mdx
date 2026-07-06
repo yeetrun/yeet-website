@@ -23,7 +23,7 @@ Schema:
 }
 ```
 
-`defaultHost` is the **catch host** (Tailscale/tsnet hostname) that yeet uses
+`defaultHost` is the **catch host** (Tailscale hostname) that yeet uses
 when you do not specify a host with `@<host>`, `--host`, or `yeet.toml`. This
 is not the SSH machine host from `yeet init`; it is the operating target after
 catch is installed. See
@@ -55,23 +55,23 @@ Example:
 
 ```toml
 version = 1
-hosts = ["home-catch", "lab-catch"]
+hosts = ["morpheus", "trinity"]
 
 [[services]]
 name = "uptime-kuma"
-host = "home-catch"
+host = "morpheus"
 payload = "./uptime-kuma/compose.yml"
 args = ["--net=svc,ts"]
 
 [[services]]
 name = "sensor-collector"
-host = "lab-catch"
+host = "trinity"
 payload = "./bin/sensor-collector"
 args = ["--listen", ":9100"]
 
 [[services]]
 name = "backup"
-host = "home-catch"
+host = "morpheus"
 type = "cron"
 payload = "./jobs/backup.sh"
 schedule = "0 3 * * *"
@@ -96,7 +96,7 @@ instead of editing around the drift by hand.
 
 Client:
 
-- `CATCH_HOST`: default target **catch host** (Tailscale/tsnet hostname).
+- `CATCH_HOST`: default target **catch host** (Tailscale hostname).
   See [Tailscale](/docs/concepts/tailscale).
 
 ## Editor

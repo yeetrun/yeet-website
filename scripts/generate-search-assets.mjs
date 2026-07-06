@@ -14,10 +14,6 @@ const STATIC_PAGES = [
     routePath: "/",
     sourcePath: path.join(ROOT, "src/pages/index.tsx"),
   },
-  {
-    routePath: "/install",
-    sourcePath: path.join(ROOT, "src/pages/install/index.tsx"),
-  },
 ];
 
 main();
@@ -52,7 +48,9 @@ function readWranglerVar(name) {
   }
 
   const wranglerConfig = fs.readFileSync(WRANGLER_CONFIG_PATH, "utf8");
-  const match = wranglerConfig.match(new RegExp(`^${name}\\s*=\\s*"([^"]+)"$`, "m"));
+  const match = wranglerConfig.match(
+    new RegExp(`^${name}\\s*=\\s*"([^"]+)"$`, "m"),
+  );
 
   return match ? match[1] : "";
 }

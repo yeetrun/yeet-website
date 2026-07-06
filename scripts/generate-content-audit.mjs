@@ -24,11 +24,6 @@ const STATIC_PAGES = [
     summary: "Homepage for what yeet runs, where state lives, and which docs to read next.",
   },
   {
-    routePath: "/install",
-    sourcePath: "src/pages/install/index.tsx",
-    summary: "Install page for putting yeet on a workstation and catch on a Linux host.",
-  },
-  {
     routePath: "/404",
     sourcePath: "src/pages/404.tsx",
     summary: "Not-found page that points users back to docs or the homepage without pretending the URL is fine.",

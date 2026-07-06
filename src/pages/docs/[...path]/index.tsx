@@ -48,21 +48,40 @@ interface StaticPropsParams {
 
 export async function getStaticProps({ params: { path } }: StaticPropsParams) {
   const activePageSlug = path.join("/");
-  const navTreeData = await loadDocsNavTreeData(DOCS_DIRECTORY, activePageSlug);
-  const docsPageData = await loadDocsPage(DOCS_DIRECTORY, activePageSlug);
-  const breadcrumbs = navTreeToBreadcrumbs(
-    "Yeet Docs",
-    DOCS_PAGES_ROOT_PATH,
-    navTreeData,
-    activePageSlug,
-  );
-  return {
-    props: {
+  try {
+    const navTreeData = await loadDocsNavTreeData(
+      DOCS_DIRECTORY,
+      activePageSlug,
+    );
+    const docsPageData = await loadDocsPage(DOCS_DIRECTORY, activePageSlug);
+    const breadcrumbs = navTreeToBreadcrumbs(
+      "Yeet Docs",
+      DOCS_PAGES_ROOT_PATH,
       navTreeData,
-      docsPageData,
-      breadcrumbs,
-    },
-  };
+      activePageSlug,
+    );
+    return {
+      props: {
+        navTreeData,
+        docsPageData,
+        breadcrumbs,
+      },
+    };
+  } catch (err) {
+    if (isEnoent(err)) {
+      return { notFound: true };
+    }
+    throw err;
+  }
+}
+
+function isEnoent(err: unknown): err is { code: string } {
+  return (
+    typeof err === "object" &&
+    err !== null &&
+    "code" in err &&
+    err.code === "ENOENT"
+  );
 }
 
 interface DocsPageProps {

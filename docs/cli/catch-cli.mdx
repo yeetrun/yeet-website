@@ -27,11 +27,11 @@ catch [flags] [install|version|is-catch]
 - `--data-dir`: base directory for catch state. Installed catch uses the data
   directory selected during install. Manual runs default to `data` under the
   current working directory.
-- `--tsnet-host`: catch tsnet hostname. Default: `catch`.
-- `--tsnet-port`: catch tsnet port.
+- `--tsnet-host`: catch Tailscale hostname. Default: `catch`.
+- `--tsnet-port`: catch RPC port on its Tailscale identity.
 
 See [Data Layout](/docs/concepts/data-layout) for host storage and
-[Tailscale](/docs/concepts/tailscale) for tsnet setup.
+[Tailscale](/docs/concepts/tailscale) for Tailscale setup.
 
 ## Docker during install
 
@@ -58,5 +58,5 @@ catch version on the host, or debugging catch startup. If the goal is to deploy
 or operate services, use the `yeet` command path so local config, host
 targeting, and auth behavior stay in the normal loop.
 
-Use [Installation](/docs/getting-started/installation) for the supported
+Use [Host Setup](/docs/getting-started/host-setup) for the supported
 bootstrap path and [yeet Commands](/docs/cli/yeet-cli) for normal operations.

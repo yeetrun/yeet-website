@@ -22,7 +22,7 @@ yeet --host=<catch-host> status
 
 Then check the layers in order:
 
-- The catch tsnet node exists in Tailscale.
+- The catch Tailscale node exists.
 - The node has a tag such as `tag:catch`.
 - Your device or admin tag can reach the catch tag on TCP port `41548`.
 - The catch service is running on the host.
@@ -39,7 +39,7 @@ tailnet policy shape.
 
 ## `yeet init` says catch needs a tag
 
-Catch rejects user-owned tsnet nodes. It must join the tailnet with a tag-based
+Catch rejects user-owned Tailscale nodes. It must join the tailnet with a tag-based
 identity. That keeps the daemon in the server side of the trust model.
 
 Fix the Tailscale policy first, then rerun init:
@@ -61,6 +61,13 @@ yeet --host=catch-1 status
 ```
 
 Or remove the stale/conflicting Tailscale device and rerun `yeet init`.
+
+If you are adding a second catch host, choose a distinct name instead of
+reusing the default `catch` name:
+
+```bash
+yeet --host=morpheus init root@<machine-host>
+```
 
 ## Docker payloads fail
 

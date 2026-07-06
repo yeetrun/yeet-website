@@ -85,6 +85,21 @@ Overlabeling is especially wasteful on changelog, reference, and overview pages.
 If the first sentence only tells the reader what kind of page they are reading,
 delete it or replace it with information they can act on.
 
+Do not frame a page as the leftovers from another page. Each page should stand
+on its own.
+
+Avoid:
+
+- "Details Quick Start skips."
+- "Use this page when the quick start is not enough."
+- "Advanced notes from the install guide."
+
+Prefer:
+
+- "Host setup starts over SSH and then moves to Tailscale."
+- "`yeet init` installs catch, enrolls it in your tailnet, and prepares host
+  storage."
+
 ## Headings
 
 Use headings as a map, not as decoration.

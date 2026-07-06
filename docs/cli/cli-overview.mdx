@@ -26,6 +26,13 @@ yeet --host=<catch-host> status
 yeet status@<catch-host>
 ```
 
+The default catch host is `catch`. For a second host, pick a distinct catch
+hostname during setup:
+
+```bash
+yeet --host=morpheus init root@<machine-host>
+```
+
 Run new-service deploy commands from a
 [Service Workspace](/docs/getting-started/service-workspace) so the generated
 `yeet.toml` lands in the directory you intend to use for that service set.

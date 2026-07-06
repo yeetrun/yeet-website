@@ -5,15 +5,15 @@ description: How catch gets a tagged identity and how services get their own tai
 
 Yeet uses Tailscale in two places:
 
-- catch exposes host access through an embedded tsnet node.
+- catch exposes host access through an embedded Tailscale node.
 - Services can get their own Tailscale identity with `--net=ts`.
 
-Catch embeds tsnet, but the local `yeet` CLI does not. Normal `yeet` commands
-use HTTP and WebSocket connections to the catch hostname, so your workstation
-must have network reachability to the catch tsnet address. In the standard
-setup, install Tailscale on the workstation and connect it to the same tailnet.
-Commands that query local tailnet state, such as `yeet list-hosts`, also use
-the local Tailscale client API.
+Catch joins your tailnet, but the local `yeet` CLI does not run its own
+Tailscale client. Normal `yeet` commands use HTTP and WebSocket connections to
+the catch hostname, so your workstation must have network reachability to that
+Tailscale address. In the standard setup, install Tailscale on the workstation
+and connect it to the same tailnet. Commands that query local tailnet state,
+such as `yeet list-hosts`, also use the local Tailscale client API.
 
 There are two separate questions here: can your workstation reach catch, and
 what is the caller allowed to do after it reaches catch? Tailscale handles both
@@ -49,7 +49,7 @@ Minimal policy shape:
   "tagOwners": {
     "tag:yeet": ["autogroup:admin"],
     "tag:catch": ["tag:yeet"],
-    "tag:app": ["tag:yeet"]
+    "tag:app": ["tag:yeet"],
   },
   "grants": [
     {
@@ -57,17 +57,15 @@ Minimal policy shape:
       "dst": ["tag:catch"],
       "ip": ["tcp:41548"],
       "app": {
-        "yeetrun.com/app/yeet": [
-          { "allow": ["read", "manage", "ssh"] }
-        ]
-      }
+        "yeetrun.com/app/yeet": [{ "allow": ["read", "manage", "ssh"] }],
+      },
     },
     {
       "src": ["tag:catch"],
       "dst": ["tag:catch"],
-      "ip": ["tcp:41548"]
-    }
-  ]
+      "ip": ["tcp:41548"],
+    },
+  ],
 }
 ```
 
@@ -101,13 +99,20 @@ still failed.
 
 ## Host naming
 
-`yeet init root@<machine-host>` uses SSH. Normal commands use the catch tsnet
+`yeet init root@<machine-host>` uses SSH. Normal commands use the catch Tailscale
 hostname and require your workstation to be able to reach that tailnet address:
 
 ```bash
 CATCH_HOST=<catch-host> yeet status
 yeet --host=<catch-host> status
 yeet run <svc>@<catch-host> ./compose.yml
+```
+
+With no saved or explicit host, catch asks Tailscale for the hostname `catch`.
+For more than one catch host, choose a distinct name during setup:
+
+```bash
+yeet --host=morpheus init root@<machine-host>
 ```
 
 If another tailnet device already owns the requested catch hostname, Tailscale

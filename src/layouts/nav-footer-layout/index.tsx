@@ -10,10 +10,6 @@ const navLinks: Array<SimpleLink> = [
     href: "/docs",
   },
   {
-    text: "Install",
-    href: "/install",
-  },
-  {
     text: "GitHub",
     href: "https://github.com/yeetrun/yeet",
   },
@@ -34,7 +30,7 @@ export default function NavFooterLayout(props: NavFooterLayoutProps) {
         docsNavTree={docsNavTree}
         cta={{
           href: "/docs/getting-started/quick-start",
-          text: "Get Started",
+          text: "Quick Start",
         }}
       />
       {children}
@@ -44,6 +40,10 @@ export default function NavFooterLayout(props: NavFooterLayoutProps) {
           {
             text: "Quick Start",
             href: "/docs/getting-started/quick-start",
+          },
+          {
+            text: "Host Setup",
+            href: "/docs/getting-started/host-setup",
           },
         ]}
         copyright={`© ${currentYear} AUTHORS`}

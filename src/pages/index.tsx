@@ -103,8 +103,8 @@ export default function Home({ docsNavTree }: HomePageProps) {
                   size="large"
                 />
                 <ButtonLink
-                  href="/install"
-                  text="Install"
+                  href="/docs/getting-started/host-setup"
+                  text="Host Setup"
                   size="large"
                   theme="neutral"
                 />

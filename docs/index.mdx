@@ -1,12 +1,14 @@
 ---
 title: Yeet Docs
-description: Install yeet, bootstrap catch, and deploy services from your workstation.
+description: Docs for installing yeet, deploying services, and operating catch hosts.
 ---
 
 Yeet runs from your workstation. Catch runs on each Linux host. Together they
-install services, move files, start units, tail logs, and clean up when you ask.
+install services, move files, start units, tail logs, and remove services when
+you ask.
 
-Start with setup. Then pick the guide for the thing you actually want to run.
+Start with the smallest working path. Then open the page that matches the host,
+payload, network, or operation in front of you.
 
 ## Start here
 
@@ -15,7 +17,11 @@ Start with setup. Then pick the guide for the thing you actually want to run.
   columnsWhenSmall={1}
   links={[
     { text: "Quick Start", href: "/docs/getting-started/quick-start" },
-    { text: "Install yeet and catch", href: "/docs/getting-started/installation", theme: "neutral" },
+    {
+      text: "Host Setup",
+      href: "/docs/getting-started/host-setup",
+      theme: "neutral",
+    },
   ]}
 />
 
@@ -25,27 +31,32 @@ Start with setup. Then pick the guide for the thing you actually want to run.
   cards={[
     {
       title: "Set up Tailscale",
-      description: "Create the tag policy and OAuth credential catch needs before init.",
+      description:
+        "Create the tag policy and OAuth credential catch needs before init.",
       href: "/docs/concepts/tailscale",
     },
     {
       title: "Choose what to run",
-      description: "Pick containers, binaries, cron jobs, or VMs by what the workload needs.",
+      description:
+        "Pick containers, binaries, cron jobs, or VMs by what the workload needs.",
       href: "/docs/payloads",
     },
     {
       title: "Organize service files",
-      description: "Keep third-party apps, env files, custom payloads, and yeet.toml in one workspace.",
+      description:
+        "Keep third-party apps, env files, custom payloads, and yeet.toml in one workspace.",
       href: "/docs/getting-started/service-workspace",
     },
     {
       title: "Operate a service",
-      description: "Update, restart, tail logs, edit config, stage changes, and copy files from the CLI.",
+      description:
+        "Update, restart, tail logs, edit config, stage changes, and copy files from the CLI.",
       href: "/docs/operations/workflows",
     },
     {
       title: "Fix a problem",
-      description: "Start with common connection, Docker, networking, VM, and cleanup failures.",
+      description:
+        "Start with common connection, Docker, networking, VM, and cleanup failures.",
       href: "/docs/operations/troubleshooting",
     },
   ]}
@@ -59,22 +70,26 @@ Use these when the service or host has more specific requirements.
   cards={[
     {
       title: "Host targeting",
-      description: "Understand machine hosts, catch hosts, CATCH_HOST, and svc@host syntax.",
+      description:
+        "Understand machine hosts, catch hosts, CATCH_HOST, and svc@host syntax.",
       href: "/docs/cli/cli-overview",
     },
     {
       title: "Choose networking",
-      description: "Pick reachability, DNS, and outbound internet paths as one decision.",
+      description:
+        "Pick reachability, DNS, and outbound internet paths as one decision.",
       href: "/docs/concepts/networking",
     },
     {
       title: "Run VMs",
-      description: "Create Ubuntu, NixOS, or imported microVMs and manage images, resources, files, and recovery.",
+      description:
+        "Create Ubuntu, NixOS, or imported microVMs and manage images, resources, files, and recovery.",
       href: "/docs/payloads/vms",
     },
     {
       title: "Use recovery points",
-      description: "Use ZFS service roots, snapshots, clone-first recovery, and VM restore.",
+      description:
+        "Use ZFS service roots, snapshots, clone-first recovery, and VM restore.",
       href: "/docs/concepts/zfs",
     },
   ]}
@@ -104,7 +119,8 @@ not tutorials.
     },
     {
       title: "Data layout",
-      description: "Where catch stores service data, configs, generations, and snapshots.",
+      description:
+        "Where catch stores service data, configs, generations, and snapshots.",
       href: "/docs/concepts/data-layout",
     },
   ]}

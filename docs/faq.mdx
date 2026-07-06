@@ -7,19 +7,19 @@ description: Short answers to the questions people usually ask after the first d
 
 Yeet targets homelab-style use by people comfortable operating Linux hosts over
 SSH. It is not a general-purpose platform or a multi-tenant orchestrator: use
-Linux/systemd hosts, Tailscale/tsnet connectivity, and a single-operator trust
-model.
+Linux/systemd hosts, Tailscale connectivity, and a single-operator trust model.
 
 Use yeet for infrastructure you control.
 
 ## Does yeet require Tailscale?
 
-Yes. Catch runs an embedded tsnet node, but the local `yeet` CLI does not run
-its own tsnet client. Normal `yeet` commands use ordinary HTTP/WebSocket
-connections to the catch hostname, so your workstation must be able to reach
-that tsnet address. In the normal setup, that means installing Tailscale locally
-and connecting the workstation to the same tailnet. Discovery commands such as
-`yeet list-hosts` also require the local Tailscale client API. See
+Yes. Catch joins your tailnet as an embedded Tailscale node, but the local
+`yeet` CLI does not run its own Tailscale client. Normal `yeet` commands use
+ordinary HTTP/WebSocket connections to the catch hostname, so your workstation
+must be able to reach that Tailscale address. In the normal setup, that means
+installing Tailscale locally and connecting the workstation to the same tailnet.
+Discovery commands such as `yeet list-hosts` also require the local Tailscale
+client API. See
 [Tailscale](/docs/concepts/tailscale). Access to catch commands is controlled
 with [Tailscale Access Grants](/docs/security/tailscale-access-grants).
 
@@ -56,7 +56,7 @@ image updates.
 ## What is the difference between a machine host and catch host?
 
 The machine host is the SSH target for `yeet init`, such as
-`root@<machine-host>`. The catch host is the tsnet hostname yeet targets after
+`root@<machine-host>`. The catch host is the Tailscale hostname yeet targets after
 install. Use the catch host with `CATCH_HOST`, `--host`, and
 `<svc>@<catch-host>`.
 
