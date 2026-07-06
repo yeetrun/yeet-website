@@ -185,11 +185,7 @@ yeet rm app`}</code>
 
         <SectionWrapper className={s.sectionTight}>
           <div className={s.docsHeader}>
-            <H2>Read what you need next.</H2>
-            <P>
-              Start with the shortest path. Add host, payload, and network
-              details only when you need them.
-            </P>
+            <H2>Manual</H2>
           </div>
           <div className={s.docsGrid}>
             {docsLinks.map((doc) => (
