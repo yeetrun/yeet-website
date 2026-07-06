@@ -92,10 +92,9 @@ export default function Home({ docsNavTree }: HomePageProps) {
                 <span>Your service just runs.</span>
               </H1>
               <P className={s.heroSubtitle} weight="regular">
-                Whether it starts as a binary, compose file, Docker image,
-                Dockerfile, cron job, or microVM, yeet it from your workstation
-                to a Linux host. Catch handles the server side: systemd,
-                Docker/Compose, networking, Tailscale, ZFS, and Firecracker.
+                Point yeet at a Linux host and deploy from your workstation.
+                Bring the payload you already have; catch turns the host into
+                the service layer instead of making you build one first.
               </P>
               <div className={s.heroActions}>
                 <ButtonLink
@@ -128,7 +127,8 @@ yeet logs -f app
 yeet rm app`}</code>
               </CodeBlock>
               <div className={s.panelFooter}>
-                Install yeet, point it at a host, then ship the first service.
+                The local CLI hands the payload to catch. The service runs on
+                the host.
               </div>
             </div>
           </GridContainer>
@@ -141,12 +141,11 @@ yeet rm app`}</code>
               <P>
                 Proxmox and Unraid are useful when you want an appliance. Yeet
                 is for the other case: you have a Linux box and something to
-                run. Point yeet at the host, run <code>yeet run</code>, and
-                catch brings the platform pieces with it: systemd,
-                Docker/Compose, networking, Tailscale, ZFS, and Firecracker. No
-                control panel first. No platform project. No weekend spent
-                building a tiny private cloud because one Compose file got
-                ideas. Just yeet it and let it run.
+                run. The workflow stays local and declarative: pick the thing
+                you want to deploy, point <code>yeet run</code> at it, and let
+                catch do the host-side work. No control panel first. No
+                rebuilding half a cloud just to ship one app. Just yeet it and
+                let it run.
               </P>
             </div>
             <div className={s.truthList}>
