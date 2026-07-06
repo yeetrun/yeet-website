@@ -27,6 +27,13 @@ Yeet currently has two official catalog images:
 | `vm://ubuntu/26.04` | Ubuntu 26.04 |
 | `vm://nixos/26.05`  | NixOS 26.05  |
 
+Official image bundles are built and published from
+[yeetrun/yeet-vm-images](https://github.com/yeetrun/yeet-vm-images). That repo
+owns the public image catalog, release manifests, root filesystems,
+Firecracker kernel assets, and guest package-source defaults. Yeet reads the
+catalog from there, so normal official image updates do not require a Yeet code
+release.
+
 List what the selected catch host can use:
 
 ```bash
