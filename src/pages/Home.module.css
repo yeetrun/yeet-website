@@ -2,37 +2,20 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  padding-bottom: 120px;
+  padding-bottom: 96px;
 }
 
 .hero {
   position: relative;
-  padding: 96px 0 72px;
-}
-
-.hero::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-      800px 500px at 10% 10%,
-      rgba(56, 225, 123, 0.18),
-      transparent 60%
-    ),
-    radial-gradient(
-      700px 420px at 90% 0%,
-      rgba(79, 214, 211, 0.2),
-      transparent 60%
-    );
-  pointer-events: none;
+  padding: 72px 0 56px;
+  border-bottom: 1px solid var(--gray-2);
+  background: rgba(56, 225, 123, 0.035);
 }
 
 .heroGrid {
-  position: relative;
-  z-index: 1;
   display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: 32px;
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 460px);
+  gap: 44px;
   align-items: center;
 }
 
@@ -41,31 +24,32 @@
 }
 
 .heroContent {
-  grid-column: span 7;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
+  max-width: 760px;
 }
 
 .heroBadge {
   display: inline-flex;
   align-self: flex-start;
   max-width: 100%;
-  font-size: 13px;
-  line-height: 1.4;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 8px 14px;
+  padding: 7px 12px;
+  border: 1px solid rgba(56, 225, 123, 0.28);
   border-radius: 999px;
-  background: rgba(56, 225, 123, 0.12);
+  background: rgba(56, 225, 123, 0.11);
   color: var(--gray-7);
-  border: 1px solid rgba(56, 225, 123, 0.25);
+  font-size: 14px;
+  line-height: 1.4;
+  letter-spacing: 0;
 }
 
 .heroTitle {
-  font-size: 56px;
-  letter-spacing: 0;
+  max-width: 720px;
   color: var(--gray-9);
+  font-size: 64px;
+  line-height: 1.02;
+  letter-spacing: 0;
 }
 
 .heroTitle span {
@@ -73,128 +57,169 @@
 }
 
 .heroSubtitle {
-  font-size: 18px;
-  line-height: 1.6;
+  max-width: 680px;
   color: var(--gray-5);
-  max-width: 620px;
+  font-size: 18px;
+  line-height: 1.58;
 }
 
 .heroActions {
   display: flex;
-  gap: 16px;
   flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 2px;
 }
 
-.heroNote {
-  padding: 14px 16px;
-  border-radius: 12px;
-  background: var(--gray-1);
+.payloadStrip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.payloadChip {
+  display: inline-flex;
+  min-height: 30px;
+  align-items: center;
+  padding: 5px 10px;
   border: 1px solid var(--gray-2);
-  color: var(--gray-6);
-  font-size: 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--gray-7);
+  font-size: 13px;
+  line-height: 1.2;
 }
 
 .heroPanel {
-  grid-column: span 5;
-  background: var(--gray-1);
-  border: 1px solid var(--gray-2);
-  border-radius: 18px;
-  padding: 24px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
+  padding: 20px;
+  border: 1px solid var(--gray-2);
+  border-radius: 8px;
+  background: var(--gray-1);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.32);
+}
+
+.heroPanel pre {
+  margin: 0;
+}
+
+.heroPanel code {
+  font-size: 14px;
 }
 
 .panelHeader {
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--gray-6);
+  color: var(--gray-8);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 
 .panelFooter {
+  color: var(--gray-5);
   font-size: 14px;
-  color: var(--gray-6);
+  line-height: 1.45;
 }
 
-.panelFooter a {
-  color: var(--brand-color);
-  text-decoration: none;
+.sectionTight {
+  padding: 56px 0;
 }
 
-.section {
-  padding: 72px 0;
-}
-
-.sectionAlt {
-  padding: 72px 0;
-  background: rgba(22, 22, 26, 0.9);
-  border-top: 1px solid var(--gray-2);
-  border-bottom: 1px solid var(--gray-2);
-}
-
-.sectionHeader {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 32px;
-}
-
-.deployPaths {
+.truthGrid {
   display: grid;
-  grid-template-columns: minmax(0, 0.85fr) minmax(420px, 1.15fr);
-  gap: 32px;
-  align-items: center;
+  grid-template-columns: minmax(260px, 0.72fr) minmax(0, 1fr);
+  gap: 44px;
+  align-items: start;
 }
 
-.deployPaths > * {
+.truthGrid > *,
+.webProof > *,
+.docsGrid > * {
   min-width: 0;
 }
 
-.deployCopy {
+.truthIntro {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  max-width: 520px;
+  gap: 10px;
+  max-width: 440px;
 }
 
-.deployCopy h2 {
+.truthIntro h2,
+.webCopy h2,
+.docsHeader h2 {
   color: var(--gray-9);
   font-size: 32px;
   line-height: 1.12;
+  letter-spacing: 0;
 }
 
-.deployCopy p {
+.truthIntro p,
+.webCopy p,
+.docsHeader p {
   color: var(--gray-5);
   line-height: 1.6;
 }
 
-.deployCopy code {
+.truthIntro code,
+.webCopy code {
   color: var(--gray-8);
 }
 
-.deployCode {
-  margin-top: 6px;
-  background: #0f1114;
-  color: #f2f4f7;
-  padding: 18px;
-  border: 1px solid var(--gray-2);
-  border-radius: 8px;
-  font-size: 14px;
+.truthList {
+  border-top: 1px solid var(--gray-2);
+}
+
+.truthItem {
+  display: grid;
+  grid-template-columns: minmax(150px, 190px) minmax(0, 1fr);
+  gap: 22px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--gray-2);
+}
+
+.truthItem h3 {
+  color: var(--gray-9);
+  font-size: 18px;
+  line-height: 1.25;
+}
+
+.truthItem p {
+  color: var(--gray-5);
   line-height: 1.55;
-  overflow-x: auto;
+}
+
+.webSection {
+  padding: 72px 0 56px;
+  border-top: 1px solid var(--gray-2);
+  border-bottom: 1px solid var(--gray-2);
+  background: rgba(22, 22, 26, 0.78);
+}
+
+.webProof {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.54fr) minmax(420px, 1fr);
+  gap: 36px;
+  align-items: center;
+}
+
+.webCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 440px;
 }
 
 .webRunShotFrame {
-  margin: 0;
   width: 100%;
   max-width: 100%;
-  background: var(--gray-1);
+  margin: 0;
+  overflow: hidden;
   border: 1px solid var(--gray-2);
   border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.38);
+  background: var(--gray-1);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.34);
 }
 
 .webRunShot {
@@ -204,237 +229,118 @@
   height: auto;
 }
 
-.featureGrid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 20px;
-}
-
-.featureGrid > *,
-.workflowShell > *,
-.docsGrid > * {
-  min-width: 0;
-}
-
-.featureCard {
-  padding: 20px;
-  background: var(--gray-1);
-  border: 1px solid var(--gray-2);
-  border-radius: 16px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
-}
-
-.featureCard h3 {
-  font-size: 18px;
-  margin-bottom: 8px;
-  color: var(--gray-9);
-}
-
-.featureCard p {
-  color: var(--gray-5);
-  line-height: 1.5;
-}
-
-.workflowShell {
-  display: grid;
-  grid-template-columns: minmax(220px, 0.75fr) minmax(0, 1.6fr);
-  gap: 20px;
-  align-items: stretch;
-}
-
-.workflowList {
+.docsHeader {
   display: flex;
   flex-direction: column;
   gap: 10px;
-}
-
-.workflowTab {
-  appearance: none;
-  width: 100%;
-  min-height: 82px;
-  padding: 14px 16px;
-  text-align: left;
-  color: inherit;
-  background: var(--gray-1);
-  border: 1px solid var(--gray-2);
-  border-radius: 12px;
-  cursor: pointer;
-  transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease,
-    transform 0.15s ease;
-}
-
-.workflowTab:hover,
-.workflowTab:focus-visible {
-  background: var(--gray-2);
-  border-color: var(--gray-4);
-}
-
-.workflowTab:focus-visible {
-  outline: 2px solid var(--brand-color);
-  outline-offset: 2px;
-}
-
-.workflowTabActive {
-  background: rgba(56, 225, 123, 0.1);
-  border-color: rgba(56, 225, 123, 0.45);
-}
-
-.workflowTitle,
-.workflowDescription {
-  display: block;
-}
-
-.workflowTitle {
-  margin-bottom: 6px;
-  color: var(--gray-9);
-  font-family: var(--display-font);
-  font-size: 17px;
-  font-weight: 500;
-  line-height: 1.2;
-}
-
-.workflowDescription {
-  color: var(--gray-5);
-  font-size: 14px;
-  line-height: 1.35;
-}
-
-.workflowPanel {
-  padding: 20px;
-  background: var(--gray-1);
-  border: 1px solid var(--gray-2);
-  border-radius: 16px;
-  min-width: 0;
-}
-
-.workflowPanelHeader {
-  display: flex;
-  gap: 16px;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 4px;
-}
-
-.workflowPanelHeader h3 {
-  color: var(--gray-9);
-  font-size: 18px;
-}
-
-.workflowPanelHeader a {
-  flex: 0 0 auto;
-  color: var(--brand-color);
-  font-size: 14px;
-  text-decoration: none;
-}
-
-.workflowPanelHeader a:hover {
-  text-decoration: underline;
-}
-
-.workflowPanel pre {
-  margin: 12px 0 0;
-}
-
-.workflowPanel code {
-  font-size: 15px;
+  max-width: 640px;
+  margin-bottom: 26px;
 }
 
 .docsGrid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
 }
 
 .docsCard {
-  padding: 20px;
-  border-radius: 16px;
-  background: var(--gray-1);
+  display: flex;
+  min-height: 144px;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px;
   border: 1px solid var(--gray-2);
-  text-decoration: none;
+  border-radius: 8px;
+  background: var(--gray-1);
   color: inherit;
+  text-decoration: none;
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    border-color 0.16s ease,
+    transform 0.16s ease;
 }
 
-.docsCard:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35);
+.docsCard:hover,
+.docsCard:focus-visible {
+  border-color: rgba(56, 225, 123, 0.45);
+  transform: translateY(-2px);
+}
+
+.docsCard:focus-visible {
+  outline: 2px solid var(--brand-color);
+  outline-offset: 2px;
 }
 
 .docsCard h3 {
-  margin-bottom: 8px;
   color: var(--gray-9);
+  font-size: 18px;
+  line-height: 1.25;
 }
 
 .docsCard p {
   color: var(--gray-5);
+  line-height: 1.5;
 }
 
 @media (max-width: 1024px) {
-  .heroGrid {
+  .heroGrid,
+  .truthGrid,
+  .webProof {
     grid-template-columns: 1fr;
   }
 
   .heroContent,
-  .heroPanel {
-    grid-column: 1 / -1;
+  .truthIntro,
+  .webCopy {
+    max-width: 720px;
   }
 
   .heroTitle {
-    font-size: 48px;
+    font-size: 52px;
   }
 
-  .featureGrid,
   .docsGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .workflowShell {
-    grid-template-columns: 1fr;
-  }
-
-  .workflowList {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .deployPaths {
-    grid-template-columns: 1fr;
-  }
-
-  .deployCopy {
-    max-width: 720px;
   }
 }
 
 @media (max-width: 640px) {
+  .homePage {
+    padding-bottom: 72px;
+  }
+
   .hero {
-    padding-top: 72px;
+    padding: 56px 0 44px;
   }
 
   .heroTitle {
-    font-size: 36px;
+    font-size: 38px;
   }
 
-  .deployCopy h2 {
+  .heroSubtitle {
+    font-size: 16px;
+  }
+
+  .sectionTight,
+  .webSection {
+    padding: 44px 0;
+  }
+
+  .truthIntro h2,
+  .webCopy h2,
+  .docsHeader h2 {
     font-size: 28px;
   }
 
-  .featureGrid,
-  .docsGrid,
-  .workflowList {
+  .truthItem {
     grid-template-columns: 1fr;
+    gap: 8px;
   }
 
-  .workflowPanelHeader {
-    align-items: flex-start;
-    flex-direction: column;
+  .webProof {
+    gap: 24px;
   }
 
-  .workflowPanel code {
-    font-size: 13px;
+  .docsGrid {
+    grid-template-columns: 1fr;
   }
 }

@@ -9,55 +9,51 @@ import { NavTreeNode } from "@/components/nav-tree";
 import CodeBlock from "@/components/codeblock";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
 import s from "./Home.module.css";
 
-const commonWorkflows = [
+const payloadChips = [
+  "Compose",
+  "Dockerfile",
+  "Image",
+  "Binary",
+  "Cron",
+  "microVM",
+];
+
+const proofPoints = [
   {
-    id: "compose",
-    title: "Compose stack",
-    description:
-      "Bring the compose file you already have. Yeet keeps the deploy recipe.",
-    code: `yeet run <svc> ./compose.yml
-yeet run --pull <svc> ./compose.yml
-yeet logs -f <svc>`,
+    title: "Bring what you have",
+    text: "Compose app, Dockerfile, image ref, binary, script, cron job, or microVM. Yeet should not make you repackage it before it can run.",
   },
   {
-    id: "dockerfile",
-    title: "Dockerfile",
-    description:
-      "Build locally, push to the host, and run the resulting image.",
-    code: `yeet run <svc> ./Dockerfile
-yeet status <svc>`,
+    title: "Use normal Linux parts",
+    text: "Catch sets up pieces Linux already knows how to run: systemd units and timers, Docker/Compose projects, network namespaces, service directories or ZFS datasets, and Firecracker VM disks.",
   },
   {
-    id: "vm",
-    title: "MicroVM",
-    description:
-      "Run Ubuntu, NixOS, or an imported image when you need a full OS.",
-    code: `yeet vm images catalog
-yeet run <vm> vm://ubuntu/26.04
-yeet run <vm> vm://nixos/26.05
-yeet ssh <vm>
-yeet vm images import lab/debian ./dist/my-vm`,
+    title: "Service management",
+    text: "Catch handles generations, status, logs, port changes, service networks, per-service Tailscale identities, ZFS roots, and recovery snapshots.",
   },
   {
-    id: "binary",
-    title: "Binary",
-    description:
-      "Ship one executable or script as a plain systemd service.",
-    code: `GOOS=linux GOARCH=amd64 go build -o ./bin/<svc>
-yeet run <svc> ./bin/<svc>
-yeet logs -f <svc>`,
+    title: "Declarative config",
+    text: "Keep payload files and yeet.toml in one service workspace. The config records the host, payload, ports, service root, snapshots, and deploy shape.",
+  },
+];
+
+const docsLinks = [
+  {
+    href: "/docs/getting-started/quick-start",
+    title: "Quick Start",
+    text: "Install yeet, bootstrap catch, and deploy a first disposable service.",
   },
   {
-    id: "cron",
-    title: "Cron job",
-    description:
-      "Install a scheduled script or binary as a systemd timer.",
-    code: `yeet cron <svc> ./job.sh "0 3 * * *"
-yeet logs -f <svc>
-yeet rm <svc>`,
+    href: "/docs/payloads",
+    title: "Payloads",
+    text: "Pick the right shape for containers, binaries, cron jobs, and VMs.",
+  },
+  {
+    href: "/docs/concepts/networking",
+    title: "Networking",
+    text: "Use service networks, LAN or VLAN presence, and Tailscale identities.",
   },
 ];
 
@@ -74,20 +70,13 @@ interface HomePageProps {
 }
 
 export default function Home({ docsNavTree }: HomePageProps) {
-  const [activeWorkflowId, setActiveWorkflowId] = useState(
-    commonWorkflows[0].id,
-  );
-  const activeWorkflow =
-    commonWorkflows.find((workflow) => workflow.id === activeWorkflowId) ??
-    commonWorkflows[0];
-
   return (
     <NavFooterLayout
       docsNavTree={docsNavTree}
       meta={{
-        title: "yeet: FOSS Homelab CLI for Containers, VMs, and Cron",
+        title: "yeet: FOSS Homelab CLI for Containers, Binaries, and MicroVMs",
         description:
-          "A lightweight FOSS CLI for deploying containers, binaries, cron jobs, and microVMs to ordinary Linux hosts.",
+          "A lightweight FOSS CLI for deploying binaries, compose files, Docker images, cron jobs, and microVMs to Linux hosts.",
         path: "/",
       }}
     >
@@ -96,20 +85,17 @@ export default function Home({ docsNavTree }: HomePageProps) {
           <GridContainer className={s.heroGrid}>
             <div className={s.heroContent}>
               <div className={s.heroBadge}>
-                FOSS homelab ops without the appliance.
+                Containers, binaries, and microVMs from one CLI.
               </div>
               <H1 className={s.heroTitle}>
-                Yeet workloads onto Linux.
-                <span>Skip the platform.</span>
+                Yeet your homelab.
+                <span>Your service just runs.</span>
               </H1>
               <P className={s.heroSubtitle} weight="regular">
-                Yeet is a FOSS homelab CLI for people who want the power
-                without the appliance. Point it at a Debian or Ubuntu host and
-                deploy the things you already have: Compose apps, Dockerfiles,
-                images, binaries, scripts, cron jobs, and microVMs. You still
-                get the serious parts: Tailscale-backed access, service
-                networks, ZFS-backed roots and snapshots, catalog and imported
-                VM images, logs, cleanup, and plain Linux state you can inspect.
+                Whether it starts as a binary, compose file, Docker image,
+                Dockerfile, cron job, or microVM, yeet it from your workstation
+                to a Linux host. Catch handles the server side: systemd,
+                Docker/Compose, networking, Tailscale, ZFS, and Firecracker.
               </P>
               <div className={s.heroActions}>
                 <ButtonLink
@@ -124,61 +110,67 @@ export default function Home({ docsNavTree }: HomePageProps) {
                   theme="neutral"
                 />
               </div>
-              <div className={s.heroNote}>
-                This is the anti-clickops path for single-operator homelabs and
-                small private infrastructure: declarative config, mesh
-                networking, ZFS support when you want it, and normal Linux
-                underneath. Not a multi-tenant cloud in a box.
+              <div className={s.payloadStrip} aria-label="Supported payloads">
+                {payloadChips.map((chip) => (
+                  <span key={chip} className={s.payloadChip}>
+                    {chip}
+                  </span>
+                ))}
               </div>
             </div>
 
             <div className={s.heroPanel}>
               <div className={s.panelHeader}>Yeet it up</div>
               <CodeBlock>
-                <code>{`# install yeet
-curl -fsSL https://yeetrun.com/install.sh | sh
-
-# bootstrap a host
-yeet init root@<machine-host>
-
-# deploy whatever shape you already have
-yeet run <svc> ./compose.yml
-yeet run <svc> ./Dockerfile
-yeet cron <job> ./backup.sh "0 3 * * *"
-yeet run <vm> vm://ubuntu/26.04
-yeet run <vm> vm://nixos/26.05
-yeet ssh <vm>`}</code>
+                <code>{`yeet init root@<host>
+yeet run app ./compose.yml
+yeet logs -f app
+yeet rm app`}</code>
               </CodeBlock>
               <div className={s.panelFooter}>
-                Need the setup details before touching a host? Read the{" "}
-                <Link href="/docs/getting-started/quick-start">
-                  Quick Start
-                </Link>
-                .
+                Install yeet, point it at a host, then ship the first service.
               </div>
             </div>
           </GridContainer>
         </section>
 
-        <SectionWrapper className={s.section}>
-          <div className={s.deployPaths}>
-            <div className={s.deployCopy}>
-              <H2>
-                CLI first. Browser optional. The recipe stays declarative.
-              </H2>
+        <SectionWrapper className={s.sectionTight}>
+          <div className={s.truthGrid}>
+            <div className={s.truthIntro}>
+              <H2>Why yeet exists</H2>
               <P>
-                The durable object is <code>yeet.toml</code>, not a trail of
-                clicks. Use the terminal when you already know the payload,
-                network mode, and storage root. Use <code>yeet run --web</code>
-                when you want a guided first pass. It saves the same config and
-                mirrors terminal output in the browser.
+                Proxmox and Unraid are useful when you want an appliance. Yeet
+                is for the other case: you have a Linux box and something to
+                run. Point yeet at the host, run <code>yeet run</code>, and
+                catch brings the platform pieces with it: systemd,
+                Docker/Compose, networking, Tailscale, ZFS, and Firecracker. No
+                control panel first. No platform project. No weekend spent
+                building a tiny private cloud because one Compose file got
+                ideas. Just yeet it and let it run.
               </P>
-              <pre className={s.deployCode}>
-                <code>{`yeet run <svc> ./compose.yml --net=svc,ts
-yeet run <svc> ./compose.yml --service-root=tank/apps/<svc> --zfs
-yeet vm images import lab/debian ./dist/my-vm
-yeet run --web`}</code>
-              </pre>
+            </div>
+            <div className={s.truthList}>
+              {proofPoints.map((point) => (
+                <div key={point.title} className={s.truthItem}>
+                  <h3>{point.title}</h3>
+                  <p>{point.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </SectionWrapper>
+
+        <SectionWrapper className={s.webSection}>
+          <div className={s.webProof}>
+            <div className={s.webCopy}>
+              <H2>CLI first. Web when useful.</H2>
+              <P>
+                <code>yeet run</code> is the normal path when you know the
+                shape. Add <code>--web</code> when you want a local form instead
+                of memorizing every flag: service name, payload, storage, ports,
+                and network settings. It writes the same declarative{" "}
+                <code>yeet.toml</code> and streams the deploy output.
+              </P>
             </div>
             <figure className={s.webRunShotFrame}>
               <Image
@@ -186,147 +178,27 @@ yeet run --web`}</code>
                 src="/images/web-run-deploy.png"
                 alt="The yeet web deploy form configuring a new service"
                 width={1440}
-                height={963}
+                height={965}
               />
             </figure>
           </div>
         </SectionWrapper>
 
-        <SectionWrapper className={s.section}>
-          <div className={s.sectionHeader}>
-            <H2>Everything you need. Nothing that wants to become your cloud.</H2>
+        <SectionWrapper className={s.sectionTight}>
+          <div className={s.docsHeader}>
+            <H2>Read what you need next.</H2>
             <P>
-              Yeet gives the boring host primitives a useful control plane
-              without hiding the host from you.
-            </P>
-          </div>
-          <div className={s.featureGrid}>
-            <div className={s.featureCard}>
-              <h3>Normal Linux underneath</h3>
-              <p>
-                Catch manages systemd units, Docker projects, VM data, logs,
-                files, and cleanup on the host. You can still inspect the
-                pieces directly.
-              </p>
-            </div>
-            <div className={s.featureCard}>
-              <h3>One CLI for every payload</h3>
-              <p>
-                Compose stacks, image refs, Dockerfiles, binaries, scripts,
-                cron jobs, and microVMs all enter through the same workstation
-                command model.
-              </p>
-            </div>
-            <div className={s.featureCard}>
-              <h3>Mesh networking built in</h3>
-              <p>
-                Catch joins your tailnet. Services can use private yeet DNS,
-                LAN or VLAN presence, Tailscale identities, or combined modes
-                when the access path needs it.
-              </p>
-            </div>
-            <div className={s.featureCard}>
-              <h3>ZFS when storage matters</h3>
-              <p>
-                Optional ZFS service roots give you dataset-backed app data,
-                snapshots before risky changes, and faster VM disk clones.
-              </p>
-            </div>
-          </div>
-        </SectionWrapper>
-
-        <SectionWrapper className={s.sectionAlt}>
-          <div className={s.sectionHeader}>
-            <H2>Bring the thing you already have</H2>
-            <P>
-              Binary, script, Dockerfile, compose.yml, cron job, or microVM.
-              Yeet routes the work to the boring host primitive that fits.
-            </P>
-          </div>
-          <div className={s.workflowShell}>
-            <div
-              className={s.workflowList}
-              role="tablist"
-              aria-label="Common workflow examples"
-            >
-              {commonWorkflows.map((workflow) => {
-                const isActive = workflow.id === activeWorkflow.id;
-                return (
-                  <button
-                    key={workflow.id}
-                    id={`workflow-tab-${workflow.id}`}
-                    className={`${s.workflowTab} ${
-                      isActive ? s.workflowTabActive : ""
-                    }`}
-                    type="button"
-                    role="tab"
-                    aria-selected={isActive}
-                    aria-controls="workflow-panel"
-                    onClick={() => setActiveWorkflowId(workflow.id)}
-                  >
-                    <span className={s.workflowTitle}>{workflow.title}</span>
-                    <span className={s.workflowDescription}>
-                      {workflow.description}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-            <div
-              className={s.workflowPanel}
-              id="workflow-panel"
-              role="tabpanel"
-              aria-labelledby={`workflow-tab-${activeWorkflow.id}`}
-            >
-              <div className={s.workflowPanelHeader}>
-                <h3>{activeWorkflow.title}</h3>
-                <Link href="/docs/operations/workflows">Workflow docs</Link>
-              </div>
-              <CodeBlock>
-                <code>{activeWorkflow.code}</code>
-              </CodeBlock>
-            </div>
-          </div>
-        </SectionWrapper>
-
-        <SectionWrapper className={s.section}>
-          <div className={s.sectionHeader}>
-            <H2>Docs for the next decision</H2>
-            <P>
-              Start with setup if the host is new. Jump to payloads or workflows
-              when you already know what needs to run.
+              Start with the shortest path. Add host, payload, and network
+              details only when you need them.
             </P>
           </div>
           <div className={s.docsGrid}>
-            <Link
-              className={s.docsCard}
-              href="/docs/getting-started/quick-start"
-            >
-              <h3>Quick Start</h3>
-              <p>Shortest path from empty host to a disposable service.</p>
-            </Link>
-            <Link
-              className={s.docsCard}
-              href="/docs/getting-started/installation"
-            >
-              <h3>Installation</h3>
-              <p>
-                Install yeet, bootstrap catch, and check the host assumptions.
-              </p>
-            </Link>
-            <Link className={s.docsCard} href="/docs/payloads">
-              <h3>Payloads</h3>
-              <p>
-                Choose containers, binaries, scripts, cron jobs, or microVMs by
-                what the workload needs.
-              </p>
-            </Link>
-            <Link className={s.docsCard} href="/docs/operations/workflows">
-              <h3>Workflows</h3>
-              <p>
-                Deploy, update, tail logs, stage config, and clean up services.
-              </p>
-            </Link>
+            {docsLinks.map((doc) => (
+              <Link key={doc.href} className={s.docsCard} href={doc.href}>
+                <h3>{doc.title}</h3>
+                <p>{doc.text}</p>
+              </Link>
+            ))}
           </div>
         </SectionWrapper>
       </main>
