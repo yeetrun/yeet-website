@@ -35,7 +35,7 @@ The default catch hostname is `catch`. That is fine for one host. For more than
 one catch host, choose a name before setup:
 
 ```bash
-yeet --host=morpheus init root@<machine-host>
+yeet --host=morpheus-catch init root@<machine-host>
 ```
 
 That command still installs over SSH to `<machine-host>`. The `--host` value is
@@ -43,14 +43,14 @@ the catch hostname yeet asks Tailscale to assign. Use that same catch host for
 normal commands:
 
 ```bash
-yeet --host=morpheus status
-yeet run <svc>@morpheus ./compose.yml
+yeet --host=morpheus-catch status
+yeet run <svc>@morpheus-catch ./compose.yml
 ```
 
 To make that catch host the local default:
 
 ```bash
-yeet prefs --host=morpheus --save
+yeet prefs --host=morpheus-catch --save
 ```
 
 During setup, SSH gets catch onto the machine. After that, Tailscale is the

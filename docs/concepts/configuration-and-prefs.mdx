@@ -55,23 +55,23 @@ Example:
 
 ```toml
 version = 1
-hosts = ["morpheus", "trinity"]
+hosts = ["morpheus-catch", "trinity-catch"]
 
 [[services]]
 name = "uptime-kuma"
-host = "morpheus"
+host = "morpheus-catch"
 payload = "./uptime-kuma/compose.yml"
 args = ["--net=svc,ts"]
 
 [[services]]
 name = "sensor-collector"
-host = "trinity"
+host = "trinity-catch"
 payload = "./bin/sensor-collector"
 args = ["--listen", ":9100"]
 
 [[services]]
 name = "backup"
-host = "morpheus"
+host = "morpheus-catch"
 type = "cron"
 payload = "./jobs/backup.sh"
 schedule = "0 3 * * *"
