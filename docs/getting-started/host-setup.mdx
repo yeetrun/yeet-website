@@ -50,7 +50,7 @@ yeet run <svc>@morpheus-catch ./compose.yml
 To make that catch host the local default:
 
 ```bash
-yeet prefs --host=morpheus-catch --save
+yeet config --host=morpheus-catch
 ```
 
 During setup, SSH gets catch onto the machine. After that, Tailscale is the
@@ -130,6 +130,17 @@ yeet init root@<machine-host>
 With no saved or explicit catch host, this uses the Tailscale hostname `catch`.
 Use `yeet --host=<catch-host> init root@<machine-host>` when adding another
 catch host to the same tailnet.
+
+Choose the workspace behavior explicitly when you do not want the interactive
+default:
+
+```bash
+yeet init --workspace ~/yeet-services root@<machine-host>
+yeet init --no-workspace root@<machine-host>
+```
+
+`--workspace` creates the directory when needed and registers it for the
+selected catch host. `--no-workspace` skips workspace setup entirely.
 
 What changes by case:
 

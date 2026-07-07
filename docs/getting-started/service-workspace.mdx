@@ -7,10 +7,13 @@ Use a service workspace before your first `yeet run` or `yeet cron`. A
 directory such as `~/yeet-services` keeps third-party Compose apps, env files,
 custom Dockerfiles, scripts, binaries, and `yeet.toml` together.
 
-Run deploy and service commands from this directory. Yeet reads and writes
-`yeet.toml` in the current directory, so a consistent workspace lets it reuse
-saved payload paths, hosts, network flags, service roots, snapshots, cron
-schedules, and payload args.
+Run deploy and service commands from this directory when you are working on the
+payload files. Yeet first looks for `yeet.toml` in or above the current
+directory. If none is found, it uses the configured workspace that owns the
+target catch host.
+
+A consistent workspace lets yeet reuse saved payload paths, hosts, network
+flags, service roots, snapshots, cron schedules, and payload args.
 
 Use one workspace so deployment state stays with the files it describes,
 instead of spreading across shell history and unrelated directories.
@@ -103,7 +106,8 @@ yeet run mqtt-bridge
 
 Yeet reads `yeet.toml`, finds the saved payload path, and reuses saved options
 such as network mode, env file, service root, snapshot settings, and payload
-args.
+args. If you are outside the workspace and yeet already knows which workspace
+owns that catch host, it falls back to the registered workspace.
 
 ## Keep paths relative
 
@@ -137,5 +141,5 @@ a letter and end with a letter or number.
   cron, or VM payloads.
 - [Workflows](/docs/operations/workflows) shows daily deploy and update
   commands.
-- [Configuration & Prefs](/docs/concepts/configuration-and-prefs) explains
-  `yeet.toml`, client prefs, and host defaults.
+- [Configuration](/docs/concepts/configuration-and-prefs) explains
+  `yeet.toml`, client config, and host defaults.

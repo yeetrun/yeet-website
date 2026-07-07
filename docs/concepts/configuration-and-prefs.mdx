@@ -1,39 +1,49 @@
+title: Configuration
+description: Where yeet keeps local client config, workspace registration, and replayable service state.
 ---
-title: Configuration & Prefs
-description: Where local defaults live, and which file yeet trusts when it reruns a service.
----
 
-There are two kinds of local state. Client preferences answer "what host do I
-usually mean?" Project config answers "how do I replay this set of services?"
-Keep those jobs separate.
+There are two kinds of local state. Client config answers "what host or
+workspace do I usually mean?" Project config answers "how do I replay this set
+of services?" Keep those jobs separate.
 
-## Client prefs
+## Client config
 
-Yeet stores preferences in:
+Yeet stores client config in:
 
 ```
-~/.yeet/prefs.json
+$XDG_CONFIG_HOME/yeet/config.toml
 ```
+
+If `XDG_CONFIG_HOME` is unset, yeet uses `~/.config/yeet/config.toml`.
+Existing `~/.yeet/prefs.json` files migrate automatically on first run.
 
 Schema:
 
-```json
-{
-  "defaultHost": "<host>"
-}
+```toml
+default_host = "morpheus-catch"
+workspaces = ["~/yeet-services"]
 ```
 
-`defaultHost` is the **catch host** (Tailscale hostname) that yeet uses
-when you do not specify a host with `@<host>`, `--host`, or `yeet.toml`. This
-is not the SSH machine host from `yeet init`; it is the operating target after
-catch is installed. See
+`default_host` is the **catch host** (Tailscale hostname) that yeet uses when
+you do not specify a host with `@<host>`, `--host`, or `yeet.toml`. This is not
+the SSH machine host from `yeet init`; it is the operating target after catch
+is installed. See
 [Tailscale](/docs/concepts/tailscale) for details.
+
+`workspaces` is the list of service workspace directories yeet can fall back to
+when the current directory does not contain a `yeet.toml`. Each registered
+workspace owns one or more catch hosts, and a catch host belongs to only one
+registered workspace.
 
 Commands:
 
 ```bash
-yeet prefs
-yeet prefs --save
+yeet config
+yeet config --host=<catch-host>
+yeet config --workspace ~/yeet-services
+yeet config --add-workspace ~/lab-services
+yeet config --remove-workspace ~/lab-services
+yeet config --clear-workspaces
 ```
 
 ## Project config (`yeet.toml`)
@@ -50,6 +60,17 @@ env files, Dockerfiles, scripts, binaries, and `yeet.toml` stay together.
 path (`yeet run` or `yeet cron`). Payload paths, env files, service-root
 settings, ZFS flags, snapshot overrides, cron schedules, and payload args are
 saved in `yeet.toml` the same way.
+
+Yeet first looks for `yeet.toml` in or above the current directory. If none is
+found, it falls back to the registered workspace that owns the target catch
+host. A local or upward `yeet.toml` always wins over workspace fallback.
+
+Host ownership belongs in `yeet.toml`:
+
+```toml
+version = 1
+hosts = ["morpheus-catch", "trinity-catch"]
+```
 
 Example:
 

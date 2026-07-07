@@ -45,7 +45,7 @@ Install or update a service from a payload:
 
 Run new-service deploy commands from a
 [Service Workspace](/docs/getting-started/service-workspace). A successful
-deploy writes `yeet.toml` in the current directory.
+deploy writes or updates `yeet.toml` in the active workspace.
 
 ```bash
 yeet run --web
@@ -240,13 +240,17 @@ yeet copy --force-proxy ./configs/ <vm>:~/configs/
 Regular service endpoints are relative to the service data directory. VM
 endpoints target the guest filesystem.
 
-### `prefs`
+### `config`
 
-Show or save client preferences:
+Show or update local yeet client config:
 
 ```bash
-yeet prefs
-yeet prefs --host=<catch-host> --save
+yeet config
+yeet config --host=<catch-host>
+yeet config --workspace ~/yeet-services
+yeet config --add-workspace ~/lab-services
+yeet config --remove-workspace ~/lab-services
+yeet config --clear-workspaces
 ```
 
 ## Services
@@ -467,6 +471,8 @@ Install or update catch on a machine host over SSH:
 ```bash
 yeet init root@<machine-host>
 yeet --host=morpheus-catch init root@<machine-host>
+yeet init --workspace ~/yeet-services root@<machine-host>
+yeet init --no-workspace root@<machine-host>
 yeet init --data-dir=/srv/yeet-data root@<machine-host>
 yeet init --zfs --data-dir=flash/yeet/data --services-root=flash/yeet/services root@<machine-host>
 yeet init
@@ -487,6 +493,8 @@ For unattended setup, these flags answer init prompts:
 | ----------------------------- | --------------------------------------------------------------------------- |
 | `--ts-client-secret=<secret>` | Tailscale OAuth client secret for catch enrollment                          |
 | `--ts-auth-key=<key>`         | Preauthorized Tailscale auth key for the catch node                         |
+| `--workspace <path>`          | Create or adopt a service workspace and register it for the selected host   |
+| `--no-workspace`              | Skip workspace setup during init                                            |
 | `--install-docker`            | Answers yes to installing Docker when Docker is missing on a supported host |
 | `--install-vm-tools`          | Answers yes to installing VM tools when the host can run VMs                |
 

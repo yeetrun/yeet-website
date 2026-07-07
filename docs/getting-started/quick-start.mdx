@@ -82,17 +82,19 @@ explicit:
 yeet --host=<catch-host> status
 ```
 
-## 5. Create a service workspace
+## 5. Choose a service workspace
 
-Run services from a directory you plan to keep. A successful deploy writes
-`yeet.toml` there.
+Interactive `yeet init` offers to adopt `~/yeet-services` so yeet can remember
+where your `yeet.toml` lives. Keep that directory as the examples' working
+directory, because relative payload paths stay simple there.
 
 ```bash
 mkdir -p ~/yeet-services
 cd ~/yeet-services
 ```
 
-This keeps local deploy state visible and easy to reuse.
+If you skip that prompt during setup, create or enter the workspace before your
+first deploy. This keeps local deploy state visible and easy to reuse.
 
 ## 6. Run a disposable service
 

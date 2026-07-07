@@ -7,8 +7,9 @@ Start here when you know what you want to do and need the command shape. For
 payload-specific details, use the linked payload guide.
 
 For real homelab services, run these commands from a
-[Service Workspace](/docs/getting-started/service-workspace). Yeet reads and
-writes `yeet.toml` in the current directory.
+[Service Workspace](/docs/getting-started/service-workspace). Yeet first looks
+for `yeet.toml` in or above the current directory. If none is found, it uses
+the configured workspace that owns the target catch host.
 
 The pattern is deliberately repetitive: run the command, inspect status, read
 logs, then make the next change. Infrastructure gets easier when the feedback
@@ -37,7 +38,7 @@ yeet info <svc>
 yeet logs -f <svc>
 ```
 
-After the first successful deploy, rerun the saved service from the directory
+After the first successful deploy, rerun the saved service from the workspace
 that contains `yeet.toml`:
 
 ```bash
@@ -274,7 +275,7 @@ yeet run <svc>@<catch-host> ./compose.yml
 Save a default host:
 
 ```bash
-yeet prefs --host=<catch-host> --save
+yeet config --host=<catch-host>
 ```
 
 ## Remove a service
