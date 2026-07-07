@@ -1,3 +1,4 @@
+---
 title: Configuration
 description: Where yeet keeps local client config, workspace registration, and replayable service state.
 ---
@@ -45,6 +46,9 @@ yeet config --add-workspace ~/lab-services
 yeet config --remove-workspace ~/lab-services
 yeet config --clear-workspaces
 ```
+
+`--workspace` and `--add-workspace` require the directory to already exist. To
+create and register a workspace during host setup, use `yeet init --workspace`.
 
 ## Project config (`yeet.toml`)
 
