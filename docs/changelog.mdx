@@ -3,11 +3,18 @@ title: Changelog
 description: Release notes for users deciding whether to install or upgrade.
 ---
 
-## July 6, 2026
+## July 7, 2026
 
 ### v0.9.3
 
 - Client preferences moved from `~/.yeet/prefs.json` to `$XDG_CONFIG_HOME/yeet/config.toml`, and `yeet config` replaces `yeet prefs`. Existing prefs migrate automatically on first run.
+- Service workspaces are now first-class: `yeet init --workspace` can create
+  and register one, and interactive commands can adopt an existing `yeet.toml`
+  so future commands from other directories use the same saved project state.
+- Multi-host workspaces now behave correctly with `CATCH_HOST`: project-wide
+  commands still include every configured host, service-specific commands use
+  the selected host, and existing service bridges are reconciled instead of
+  left with stale addresses.
 
 ## July 4, 2026
 
