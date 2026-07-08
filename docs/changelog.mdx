@@ -3,6 +3,19 @@ title: Changelog
 description: Release notes for users deciding whether to install or upgrade.
 ---
 
+## July 8, 2026
+
+### v0.9.4
+
+- Supersedes `v0.9.3` for installers and upgraders: this keeps the XDG config
+  migration, service workspaces, multi-host workspace behavior, and bridge
+  reconciliation changes from `v0.9.3`.
+- `yeet upgrade --force` no longer opens service workspace setup during catch
+  reinstalls, so non-interactive catch upgrades finish cleanly.
+- Catch upgrades now reinstall each host with its own configured catch hostname,
+  avoiding accidental Tailscale renames such as `-1` suffixes when `CATCH_HOST`
+  is set; release binaries are rebuilt with Go 1.26.5.
+
 ## July 7, 2026
 
 ### v0.9.3
