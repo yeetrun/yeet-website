@@ -12,6 +12,10 @@ payload files. Yeet first looks for `yeet.toml` in or above the current
 directory. If none is found, it uses the configured workspace that owns the
 target catch host.
 
+If you already have a workspace with `yeet.toml`, run an interactive command
+such as `yeet status` from that directory. Yeet can offer to save it as a
+registered workspace, so future commands from other directories can find it.
+
 A consistent workspace lets yeet reuse saved payload paths, hosts, network
 flags, service roots, snapshots, cron schedules, and payload args.
 

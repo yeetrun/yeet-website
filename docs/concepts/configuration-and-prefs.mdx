@@ -69,6 +69,12 @@ Yeet first looks for `yeet.toml` in or above the current directory. If none is
 found, it falls back to the registered workspace that owns the target catch
 host. A local or upward `yeet.toml` always wins over workspace fallback.
 
+If an interactive command finds a local `yeet.toml` that is not registered as a
+workspace yet, yeet can ask whether to save that directory in client config. If
+the file declares one catch host, yeet can also save that host as the default.
+If it declares multiple hosts, yeet asks which one should become the default for
+commands run outside the workspace.
+
 Host ownership belongs in `yeet.toml`:
 
 ```toml
