@@ -545,12 +545,17 @@ yeet upgrade check
 yeet upgrade
 yeet upgrade --host=<catch-host>
 yeet upgrade --force
+yeet upgrade --nightly
+yeet upgrade check --nightly
 yeet upgrade --version v0.6.1 --force
 ```
 
 When run from a service workspace with `yeet.toml`, `yeet upgrade` includes all
 project catch hosts plus the default catch host. Use `--host=<catch-host>` to
 upgrade one catch host.
+
+Use `--nightly` to target the latest nightly release. Use `--version` to target
+a specific public release tag; do not use both in the same command.
 
 ### `version`
 

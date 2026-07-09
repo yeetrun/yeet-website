@@ -221,11 +221,19 @@ current, newer, or locally built:
 yeet upgrade --force
 ```
 
+To install the latest nightly release:
+
+```bash
+yeet upgrade --nightly
+```
+
 To install a specific public release, select the tag:
 
 ```bash
 yeet upgrade --version v0.6.1 --force
 ```
+
+`--nightly` and `--version` select different targets, so use one of them per command.
 
 ## Host requirements
 
