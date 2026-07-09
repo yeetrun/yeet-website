@@ -5,6 +5,15 @@ description: Release notes for users deciding whether to install or upgrade.
 
 ## July 8, 2026
 
+### v0.9.5
+
+- `yeet upgrade --force` no longer prints sample-run or workspace-save guidance
+  while it reinstalls catch hosts, so upgrade output stays focused on the
+  upgrade plan, host install progress, and real host warnings.
+- This release includes the `v0.9.4` upgrade fixes: catch reinstalls avoid
+  service-workspace setup prompts and keep each configured catch hostname when
+  multiple hosts are upgraded together.
+
 ### v0.9.4
 
 - Supersedes `v0.9.3` for installers and upgraders: this keeps the XDG config
