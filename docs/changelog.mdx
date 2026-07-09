@@ -5,6 +5,14 @@ description: Release notes for users deciding whether to install or upgrade.
 
 ## July 8, 2026
 
+### v0.9.6
+
+- `yeet upgrade --force` now stages each catch reinstall with its own temporary
+  installer path, avoiding rare collisions when repeated or overlapping
+  upgrades target the same host.
+- Successful catch reinstalls no longer print a harmless Tailscale proxy
+  copy-abort line after the install has completed.
+
 ### v0.9.5
 
 - `yeet upgrade --force` no longer prints sample-run or workspace-save guidance
