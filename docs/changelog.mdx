@@ -7,44 +7,38 @@ description: Release notes for users deciding whether to install or upgrade.
 
 ### v0.9.6
 
-- `yeet upgrade --force` now stages each catch reinstall with its own temporary
-  installer path, avoiding rare collisions when repeated or overlapping
-  upgrades target the same host.
-- Successful catch reinstalls no longer print a harmless Tailscale proxy
-  copy-abort line after the install has completed.
+- `yeet upgrade --force` is safer to rerun when a catch reinstall is already in
+  progress or has just been retried, avoiding rare failed reinstalls on the
+  remote host.
+- Successful catch reinstalls keep the output focused on install progress and
+  real host warnings, without reporting harmless transport noise.
 
 ### v0.9.5
 
-- `yeet upgrade --force` no longer prints sample-run or workspace-save guidance
-  while it reinstalls catch hosts, so upgrade output stays focused on the
-  upgrade plan, host install progress, and real host warnings.
-- This release includes the `v0.9.4` upgrade fixes: catch reinstalls avoid
-  service-workspace setup prompts and keep each configured catch hostname when
-  multiple hosts are upgraded together.
+- `yeet upgrade --force` no longer prints next-step setup guidance while it
+  reinstalls catch hosts.
 
 ### v0.9.4
 
-- Supersedes `v0.9.3` for installers and upgraders: this keeps the XDG config
-  migration, service workspaces, multi-host workspace behavior, and bridge
-  reconciliation changes from `v0.9.3`.
 - `yeet upgrade --force` no longer opens service workspace setup during catch
-  reinstalls, so non-interactive catch upgrades finish cleanly.
-- Catch upgrades now reinstall each host with its own configured catch hostname,
-  avoiding accidental Tailscale renames such as `-1` suffixes when `CATCH_HOST`
-  is set; release binaries are rebuilt with Go 1.26.5.
+  reinstalls, so scripted and project-wide upgrades can finish without extra
+  prompts.
+- Catch upgrades keep each host's configured catch hostname in multi-host
+  workspaces, avoiding accidental Tailscale `-1` names.
 
 ## July 7, 2026
 
 ### v0.9.3
 
-- Client preferences moved from `~/.yeet/prefs.json` to `$XDG_CONFIG_HOME/yeet/config.toml`, and `yeet config` replaces `yeet prefs`. Existing prefs migrate automatically on first run.
+- Client preferences moved from `~/.yeet/prefs.json` to
+  `$XDG_CONFIG_HOME/yeet/config.toml`, and `yeet config` replaces `yeet prefs`.
+  Existing prefs migrate automatically on first run.
 - Service workspaces are now first-class: `yeet init --workspace` can create
   and register one, and interactive commands can adopt an existing `yeet.toml`
   so future commands from other directories use the same saved project state.
 - Multi-host workspaces now behave correctly with `CATCH_HOST`: project-wide
   commands still include every configured host, service-specific commands use
-  the selected host, and existing service bridges are reconciled instead of
-  left with stale addresses.
+  the selected host, and saved service addresses are refreshed when they change.
 
 ## July 4, 2026
 
