@@ -3,6 +3,20 @@ title: Changelog
 description: Release notes for users deciding whether to install or upgrade.
 ---
 
+## July 10, 2026
+
+### v0.9.7
+
+- Existing release installs can switch the local CLI and configured catch hosts
+  to the latest nightly build with `yeet upgrade --nightly`; check and plan
+  output identify the nightly target before anything changes.
+- `yeet docker outdated` and `yeet docker update --outdated` now scan Compose
+  services in parallel on each catch host, making multi-service update reviews
+  much faster without changing which services are selected.
+- Catch installs and upgrades now report missing VM capabilities such as
+  `/dev/kvm` once in the final warning summary instead of repeating the same
+  warning during preflight and installation.
+
 ## July 8, 2026
 
 ### v0.9.6
