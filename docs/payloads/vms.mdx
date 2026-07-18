@@ -67,9 +67,8 @@ yeet run <vm> vm://nixos/26.05
 yeet ssh <vm>
 ```
 
-`yeet run` creates the VM service. It is not the update path for an existing VM
-with the same name. Use `yeet vm set` for supported changes, or remove and
-recreate the VM when you want a fresh guest.
+`yeet run` creates the VM service. Use `yeet vm set` for supported changes. To
+replace the guest, remove the VM and create it again.
 
 Override the starting shape when needed:
 
@@ -79,9 +78,9 @@ yeet run <vm> vm://ubuntu/26.04 --vcpus=4 --memory=4g --disk=128g
 
 ## Choose VM memory behavior
 
-`--memory` is the VM's maximum RAM. New VMs enable Firecracker ballooning by
-default, so catch can reclaim guest memory under host pressure without lowering
-the configured maximum. This does not increase available host memory.
+`--memory` is the VM's maximum RAM. Firecracker ballooning is enabled by default,
+so catch can reclaim guest memory under host pressure without lowering the
+configured maximum. This does not increase available host memory.
 
 Set the minimum floor when you create the VM:
 
@@ -194,7 +193,7 @@ yeet copy --force-proxy ./configs/ <vm>:~/configs/
 
 Ubuntu VMs default to the `ubuntu` user. NixOS VMs default to the `nixos` user.
 
-## Change an existing VM
+## Change a VM
 
 Stop the VM before changing CPU, memory, disk size, networking, or host VMM
 isolation:
@@ -217,21 +216,22 @@ yeet vm set <vm> --net=svc,lan --macvlan-parent=<iface> --macvlan-vlan=<id>
 yeet start <vm>
 ```
 
-## Isolate the host VMM
+## Host VMM isolation
 
-New VMs launch Firecracker through the matching Firecracker jailer. The jailer
-builds a private filesystem view, provides only the VM resources needed for the
-boot, and drops Firecracker to the static `yeet-vm` host account. This account
-is separate from users inside the guest.
+Yeet uses Firecracker jailer mode by default. The jailer builds a private
+filesystem view, provides only the VM resources needed for boot, and runs
+Firecracker as the static `yeet-vm` host account. This account is separate from
+users inside the guest.
 
-Existing VMs keep their current launch mode during an upgrade. Check one VM:
+Each VM stores its host VMM isolation mode. Catch upgrades do not change it.
+Check the mode with:
 
 ```bash
 yeet info <vm>
 ```
 
-The `VMM isolation` row shows `jailer` or `legacy-root`. Migrate a stopped VM
-explicitly:
+The `VMM isolation` row shows `jailer` or `legacy-root`. Set jailer mode while
+the VM is stopped:
 
 ```bash
 yeet stop <vm>
@@ -240,13 +240,13 @@ yeet start <vm>
 yeet ssh <vm>
 ```
 
-Migration keeps the VM service root, disk backend, snapshots, network mode,
-and guest users. It also delegates the VM's TAP devices, writable disk, and
-Firecracker checkpoint files to the host VMM account. Custom service roots and
-ZFS-backed VM roots use the same workflow.
+Changing the mode keeps the VM service root, disk backend, snapshots, network
+mode, and guest users. Jailer mode delegates the VM's TAP devices, writable
+disk, and Firecracker checkpoint files to the host VMM account. Custom service
+roots and ZFS-backed VM roots use the same workflow.
 
-If the VM does not start after migration, stop it and restore the previous host
-launch mode:
+`legacy-root` runs Firecracker as root for compatibility. Set it while the VM is
+stopped:
 
 ```bash
 yeet stop <vm>
@@ -254,10 +254,10 @@ yeet vm set <vm> --vmm-isolation=legacy-root
 yeet start <vm>
 ```
 
-Jailer migration requires the VM's cached image bundle to contain a jailer that
-matches its Firecracker version. Catch fails before changing the VM when that
-artifact is missing; `yeet vm images update` fetches a newer bundle when the VM
-image catalog provides one.
+Jailer mode requires the VM's cached image bundle to contain a jailer that
+matches its Firecracker version. Catch fails before changing the mode when that
+artifact is missing. `yeet vm images update` downloads the current catalog
+bundle.
 
 ## Host requirements
 
@@ -277,7 +277,7 @@ No login shell or home directory is created for the account.
 On Debian/Ubuntu hosts with KVM and TUN/TAP available, interactive `yeet init`
 can prompt to install missing VM tools and prepare VM LAN bridge support.
 
-Automatic VM LAN bridge preparation currently supports Debian/Ubuntu
+Automatic VM LAN bridge preparation supports Debian/Ubuntu
 netplan-networkd hosts with a physical default-route LAN uplink. Hosts that
 already route through a bridge reuse that bridge without rewriting the host
 network.
@@ -300,7 +300,7 @@ yeet vm images prune --dry-run
 ```
 
 `yeet vm images update` refreshes official image families for future VM
-creates. It does not rewrite existing VM disks.
+creates. It does not rewrite VM disks.
 
 When creating a VM with a stale cached image, interactive runs prompt by
 default. For non-interactive runs, choose explicitly:

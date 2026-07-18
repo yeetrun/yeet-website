@@ -151,6 +151,26 @@ Avoid:
 Passive voice is allowed only when the actor does not matter to the user. If the
 actor matters, name it.
 
+## Evergreen Manual
+
+README and manual pages describe the product as it behaves now. State defaults,
+modes, and outcomes directly. Do not present normal behavior as new, changed,
+migrated, or upgraded.
+
+Reserve temporal framing for changelogs and dedicated upgrade or compatibility
+instructions. When compatibility modes exist, name each mode and explain how to
+select it instead of dividing readers into new and existing cohorts.
+
+Avoid:
+
+- "New VMs launch Firecracker through the jailer."
+- "Migrate an existing VM to jailer mode."
+
+Prefer:
+
+- "Yeet uses Firecracker jailer mode by default."
+- "Set a stopped VM to jailer mode."
+
 ## Sentences
 
 Keep sentences short and concrete.
