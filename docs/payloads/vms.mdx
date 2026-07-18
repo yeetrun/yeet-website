@@ -196,7 +196,8 @@ Ubuntu VMs default to the `ubuntu` user. NixOS VMs default to the `nixos` user.
 
 ## Change an existing VM
 
-Stop the VM before changing CPU, memory, disk size, or networking:
+Stop the VM before changing CPU, memory, disk size, networking, or host VMM
+isolation:
 
 ```bash
 yeet stop <vm>
@@ -216,6 +217,48 @@ yeet vm set <vm> --net=svc,lan --macvlan-parent=<iface> --macvlan-vlan=<id>
 yeet start <vm>
 ```
 
+## Isolate the host VMM
+
+New VMs launch Firecracker through the matching Firecracker jailer. The jailer
+builds a private filesystem view, provides only the VM resources needed for the
+boot, and drops Firecracker to the static `yeet-vm` host account. This account
+is separate from users inside the guest.
+
+Existing VMs keep their current launch mode during an upgrade. Check one VM:
+
+```bash
+yeet info <vm>
+```
+
+The `VMM isolation` row shows `jailer` or `legacy-root`. Migrate a stopped VM
+explicitly:
+
+```bash
+yeet stop <vm>
+yeet vm set <vm> --vmm-isolation=jailer
+yeet start <vm>
+yeet ssh <vm>
+```
+
+Migration keeps the VM service root, disk backend, snapshots, network mode,
+and guest users. It also delegates the VM's TAP devices, writable disk, and
+Firecracker checkpoint files to the host VMM account. Custom service roots and
+ZFS-backed VM roots use the same workflow.
+
+If the VM does not start after migration, stop it and restore the previous host
+launch mode:
+
+```bash
+yeet stop <vm>
+yeet vm set <vm> --vmm-isolation=legacy-root
+yeet start <vm>
+```
+
+Jailer migration requires the VM's cached image bundle to contain a jailer that
+matches its Firecracker version. Catch fails before changing the VM when that
+artifact is missing; `yeet vm images update` fetches a newer bundle when the VM
+image catalog provides one.
+
 ## Host requirements
 
 VM payloads require:
@@ -224,6 +267,12 @@ VM payloads require:
 - KVM at `/dev/kvm`.
 - TUN/TAP at `/dev/net/tun`.
 - `qemu-img`, `zstd`, `e2fsck`, `resize2fs`, `mount`, `umount`, and `ip`.
+- An executable Catch data filesystem. Transient jails live below
+  `<data-root>/vm-jailer`; Catch reports a clear error when that mount uses
+  `noexec`.
+
+Catch creates the `yeet-vm` system account when the first jailed VM is prepared.
+No login shell or home directory is created for the account.
 
 On Debian/Ubuntu hosts with KVM and TUN/TAP available, interactive `yeet init`
 can prompt to install missing VM tools and prepare VM LAN bridge support.

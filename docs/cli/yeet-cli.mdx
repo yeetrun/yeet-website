@@ -366,7 +366,7 @@ Use [VMs](/docs/payloads/vms) for the full VM image workflow.
 
 ### `vm set`
 
-Stop the VM before changing VM resources or networking:
+Stop the VM before changing VM resources, networking, or host VMM isolation:
 
 ```bash
 yeet stop <vm>
@@ -374,6 +374,21 @@ yeet vm set <vm> --vcpus=6 --memory=6g --disk=128g
 yeet vm set <vm> --net=svc,lan
 yeet start <vm>
 ```
+
+Migrate an existing VM to the unprivileged Firecracker jailer, or roll it back
+to the legacy root launch mode:
+
+```bash
+yeet stop <vm>
+yeet vm set <vm> --vmm-isolation=jailer
+yeet start <vm>
+
+yeet stop <vm>
+yeet vm set <vm> --vmm-isolation=legacy-root
+yeet start <vm>
+```
+
+`yeet info <vm>` reports the active mode in the `VMM isolation` row.
 
 ### `vm console`
 
