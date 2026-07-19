@@ -57,8 +57,8 @@ Keep it if you run more than one catch host.
 
 | Permission | Allows                          | Common examples                                                                                                                                                |
 | ---------- | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `read`     | Observing catch state           | `yeet status`, `yeet info`, logs, events, VM defaults, artifact hashes                                                                                         |
-| `manage`   | Changing services or host state | Deploys, updates, removals, `yeet rm --clean`, config changes, snapshots, VM lifecycle commands, catch upgrades, Tailscale service changes, local image pushes |
+| `read`     | Observing catch state           | `yeet status`, `yeet info`, logs, events, ISO pool and endpoint state, VM defaults, artifact hashes                                                             |
+| `manage`   | Changing services or host state | Deploys, updates, removals, ISO pool and workload changes, `yeet rm --clean`, config changes, snapshots, VM lifecycle commands, catch upgrades, Tailscale service changes, local image pushes |
 | `ssh`      | Opening catch-mediated shells   | `yeet ssh`, `yeet ssh <svc>`, commands run inside a service namespace                                                                                          |
 
 `manage` does not imply `read`, and `ssh` does not imply either one. Include
@@ -67,6 +67,10 @@ every permission a role needs.
 `yeet ssh <vm>` is the exception to remember. Yeet needs `read` to find the VM
 connection details, then the VM guest uses normal SSH keys for login. Catch-host
 and service shells still require `ssh`.
+
+The same rule applies to an ISO VM: `read` reveals its Catch-routed connection
+metadata, and the guest SSH key authorizes login. Creating, changing, removing,
+repairing, or configuring ISO state requires `manage`.
 
 ## Workstation Access
 

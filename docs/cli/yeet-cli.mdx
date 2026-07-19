@@ -71,11 +71,12 @@ Common flags:
 - `--pull`: pull fresh images for Compose and image payloads.
 - `--force`: redeploy even when yeet detects no payload or config change.
 - `-p HOST:CONTAINER`: publish host ports for image, Dockerfile, Python, and
-  TypeScript payloads.
+  TypeScript payloads. ISO deployments reject published ports.
 - `--publish-reset`: replace or clear the saved published-port list.
 - `--net=<mode[,mode...]>`: choose service network modes such as `svc`,
-  `svc,ts`, `lan`, or `lan,ts`. VMs support `svc`, `lan`, and `svc,lan`.
-  VM `lan` networking prompts to prepare a host bridge when one is not ready.
+  `svc,ts`, `lan`, `lan,ts`, `iso`, or `iso,ts`. VMs support `svc`, `lan`,
+  `svc,lan`, and `iso`. VM `lan` networking prompts to prepare a host bridge
+  when one is not ready.
 - `--service-root=<path-or-dataset>`: choose the initial service root.
 - `--zfs`: treat `--service-root` as a ZFS dataset.
 - `--snapshots=on|off|inherit`: override service snapshot policy.
@@ -90,6 +91,12 @@ Related guides:
 - [Networking](/docs/concepts/networking) for reachability, DNS, and internet
   egress paths
 - [ZFS](/docs/concepts/zfs)
+
+`iso` supports VMs and container-backed payloads. It cannot combine with `svc`
+or `lan`. Non-VM services may combine `iso,ts`; VMs use `iso` alone and can
+install Tailscale inside the guest. Native binaries, scripts, and cron jobs do
+not support ISO while they run as root-owned host services. Compose files pass
+a fail-closed safe-profile check before Catch starts containers.
 
 ### `stage`
 
@@ -373,8 +380,12 @@ Stop the VM before changing VM resources or networking:
 yeet stop <vm>
 yeet vm set <vm> --vcpus=6 --memory=6g --disk=128g
 yeet vm set <vm> --net=svc,lan
+yeet vm set <vm> --net=iso
 yeet start <vm>
 ```
+
+An ISO VM cannot combine `iso` with `svc`, `lan`, or Yeet-managed `ts`. Install
+Tailscale inside the guest when it needs a tailnet identity.
 
 ### `vm console`
 
@@ -454,6 +465,10 @@ Show connectable service or VM IP endpoints:
 yeet ip <svc>
 ```
 
+For ISO, `yeet info` shows policy and reconciliation state. `yeet ip` prints
+only the stable VM or component endpoints that Catch can connect to; it omits
+internal router and link addresses.
+
 ### `tailscale` / `ts`
 
 Set up Tailscale OAuth for the catch host or run Tailscale commands for a
@@ -522,6 +537,7 @@ yeet info
 yeet host set --data-dir=/srv/yeet-data
 yeet host set --services-root=/srv/yeet-services --migrate-services=none
 yeet host set --zfs --data-dir=flash/yeet/data --services-root=flash/yeet/services --migrate-services=all
+yeet host set --iso-pool=172.30.0.0/16
 ```
 
 Use `--data-dir` for catch state and registry data. Use `--services-root` for
@@ -534,6 +550,11 @@ directory, services root, catch service root, and service/VM inventory.
 With `--zfs`, `--data-dir` and `--services-root` are dataset names. A ZFS
 services root is a dataset prefix, so migrated services and `catch` use child
 datasets such as `flash/yeet/services/<svc>`.
+
+Use `--iso-pool` to select an RFC1918 IPv4 `/16` before the host has any active,
+reserved, or tombstoned ISO allocation. Catch checks live routes, Docker
+networks, and persisted state before applying it. Existing ISO workloads are
+never renumbered automatically.
 
 Without `--yes`, yeet prints the plan and asks before applying it. If
 `--migrate-services` is omitted in an interactive terminal, yeet asks whether

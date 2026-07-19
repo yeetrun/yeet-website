@@ -8,6 +8,11 @@ them as systemd timer units, while yeet accepts a five-field cron expression.
 
 Cron jobs are still services. They have logs, state, cleanup, and saved config.
 
+Cron jobs cannot use `iso` networking while timer payloads run as root-owned
+host services. Host root can leave or reconfigure a network namespace, so Yeet
+rejects that unsafe combination. Put an untrusted scheduled workload in a
+container or VM, or wait for future non-root service sandboxing.
+
 Run these commands from a
 [Service Workspace](/docs/getting-started/service-workspace). The first
 successful cron install writes `yeet.toml` in the current directory.

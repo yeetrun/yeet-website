@@ -155,6 +155,18 @@ For an existing Tailscale service:
 yeet tailscale <svc> -- set --exit-node=<exit-node>
 ```
 
+Use `iso,ts` when an isolated container-backed service needs both public IPv4
+egress and its own tailnet identity:
+
+```bash
+yeet run <svc> ./compose.yml --net=iso,ts --ts-tags=tag:app
+```
+
+Ordinary traffic still uses ISO's Catch NAT, while tailnet routes and MagicDNS
+use the service-owned Tailscale interface. Selecting `ts` is an explicit
+exception to ISO's otherwise public-internet-only policy. VMs do not support a
+Yeet-managed `iso,ts` mode; install Tailscale inside the guest instead.
+
 Make sure the OAuth client saved during catch setup can assign every tag you
 pass with `--ts-tags`. If the credential cannot mint the tag, deployment fails.
 
@@ -166,7 +178,7 @@ Options:
 - `--ts-auth-key=<key>` passes a direct auth key for that service.
 
 See [Networking](/docs/concepts/networking) for when to choose `svc`, `lan`,
-`ts`, or a combination.
+`ts`, `iso`, or a combination.
 
 ## Tailscale commands for a service
 

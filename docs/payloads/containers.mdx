@@ -124,6 +124,7 @@ and a Tailscale identity.
 yeet run <svc> ./compose.yml --net=svc
 yeet run <svc> ./compose.yml --net=svc,ts --ts-tags=tag:app
 yeet run <svc> ./compose.yml --net=lan
+yeet run <svc> ./compose.yml --net=iso
 ```
 
 Avoid plain `--net=ts` unless the service is tailnet-only or has a Tailscale
@@ -131,6 +132,20 @@ exit node. See [Networking](/docs/concepts/networking) for mode details and
 internet egress behavior.
 See [DNS](/docs/concepts/dns) for service discovery between `svc` services,
 including short names and `*.yeet.internal` names.
+
+Use `iso` when the image or application is untrusted and needs public IPv4
+egress but must not initiate traffic to Catch, LAN, `svc`, Tailscale, or another
+isolated project. Catch can still connect to every component on any port. Use
+`iso,ts` only when the service also needs an explicit Tailscale identity.
+
+ISO works with images, client-built Dockerfiles, Python, TypeScript, and an
+admitted Compose subset. It rejects published ports, host networking, elevated
+privileges and host namespaces, unsafe mounts or runtime sockets, custom DNS,
+extra networks, Catch-side Compose builds, replicas, and unknown service fields.
+The error names the rejected Compose field. Components in the same admitted
+project may communicate; other projects cannot. See
+[Networking](/docs/concepts/networking#isolated-network-iso) for the complete
+contract and limitations.
 
 ## Inspect and clean up
 

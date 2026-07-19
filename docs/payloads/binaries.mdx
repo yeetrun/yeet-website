@@ -6,6 +6,12 @@ description: Run one host process from a local executable or shebang script.
 Binary and script payloads become systemd services on the catch host. Use this
 path for a single long-running process that does not need a container.
 
+Native binaries and scripts cannot use `--net=iso`. They currently run as
+root-owned host services, and host root can reconfigure or leave a network
+namespace. Yeet rejects the combination instead of presenting it as an
+isolation boundary. Use a container-backed payload or VM for ISO today;
+non-root service sandboxing is the prerequisite for native ISO support.
+
 This is the direct path. Build or write the thing, hand it to yeet, and catch
 installs it as a host service. The host must have any runtime dependencies the
 payload expects.

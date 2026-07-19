@@ -123,7 +123,10 @@ yeet ip <svc>
 
 For `svc` networking, `yeet info` and `yeet ip` should show private
 service-network addresses. For `lan`, the host network must support macvlan and
-DHCP. A WAN-only VPS usually should not use `lan`.
+DHCP. A WAN-only VPS usually should not use `lan`. For `iso`, the output should
+show a ready isolation state, public egress, public-only DNS, and stable VM or
+component endpoints. A degraded or quarantined state includes the admission or
+reconciliation error Catch is refusing to ignore.
 
 If the service was running before a network change, restart it:
 
@@ -152,6 +155,39 @@ Use the mode to choose the next check:
 - Plain `ts` is tailnet-only unless you configure a Tailscale exit node. Add
   `svc`, use `--ts-exit=<exit-node>`, or run
   `yeet tailscale <svc> -- set --exit-node=<exit-node>`.
+- `iso` allows globally reachable public IPv4 only. Private, link-local,
+  metadata, CGNAT/Tailscale, special-purpose, and IPv6 destinations are expected
+  to fail. Confirm Catch itself has internet access and the ISO state is ready.
+
+## An ISO deployment is rejected
+
+ISO fails closed before start when the payload or resolved Compose model could
+bypass the boundary. Read the field path in the error. Common causes include:
+
+- Published ports or Compose `ports`.
+- `svc` or `lan` combined with `iso`, or any second Yeet-managed mode on an ISO VM.
+- Native binary, script, or cron payloads.
+- Host networking, privilege or host-namespace changes, unsafe bind mounts or
+  runtime sockets, custom DNS, extra networks, Catch-side builds, or replicas.
+- More than 29 active components or an unclassified Compose service field.
+
+Do not remove the field merely to silence validation unless the resulting
+deployment still matches what the application needs. The Compose file is
+trusted deployment code; ISO contains the admitted containers, not a definition
+that already asked the host runtime to escape containment.
+
+## An ISO workload cannot reach a private address
+
+That is the expected policy. ISO allows workload-initiated public IPv4 egress,
+not arbitrary routing through Catch. It rejects Catch, LAN, `svc`, other ISO
+projects, RFC1918, CGNAT/Tailscale, link-local, metadata, multicast, reserved,
+and IPv6 destinations. Components in the same admitted Compose project are the
+one private communication exception.
+
+Use another network mode when the workload legitimately needs private access.
+For a non-VM service that needs a tailnet identity, use `iso,ts`. For a VM,
+install Tailscale inside the guest. Do not add `svc` or `lan` to ISO; Yeet
+rejects those combinations.
 
 ## Yeet DNS names do not resolve
 
