@@ -277,7 +277,8 @@ Roll a non-VM service back to the previous deployed generation:
 yeet service rollback <svc>
 ```
 
-For VM disk recovery, use snapshots.
+VM services do not support generation rollback. Use `yeet snapshots restore`
+for VM disk recovery.
 
 ### `service set`
 
@@ -410,15 +411,17 @@ yeet snapshots unprotect <svc> <snapshot>
 yeet snapshots rm <svc> <snapshot>
 ```
 
-For VM full checkpoints:
+For VM disk recovery:
 
 ```bash
-yeet snapshots create <vm> --full --comment "checkpoint before risky change"
-yeet snapshots restore <vm> <snapshot> --mode=full --stop --yes
+yeet snapshots create <vm> --comment "before risky change"
+yeet snapshots restore <vm> <snapshot> --stop --start --yes
 ```
 
-A full restore completes only after the restored VM runner remains stable and
-the guest agent confirms SSH readiness.
+For a running VM, catch pauses the guest while it takes one atomic ZFS snapshot
+of the disk, then resumes it. The result is crash-consistent disk state. It does
+not include guest memory or VMM runtime state. Raw-disk VMs cannot be
+snapshotted. Restore replaces the VM disk state only.
 
 Use [ZFS](/docs/concepts/zfs) for snapshot defaults, retention, clone-first
 recovery, and VM restore behavior.

@@ -305,7 +305,8 @@ yeet run <vm> vm://ubuntu/26.04 --service-root=tank/vms/<vm> --zfs
 
 For ZFS-backed VMs, yeet can clone a shared image base on the same pool instead
 of writing the root filesystem again. Raw VM disks work without ZFS. Faster
-clone paths are useful, but optional.
+clone paths are useful, but optional. Raw-disk VMs cannot use snapshot or
+restore commands.
 
 See [ZFS](/docs/concepts/zfs) for dataset, snapshot, and cleanup behavior.
 
@@ -336,24 +337,39 @@ yeet info <new-vm>
 Restore the original VM disk in place:
 
 ```bash
-yeet snapshots restore <vm> <snapshot> --mode=disk --stop --yes
+yeet snapshots restore <vm> <snapshot> --stop --start --yes
 ```
 
-`--mode=disk` is the default. Add `--start` when the VM should start again
-after restore.
+For a running VM, catch pauses the guest while it takes one atomic ZFS snapshot
+of the disk, then resumes it. The result is crash-consistent: the disk is
+internally stable at one instant, but applications inside the guest do not run
+their own backup hooks. The recovery point contains disk state only. It does not
+contain guest memory or VMM runtime state.
 
-Full VM checkpoints are available for advanced recovery:
+Restore replaces the active VM disk state. It does not restore the running
+processes or runtime state from the time of the snapshot. A running VM requires
+`--stop`; add `--start` to boot it after restore. Yeet creates a pre-restore disk
+recovery point before replacing the disk.
+
+### Compatibility: retired VM recovery data
+
+Catch upgrades stop when they find recovery data created by the retired VM
+runtime-state format. The upgrade error lists each affected VM and path. Archive
+or remove its `memory.bin` and `firecracker-state.bin` files, then remove the old
+recovery point:
 
 ```bash
-yeet snapshots create <vm> --full --comment "checkpoint before risky change"
-yeet snapshots restore <vm> <snapshot> --mode=full --stop --yes
+yeet snapshots rm <vm> <snapshot>
 ```
 
-Use disk restore unless you specifically need to resume from a Firecracker
-checkpoint. Full checkpoints are for Firecracker checkpoint recovery, not normal
-disk restore. Yeet reports a full restore as complete only after the same VM
-runner remains active through the post-load stability check and the guest agent
-confirms SSH readiness.
+To keep the ZFS disk snapshot after archiving or removing the runtime-state
+files, run this as root on the catch host instead:
+
+```bash
+zfs set com.yeetrun:checkpoint=disk <pool/dataset>@<snapshot>
+```
+
+Retry the catch upgrade after every path in the upgrade error is handled.
 
 ## Bring your own microVM image
 
