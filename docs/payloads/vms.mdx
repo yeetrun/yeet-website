@@ -225,8 +225,8 @@ the VM guest login user and from native-service `--run-as` identities.
 The jailer builds a private filesystem view and provides only the host
 resources the VM needs. Yeet automatically creates `yeet-vm` on the first VM
 preparation or during an upgrade that finds VMs. Custom data roots, custom
-service roots, and ZFS-backed VM storage remain supported because Yeet uses the
-paths stored in each VM's configuration.
+service roots, and ZFS-backed VM storage remain supported because Yeet derives
+their paths from stored configuration.
 
 Check the host process boundary with:
 
