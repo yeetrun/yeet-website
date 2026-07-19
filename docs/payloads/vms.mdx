@@ -351,7 +351,9 @@ yeet snapshots restore <vm> <snapshot> --mode=full --stop --yes
 
 Use disk restore unless you specifically need to resume from a Firecracker
 checkpoint. Full checkpoints are for Firecracker checkpoint recovery, not normal
-disk restore.
+disk restore. Yeet reports a full restore as complete only after the same VM
+runner remains active through the post-load stability check and the guest agent
+confirms SSH readiness.
 
 ## Bring your own microVM image
 

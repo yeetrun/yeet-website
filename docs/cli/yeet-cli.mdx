@@ -417,6 +417,9 @@ yeet snapshots create <vm> --full --comment "checkpoint before risky change"
 yeet snapshots restore <vm> <snapshot> --mode=full --stop --yes
 ```
 
+A full restore completes only after the restored VM runner remains stable and
+the guest agent confirms SSH readiness.
+
 Use [ZFS](/docs/concepts/zfs) for snapshot defaults, retention, clone-first
 recovery, and VM restore behavior.
 
