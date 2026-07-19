@@ -502,10 +502,15 @@ yeet init --zfs --data-dir=flash/yeet/data --services-root=flash/yeet/services r
 yeet init
 ```
 
-Fresh interactive installs ask where catch should store host data. The default
-is `$HOME/yeet-data` on the catch host, with services under that data
-directory. Existing catch installs keep their current storage layout when you
-rerun `yeet init`.
+Fresh installs store catch state in `/var/lib/yeet`. The service root defaults
+to `<data-dir>/services`, which is `/var/lib/yeet/services` with the default
+data directory. Explicit custom filesystem roots and ZFS datasets remain in
+place when you rerun `yeet init`.
+
+When an interactive init or upgrade finds the eligible historical layout, it
+can offer to move that state to `/var/lib/yeet` and remove the inactive source
+after validation with one consent. If init cannot prompt, use `yeet host set`
+and `yeet host cleanup` explicitly as described below.
 
 The default catch Tailscale hostname is `catch`. Use the global `--host` target
 before `init` when adding another catch host to the same tailnet.
@@ -562,6 +567,30 @@ to migrate affected services. With `--yes`, pass the migration mode explicitly.
 
 When services move, yeet updates matching entries in the local `yeet.toml`.
 Pass `--config ./yeet.toml` when the project config is somewhere else.
+
+For a generic custom host-storage migration, `yeet host set` copies and
+validates the requested state but never deletes the old source. Run
+`yeet host cleanup --from=<exact-journaled-source> --yes` explicitly after
+validation. Custom roots are preserved unless the plan explicitly includes
+them. ZFS datasets are not copied or deleted implicitly.
+
+### `host cleanup`
+
+Remove an exact journaled inactive source after a finalized host-storage
+migration reconnects and validates the new state:
+
+```bash
+yeet host set \
+  --data-dir=/var/lib/yeet \
+  --services-root=/var/lib/yeet/services \
+  --migrate-services=all \
+  --yes
+yeet host cleanup --from=/root/yeet-data --yes
+```
+
+Cleanup refuses arbitrary paths and revalidates the active Catch and service
+state before deletion. If deletion alone fails, rerun the same command to
+resume the pending cleanup safely.
 
 ### `upgrade`
 

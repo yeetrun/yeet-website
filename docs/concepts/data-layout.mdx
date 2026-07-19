@@ -12,10 +12,11 @@ which one contains data you intend to keep.
 
 ## Data directory
 
-Fresh `yeet init` installs default to `$HOME/yeet-data` on the catch host.
-Interactive init asks before using that path. Manual catch runs use the same
-default unless you pass `catch --data-dir`. Pick a path you are willing to back
-up, monitor, and explain later.
+Fresh `yeet init` installs and manual catch runs default to `/var/lib/yeet`.
+The default service root follows the data directory at
+`<data-dir>/services`, so the fresh default is `/var/lib/yeet/services`.
+Pass `--data-dir` or `--services-root` when the host needs a different path.
+Pick roots you are willing to back up, monitor, and explain later.
 
 ```text
 <data-dir>/
@@ -102,6 +103,21 @@ yeet host set --services-root=/srv/yeet-services --migrate-services=all
 yeet host set --zfs --data-dir=flash/yeet/data --services-root=flash/yeet/services --migrate-services=all
 ```
 
+For the exact recorded legacy home-directory layout, move all eligible state to
+the filesystem defaults and then remove the inactive source separately:
+
+```bash
+yeet host set \
+  --data-dir=/var/lib/yeet \
+  --services-root=/var/lib/yeet/services \
+  --migrate-services=all \
+  --yes
+yeet host cleanup --from=/root/yeet-data --yes
+```
+
+Only the eligible historical layout qualifies for guided init cleanup. It runs
+after the operator gives one consent for the move and removal.
+
 Run `yeet info` to inspect the current host data directory, services root, catch
 service root, and service/VM inventory. Use `yeet info --host=<catch-host>` when
 you want to inspect a host other than the current default.
@@ -113,9 +129,20 @@ those services, moves their roots, updates catch, and starts services that were
 running before the move. With `--migrate-services=none`, those services stay at
 their current roots and continue to run there.
 
+For a generic custom host-storage migration, `yeet host set` validates the new
+Catch and service state but never deletes the old source. After validation, run
+`yeet host cleanup --from=<exact-journaled-source> --yes` explicitly. Cleanup
+accepts only that exact journaled inactive source, revalidates the active state,
+and refuses arbitrary paths. If deletion alone fails, rerun the cleanup command
+to resume the pending removal. Explicit custom roots are preserved throughout
+this workflow.
+
 With `--zfs`, `--data-dir` and `--services-root` are dataset names. The
 services root is a dataset prefix: migrated services and `catch` use child
 datasets such as `flash/yeet/services/<svc>`.
+
+ZFS datasets are not copied or deleted implicitly. Custom and nested datasets
+stay in place unless you manage them explicitly.
 
 If you omit `--migrate-services` in an interactive terminal, yeet asks whether
 to migrate affected services. With `--yes`, pass `--migrate-services=all` or

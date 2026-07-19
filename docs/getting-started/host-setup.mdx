@@ -146,17 +146,21 @@ provided.
 
 What changes by case:
 
-| Case                           | What `yeet init` does                                                                                                                     |
-| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| First catch enrollment         | Prompts for the Tailscale OAuth client secret.                                                                                            |
-| Fresh storage setup            | Prompts for the catch data directory. The default is `$HOME/yeet-data` on the catch host, with services under `$HOME/yeet-data/services`. |
-| Existing catch install         | Keeps the current storage layout and upgrades catch.                                                                                      |
-| Missing Debian/Ubuntu packages | Asks before installing supported dependencies such as Docker or VM tools.                                                                 |
-| Non-root SSH user              | Runs the remote install with sudo.                                                                                                        |
-| VM LAN bridge setup            | Can prepare the host bridge when you plan to use VM `--net=lan`.                                                                          |
+| Case                           | What `yeet init` does                                                                           |
+| ------------------------------ | ----------------------------------------------------------------------------------------------- |
+| First catch enrollment         | Prompts for the Tailscale OAuth client secret.                                                  |
+| Fresh storage setup            | Uses `/var/lib/yeet` for Catch state, with services under `/var/lib/yeet/services`.             |
+| Existing catch install         | Upgrades catch. An exact recorded legacy layout can be offered the guided move described below. |
+| Missing Debian/Ubuntu packages | Asks before installing supported dependencies such as Docker or VM tools.                       |
+| Non-root SSH user              | Runs the remote install with sudo.                                                              |
+| VM LAN bridge setup            | Can prepare the host bridge when you plan to use VM `--net=lan`.                                |
 
 The data directory is where live host state begins to accumulate, so treat it
 as infrastructure, not cache.
+
+The service root defaults to `<data-dir>/services`. Pass `--data-dir` or
+`--services-root` when the host needs a different filesystem path. Explicit
+custom roots are preserved during init, upgrades, and guided migrations.
 
 If the host has ZFS, setup can use datasets and create missing child datasets
 when the parent exists. Use this only when you want the host storage on ZFS:
@@ -164,6 +168,9 @@ when the parent exists. Use this only when you want the host storage on ZFS:
 ```bash
 yeet init --zfs --data-dir=flash/yeet/data --services-root=flash/yeet/services root@<machine-host>
 ```
+
+ZFS datasets are not copied or deleted implicitly. A custom dataset and any
+nested datasets remain where they are unless you manage them explicitly.
 
 If you plan to run VMs with `--net=lan`, answer yes when init asks to prepare
 the host bridge. If you skip it, the first `yeet run <vm> ... --net=lan`
@@ -234,6 +241,33 @@ yeet upgrade --version v0.6.1 --force
 ```
 
 `--nightly` and `--version` select different targets, so use one of them per command.
+
+### Move the exact legacy layout
+
+An interactive init or upgrade can offer to move the recorded legacy
+home-directory layout to `/var/lib/yeet`. Accepting the prompt moves Catch state
+and eligible service directories, restarts Catch, and validates the new state.
+After validation, it removes the exact legacy tree you approved in the prompt.
+
+When init could not prompt, run the migration explicitly from your workstation:
+
+```bash
+yeet init root@host
+
+# Explicit migration when init could not prompt:
+yeet host set \
+  --data-dir=/var/lib/yeet \
+  --services-root=/var/lib/yeet/services \
+  --migrate-services=all \
+  --yes
+yeet host cleanup --from=/root/yeet-data --yes
+```
+
+Run `yeet host cleanup` only after `yeet host set` reconnects and reports that
+the new state is valid. Cleanup refuses arbitrary paths. It accepts only the
+exact journaled legacy source and revalidates the active Catch and service state
+before deletion. If only deletion fails, rerun the same cleanup command; the
+pending cleanup resumes safely.
 
 ## Host requirements
 

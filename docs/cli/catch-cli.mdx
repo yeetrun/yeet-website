@@ -25,8 +25,10 @@ catch [flags] [install|version|is-catch]
 ## Common flags
 
 - `--data-dir`: base directory for catch state. Installed catch uses the data
-  directory selected during install. Manual runs default to `data` under the
-  current working directory.
+  directory selected during install. Manual runs default to `/var/lib/yeet`.
+- `--services-root`: default root for service directories. The default service
+  root is `<data-dir>/services`, which is `/var/lib/yeet/services` with the
+  default data directory.
 - `--tsnet-host`: catch Tailscale hostname. Default: `catch`.
 - `--tsnet-port`: catch RPC port on its Tailscale identity.
 

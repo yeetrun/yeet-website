@@ -13,17 +13,20 @@ will use before the command changes anything.
   cards={[
     {
       title: "Containers",
-      description: "Compose files, Dockerfiles, image refs, Python, and TypeScript.",
+      description:
+        "Compose files, Dockerfiles, image refs, Python, and TypeScript.",
       href: "/docs/payloads/containers",
     },
     {
       title: "Binaries & Scripts",
-      description: "Host systemd services from local executables and shebang scripts.",
+      description:
+        "Host systemd services from local executables and shebang scripts.",
       href: "/docs/payloads/binaries",
     },
     {
       title: "VMs",
-      description: "Linux microVMs from the yeet catalog or imported image bundles.",
+      description:
+        "Linux microVMs from the yeet catalog or imported image bundles.",
       href: "/docs/payloads/vms",
     },
     {
@@ -101,7 +104,11 @@ will use before the command changes anything.
 
 - Yeet detects file type by extension or content.
 - Architecture must match the target host; mismatches fail early.
+- Catch state defaults to `/var/lib/yeet`, and the default service root is
+  `/var/lib/yeet/services`. Per-service custom roots are preserved when host
+  storage moves.
 - [ZFS](/docs/concepts/zfs) is storage backing for service roots and VM disks,
   not a service type.
+- ZFS datasets are not copied or deleted implicitly by host storage migration.
 - If a service already exists, its type is fixed. Replace it with a new service
   name or remove the old one first.

@@ -33,6 +33,17 @@ yeet version
 yeet status
 ```
 
+On a host using the default filesystem layout, confirm Catch state exists at
+`/var/lib/yeet` and the default service root is below it:
+
+```bash
+yeet ssh -- test -d /var/lib/yeet
+yeet ssh -- test -d /var/lib/yeet/services
+```
+
+Skip these path checks when you selected custom roots or ZFS during init. Those
+roots are preserved instead of being rewritten to the filesystem defaults.
+
 If you have Tailscale installed locally, `yeet list-hosts` can also confirm the
 catch node is visible in your tailnet. It is optional for this playbook because
 normal yeet commands use the catch Tailscale identity and ordinary network
@@ -197,6 +208,10 @@ that step, wait for the host to come back and rerun the same command.
 ZFS-backed service roots require an existing parent dataset. Skip this if you
 do not plan to use ZFS. Optional storage checks are useful only when they match
 the storage you are actually going to operate.
+
+ZFS datasets are not copied or deleted implicitly. Use ZFS tools to confirm a
+custom or nested dataset remains mounted at the path you selected before and
+after any Catch upgrade.
 
 ```bash
 yeet run yeet-smoke-zfs nginx:alpine --service-root=tank/apps/yeet-smoke-zfs --zfs
