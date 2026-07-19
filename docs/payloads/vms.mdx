@@ -354,22 +354,32 @@ recovery point before replacing the disk.
 ### Compatibility: retired VM recovery data
 
 Catch upgrades stop when they find recovery data created by the retired VM
-runtime-state format. The upgrade error lists each affected VM and path. Archive
-or remove its `memory.bin` and `firecracker-state.bin` files, then remove the old
-recovery point:
+runtime-state format. Catch reports two independent artifact types: checkpoint
+directories and ZFS recovery points. Work from the exact paths and recovery-point
+names in that report.
+
+For each reported checkpoint directory, archive or remove the entire reported
+directory. Do not remove only `memory.bin` and `firecracker-state.bin`: Catch
+checks the directory entry itself, so an empty checkpoint directory still blocks
+the upgrade.
+
+For each ZFS recovery point reported as `checkpoint=full`, choose one of these
+paths. Remove that recovery point:
 
 ```bash
 yeet snapshots rm <vm> <snapshot>
 ```
 
-To keep the ZFS disk snapshot after archiving or removing the runtime-state
-files, run this as root on the catch host instead:
+Or, only after every retired runtime-state file and checkpoint directory has
+been removed, and only if you intentionally retain its disk state, retag that
+exact ZFS snapshot. Run this as root on the catch host:
 
 ```bash
 zfs set com.yeetrun:checkpoint=disk <pool/dataset>@<snapshot>
 ```
 
-Retry the catch upgrade after every path in the upgrade error is handled.
+Retry the catch upgrade after you have handled every path and recovery-point
+name Catch reports.
 
 ## Bring your own microVM image
 
