@@ -108,10 +108,25 @@ chmod +x yeet-smoke-script.sh
 
 yeet run yeet-smoke-script ./yeet-smoke-script.sh
 yeet status yeet-smoke-script
+yeet info yeet-smoke-script
+yeet ssh yeet-smoke-script -- id
 yeet logs yeet-smoke-script
+yeet service set yeet-smoke-script --run-as=root
+yeet service set yeet-smoke-script --run-as=yeet-svc
 yeet rm --clean yeet-smoke-script
 rm yeet-smoke-script.sh
 ```
+
+For a new native service, `yeet info` should show `Run as: yeet-svc` and the
+service shell should report that account. This checks the workload identity;
+Catch and its host-management helpers still run with the privileges they need.
+The two `service set` commands exercise an explicit identity migration in both
+directions before cleanup.
+
+Each identity change updates ownership and the systemd unit as one
+rollback-safe operation. If your service uses a ZFS dataset, yeet preserves
+that root and applies the same identity migration there instead of copying it
+to the default filesystem path.
 
 If this fails while Docker payloads work, inspect the unit with:
 

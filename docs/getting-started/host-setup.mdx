@@ -150,6 +150,7 @@ What changes by case:
 | ------------------------------ | ----------------------------------------------------------------------------------------------- |
 | First catch enrollment         | Prompts for the Tailscale OAuth client secret.                                                  |
 | Fresh storage setup            | Uses `/var/lib/yeet` for Catch state, with services under `/var/lib/yeet/services`.             |
+| Native service account         | Creates the unprivileged `yeet-svc` account when it is not already present.                    |
 | Existing catch install         | Upgrades catch. An exact recorded legacy layout can be offered the guided move described below. |
 | Missing Debian/Ubuntu packages | Asks before installing supported dependencies such as Docker or VM tools.                       |
 | Non-root SSH user              | Runs the remote install with sudo.                                                              |
@@ -158,9 +159,24 @@ What changes by case:
 The data directory is where live host state begins to accumulate, so treat it
 as infrastructure, not cache.
 
+New native binaries, scripts, and cron jobs run as the shared `yeet-svc`
+account by default. Yeet lets the host allocate that account's UID and GID; it
+does not assume that UID 1000 is available or has the right meaning. Existing
+native services are not changed during init or upgrade. Migrate one explicitly
+with `yeet service set <svc> --run-as=yeet-svc`, or select an operator-created
+account with `--run-as=<user>[:<group>]`.
+
+Only the native workload unit drops privilege. Catch, Tailscale, VM and
+networking helpers, and storage migration helpers continue to run with the host
+privileges they require. Docker users remain controlled by Compose, and VM
+application users remain controlled inside the guest.
+
 The service root defaults to `<data-dir>/services`. Pass `--data-dir` or
 `--services-root` when the host needs a different filesystem path. Explicit
-custom roots are preserved during init, upgrades, and guided migrations.
+custom roots are preserved during init, upgrades, and guided migrations. Put a
+custom service root below host-controlled directories: each parent must be
+root-owned and not group- or world-writable. `/srv/apps` and ZFS mountpoints are
+appropriate; a workload-owned home directory is rejected.
 
 If the host has ZFS, setup can use datasets and create missing child datasets
 when the parent exists. Use this only when you want the host storage on ZFS:

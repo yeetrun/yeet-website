@@ -41,6 +41,8 @@ will use before the command changes anything.
 
 - ELF or Mach-O binary.
 - Catch installs it as a systemd service on the host.
+- New services run as the host's shared `yeet-svc` account by default. Use
+  `--run-as=<user>[:<group>]` when the workload needs another existing account.
 - Use `yeet run <svc> ./bin/<svc>`.
 - Build for the catch host architecture first.
 
@@ -48,12 +50,15 @@ will use before the command changes anything.
 
 - Shebang file (e.g., `#!/usr/bin/env bash`).
 - Catch treats it like a binary and installs it as a systemd service.
+- New services use the same `yeet-svc` default as native binaries.
 - The interpreter must exist on the host.
 
 ## Docker Compose
 
 - Any YAML with a top-level `services:` key.
 - Catch installs it as a Docker Compose service.
+- Container users remain Compose-owned. Set `user:` in the Compose service
+  instead of passing `--run-as` to yeet.
 - Use `--pull` on `yeet run` when you want to refresh images; otherwise `run`
   reuses existing images.
 - See [Containers](/docs/payloads/containers).
@@ -89,6 +94,8 @@ will use before the command changes anything.
   [yeetrun/yeet-vm-images](https://github.com/yeetrun/yeet-vm-images).
 - `yeet init` checks the host for KVM, TUN/TAP, and required VM tooling; on
   capable Debian/Ubuntu hosts it can prompt for missing VM tools.
+- VM processes use yeet's jailer identity, while software inside the guest uses
+  guest users. VMs do not accept the native-service `--run-as` flag.
 - See [VMs](/docs/payloads/vms).
 
 ## Zstd
@@ -98,6 +105,8 @@ will use before the command changes anything.
 ## Cron
 
 - `yeet cron` installs a cron-style job as a timer on the host.
+- New jobs run as `yeet-svc` by default and accept
+  `--run-as=<user>[:<group>]`.
 - See [Cron Jobs](/docs/payloads/cron-jobs).
 
 ## Notes
@@ -107,6 +116,21 @@ will use before the command changes anything.
 - Catch state defaults to `/var/lib/yeet`, and the default service root is
   `/var/lib/yeet/services`. Per-service custom roots are preserved when host
   storage moves.
+- `yeet-svc` reduces the privileges of native workloads, but it is shared by
+  default and is not a security boundary between services. Operators can
+  create separate accounts and select them with `--run-as` when isolation is
+  required.
+- A custom run-as account keeps its configured supplementary groups when
+  systemd starts the workload. Review memberships such as `docker` before using
+  the account. The `yeet ssh <svc>` service shell clears supplementary groups,
+  so it can be more restricted than the running unit.
+- Custom service roots must be below host-controlled directories whose parents
+  are root-owned and not group- or world-writable. `/srv/apps` and ZFS
+  mountpoints work; a workload-owned home directory does not.
+- Existing native services keep their current identity until an operator runs
+  `yeet service set <svc> --run-as=<user>[:<group>]`. Catch, Tailscale, host
+  networking, storage helpers, and other host management processes remain
+  root-owned.
 - [ZFS](/docs/concepts/zfs) is storage backing for service roots and VM disks,
   not a service type.
 - ZFS datasets are not copied or deleted implicitly by host storage migration.

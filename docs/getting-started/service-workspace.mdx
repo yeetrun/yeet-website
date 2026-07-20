@@ -17,7 +17,8 @@ such as `yeet status` from that directory. Yeet can offer to save it as a
 registered workspace, so future commands from other directories can find it.
 
 A consistent workspace lets yeet reuse saved payload paths, hosts, network
-flags, service roots, snapshots, cron schedules, and payload args.
+flags, service roots, native run-as identities, snapshots, cron schedules, and
+payload args.
 
 Use one workspace so deployment state stays with the files it describes,
 instead of spreading across shell history and unrelated directories.
@@ -91,11 +92,19 @@ GOOS=linux GOARCH=amd64 go build -o ./bin/sensor-collector ./sensor-collector/cm
 yeet run sensor-collector ./bin/sensor-collector
 ```
 
+New native services run as the shared `yeet-svc` account. When a service needs
+an operator-created account, select it explicitly and yeet saves that choice:
+
+```bash
+yeet run sensor-collector ./bin/sensor-collector --run-as=sensors:sensors
+```
+
 Put scheduled jobs beside the rest of the homelab payloads:
 
 ```bash
 cd ~/yeet-services
 yeet cron backup ./jobs/backup.sh "0 3 * * *"
+yeet cron private-backup ./jobs/backup.sh "0 3 * * *" --run-as=backup
 ```
 
 ## Re-run saved services
@@ -109,9 +118,10 @@ yeet run mqtt-bridge
 ```
 
 Yeet reads `yeet.toml`, finds the saved payload path, and reuses saved options
-such as network mode, env file, service root, snapshot settings, and payload
-args. If you are outside the workspace and yeet already knows which workspace
-owns that catch host, it falls back to the registered workspace.
+such as network mode, env file, service root, native run-as identity, snapshot
+settings, and payload args. If you are outside the workspace and yeet already
+knows which workspace owns that catch host, it falls back to the registered
+workspace.
 
 ## Keep paths relative
 

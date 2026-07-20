@@ -53,6 +53,7 @@ yeet run <svc> ./compose.yml
 yeet run -p 8080:80 <svc> nginx:alpine
 yeet run <svc> ./Dockerfile
 yeet run <svc> ./bin/<svc> -- --app-flag value
+yeet run <svc> ./bin/<svc> --run-as=app:app
 yeet run <vm> vm://ubuntu/26.04
 ```
 
@@ -79,6 +80,8 @@ Common flags:
   when one is not ready.
 - `--service-root=<path-or-dataset>`: choose the initial service root.
 - `--zfs`: treat `--service-root` as a ZFS dataset.
+- `--run-as=<user>[:<group>]`: run a native binary or script as an existing
+  host account. New native services default to `yeet-svc`.
 - `--snapshots=on|off|inherit`: override service snapshot policy.
 - `--env-file=<path>`: upload an environment file before deploy.
 - `--vcpus`, `--memory`, `--disk`: set initial VM resources.
@@ -95,8 +98,8 @@ Related guides:
 `iso` supports VMs and container-backed payloads. It cannot combine with `svc`
 or `lan`. Non-VM services may combine `iso,ts`; VMs use `iso` alone and can
 install Tailscale inside the guest. Native binaries, scripts, and cron jobs do
-not support ISO while they run as root-owned host services. Compose files pass
-a fail-closed safe-profile check before Catch starts containers.
+not support ISO. Compose files pass a fail-closed safe-profile check before
+Catch starts containers.
 
 ### `stage`
 
@@ -116,11 +119,14 @@ Install or update a scheduled job:
 
 ```bash
 yeet cron <svc> ./job.sh "0 9 * * *"
+yeet cron <svc> ./job.sh "0 9 * * *" --run-as=backup
 yeet cron <svc> ./job.sh "0 9 * * *" -- --job-arg foo
 yeet cron <svc>
 ```
 
-Use [Cron Jobs](/docs/payloads/cron-jobs) for timer behavior.
+New cron jobs run as `yeet-svc`; use `--run-as=<user>[:<group>]` to select a
+different existing host account. Use [Cron Jobs](/docs/payloads/cron-jobs) for
+timer behavior.
 
 ## Observe And Control
 
@@ -296,12 +302,40 @@ yeet service set <svc> -p 80:80 -p 443:443
 yeet service set <svc> --publish-reset -p 443:443
 yeet service set <svc> --service-root=/srv/apps/<svc> --copy
 yeet service set <svc> --service-root=tank/apps/<svc> --zfs --copy
+yeet service set <svc> --run-as=yeet-svc
+yeet service set <svc> --run-as=app:app
+yeet service set <svc> --run-as=root
 yeet service set <svc> --snapshots=off
 yeet service set <svc> --snapshots=inherit
 ```
 
 Stop the service before moving a service root. Use `--copy` to copy the old
 root or `--empty` to create a fresh root.
+
+`--run-as` applies only to native binaries, scripts, and cron jobs. Changing it
+performs one rollback-safe identity migration: yeet stops the workload, updates
+the systemd unit and service-root ownership, and restores the previous state if
+the new unit cannot start. A service-root move and identity change can be done
+together:
+
+```bash
+yeet service set <svc> \
+  --service-root=/var/lib/yeet/services/<svc> \
+  --copy \
+  --run-as=yeet-svc
+```
+
+ZFS-backed service roots stay on their dataset. Docker users belong in Compose
+`user:` settings, and VM users are managed inside the guest. A non-root native
+service cannot bind a privileged host port directly; use a higher port, put a
+root-owned proxy in front, or explicitly choose `--run-as=root`.
+
+Custom service-root parents must be root-owned and not group- or world-writable
+so the workload cannot replace paths while Catch is operating on them. Custom
+run-as accounts keep their configured supplementary groups in the systemd
+workload; review powerful memberships such as `docker`. Service shells opened
+with `yeet ssh <svc>` clear supplementary groups and can therefore be more
+restricted than the running unit.
 
 ### `service sync`
 
@@ -453,9 +487,9 @@ yeet ssh <svc> -- ls -la
 
 After `yeet init`, host and regular service shells use catch over Tailscale and
 do not require host SSH keys or a host password. `yeet ssh <svc>` starts in the
-service data directory. VM services still connect to the guest operating system
-with SSH, because the guest is a real machine and gets its own authentication
-boundary.
+service data directory and, for a native service, uses that service's persisted
+UID and GID. VM services still connect to the guest operating system with SSH,
+because the guest is a real machine and gets its own authentication boundary.
 
 ### `ip`
 

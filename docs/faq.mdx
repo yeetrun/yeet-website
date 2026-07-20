@@ -25,8 +25,16 @@ with [Tailscale Access Grants](/docs/security/tailscale-access-grants).
 
 ## Do services run as root?
 
-Yes. Services run as root-owned systemd units on the catch host. Use yeet for
-single-operator hosts you control, not shared or multi-tenant environments.
+New native binaries, scripts, and cron jobs run as the shared, unprivileged
+`yeet-svc` account by default. Existing native services keep their current
+identity until you migrate one with `yeet service set <svc> --run-as=yeet-svc`.
+You can also select an existing account with `--run-as=<user>[:<group>]`.
+
+Docker users are controlled by Compose, VM applications are controlled inside
+the guest, and Catch plus host-management helpers remain root-owned. The shared
+default account is privilege reduction, not a security boundary between
+services, so use yeet for single-operator hosts you control rather than shared
+or multi-tenant environments.
 
 ## Can I use docker compose?
 
