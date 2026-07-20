@@ -256,6 +256,154 @@ During a Catch upgrade, Yeet does not restart an already running VM. The VM
 crosses the jailer boundary on its next restart. If preparation fails, the VM
 remains stopped.
 
+## Manage the host Firecracker runtime
+
+A VM has several independent moving parts:
+
+- The guest image supplies the initial root filesystem. Refreshing the image
+  cache affects future VM creates, not existing disks.
+- Guest package updates happen inside the VM.
+- `yeet vm kernel sync <vm>` selects the guest kernel.
+- `yeet vm runtime` manages one exact host Firecracker and matching jailer
+  pair.
+
+The guest login user, such as `ubuntu` or `nixos`, is also separate from the
+host `yeet-vm` account that runs Firecracker. Native-service `--run-as` users
+are unrelated to both.
+
+Inspect the runtime lifecycle before changing it:
+
+```bash
+yeet vm runtime status
+yeet vm runtime status <vm> --format=json-pretty
+```
+
+The important identities are:
+
+| Field        | Meaning                                                                  |
+| ------------ | ------------------------------------------------------------------------ |
+| `running`    | The exact pair used by the live Firecracker process.                     |
+| `configured` | The pair selected for an ordinary start.                                 |
+| `staged`     | A candidate waiting for the next start. Staging does not restart the VM. |
+| `previous`   | The last healthy configured pair retained for rollback.                  |
+
+IDs and SHA-256 digests are part of the identity. Yeet never substitutes a
+different Firecracker or jailer under an existing ID.
+
+### Manual upgrades
+
+Manual policy is the default. Refreshing the runtime cache does not change a
+VM:
+
+```bash
+yeet vm runtime update
+```
+
+Stage the promoted stable runtime and inspect the result:
+
+```bash
+yeet vm runtime upgrade <vm>
+yeet vm runtime status <vm>
+```
+
+The running PID and `running` identity stay unchanged. When downtime is
+acceptable, either restart the VM normally or ask the upgrade command to run
+the trial immediately:
+
+```bash
+yeet vm runtime upgrade <vm> --restart
+```
+
+The new pair must pass host readiness before it becomes `configured`. If it
+does not, the launcher starts the configured pair again and records a failed,
+rolled-back trial. Roll back a healthy upgrade explicitly with:
+
+```bash
+yeet vm runtime rollback <vm>
+yeet vm runtime rollback <vm> --restart
+```
+
+Without `--restart`, rollback is staged for the next start.
+
+### Stage on restart policy
+
+Opt in per host or per VM when you want Catch upgrades to stage a newer
+promoted runtime while still leaving running VMs alone:
+
+```bash
+yeet vm runtime policy defaults set stage-on-restart --channel=stable
+yeet vm runtime policy <vm> stage-on-restart --channel=stable
+yeet vm runtime policy <vm> inherit
+```
+
+The policy only stages. A later operator restart or natural guest reboot
+consumes the staged pair. Package managers and the guest agent cannot request,
+select, download, or stage a host runtime. A reboot request from inside the
+guest therefore changes the host runtime only when trusted host state already
+contains a staged candidate.
+
+`yeet vm kernel sync <vm>` changes only the guest-kernel selection. If you add
+`--restart` while a host runtime is staged, that one restart can activate both
+independent selections; kernel synchronization still does not choose or stage
+the host runtime.
+
+The `candidate` channel is explicit opt-in:
+
+```bash
+yeet vm runtime upgrade <vm> --channel=candidate
+yeet vm runtime upgrade <vm> --channel=candidate --restart
+```
+
+Do not set a fleet policy to `candidate` unless the whole fleet is intended to
+follow that channel. Catalog support states are also visible in runtime status.
+An `eol` runtime can keep running but should be scheduled for replacement. A
+`revoked` runtime cannot be newly selected; Yeet reports the existing state and
+leaves the restart decision to the operator instead of forcing downtime.
+
+### Recovery and cache retention
+
+An explicit runtime trial on a ZFS-backed VM creates a protected disk recovery
+point before restart. A healthy trial unprotects it so ordinary retention can
+manage it. A failed trial leaves it protected for inspection. This disk
+recovery point is separate from launcher rollback and contains no guest memory
+or Firecracker process state.
+
+Raw-disk VMs still get launcher rollback to the configured runtime, but they do
+not get a pre-upgrade disk recovery point. Yeet prints that limitation before
+the restart. A natural reboot that consumes a staged runtime also does not
+create an operator-requested pre-upgrade disk recovery point.
+
+Preview runtime cache cleanup before applying it:
+
+```bash
+yeet vm runtime prune --dry-run
+yeet vm runtime prune
+```
+
+Pruning retains every runtime referenced by a configured, staged, previous, or
+running selection, an unfinished transaction, the promoted stable channel, or
+an operator protection:
+
+```bash
+yeet vm runtime protect <runtime-id>
+yeet vm runtime unprotect <runtime-id>
+```
+
+### Import a custom host runtime
+
+A custom runtime directory must contain `runtime-manifest.json`, `firecracker`,
+and the matching `jailer`. Importing validates and stores an immutable local
+alias; it does not restart a VM:
+
+```bash
+yeet vm runtime import lab-v1 ./dist/runtime
+yeet vm runtime upgrade <vm> --to=local:lab-v1
+```
+
+Local and custom legacy runtimes are not advanced by official-channel policy.
+Select another exact local alias or a full official runtime ID when you want to
+leave them.
+
 ## Host requirements
 
 VM payloads require:

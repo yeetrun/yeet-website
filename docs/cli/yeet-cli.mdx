@@ -406,6 +406,62 @@ Official catalog images are published from
 [yeetrun/yeet-vm-images](https://github.com/yeetrun/yeet-vm-images).
 Use [VMs](/docs/payloads/vms) for the full VM image workflow.
 
+### `vm runtime`
+
+Inspect and manage the host Firecracker and matching jailer pair independently
+from guest images, packages, kernels, and users:
+
+```bash
+yeet vm runtime status
+yeet vm runtime status <vm> --format=json-pretty
+yeet vm runtime update
+yeet vm runtime upgrade <vm>
+yeet vm runtime upgrade <vm> --restart
+yeet vm runtime rollback <vm> --restart
+```
+
+`status` distinguishes the live `running` pair from `configured`, `staged`, and
+`previous` identities. `update` changes cache state only. `upgrade` stages by
+default, so the running VM is unchanged until its next start. `--restart`
+starts the trial immediately.
+
+Runtime policy is manual by default. The optional `stage-on-restart` policy
+stages promoted releases during host reconciliation without restarting VMs:
+
+```bash
+yeet vm runtime policy defaults show
+yeet vm runtime policy defaults set stage-on-restart --channel=stable
+yeet vm runtime policy <vm> manual
+yeet vm runtime policy <vm> inherit
+```
+
+Use `--channel=candidate` only as an explicit opt-in. Existing EOL or revoked
+runtimes are reported in status; a revoked runtime cannot be newly selected.
+Guest package updates and the guest agent cannot request a host runtime change.
+A natural guest reboot only consumes a candidate already staged by trusted host
+state.
+
+Import and select a custom immutable pair:
+
+```bash
+yeet vm runtime import lab-v1 ./dist/runtime
+yeet vm runtime upgrade <vm> --to=local:lab-v1
+```
+
+Preview cache cleanup and protect an otherwise unreferenced runtime when
+needed:
+
+```bash
+yeet vm runtime prune --dry-run
+yeet vm runtime protect <runtime-id>
+yeet vm runtime unprotect <runtime-id>
+```
+
+An explicit `--restart` trial creates a protected disk recovery point for a
+ZFS-backed VM. Raw disks have launcher rollback but no disk recovery point.
+See [VMs](/docs/payloads/vms#manage-the-host-firecracker-runtime) for lifecycle,
+policy, recovery, and retention details.
+
 ### `vm set`
 
 Stop the VM before changing VM resources or networking:

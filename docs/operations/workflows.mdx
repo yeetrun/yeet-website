@@ -125,6 +125,52 @@ yeet run <vm> vm://nixos/26.05
 Use [VMs](/docs/payloads/vms) for host requirements, image cache commands,
 networking, file copy, and recovery.
 
+## Upgrade a VM host runtime
+
+Treat guest updates and the host Firecracker runtime as separate operations.
+First inspect the exact live and selected pairs:
+
+```bash
+yeet vm runtime status <vm> --format=json-pretty
+```
+
+Refresh the host cache, stage the promoted stable pair, and inspect again:
+
+```bash
+yeet vm runtime update
+yeet vm runtime upgrade <vm>
+yeet vm runtime status <vm>
+```
+
+Nothing above restarts the VM. When downtime is acceptable, start the runtime
+trial:
+
+```bash
+yeet vm runtime upgrade <vm> --restart
+```
+
+For ZFS-backed VMs, that explicit restart creates a protected pre-upgrade disk
+recovery point. Raw-disk VMs print a warning and retain launcher rollback only.
+If the candidate does not become ready, Yeet starts the configured pair again.
+
+To back out a healthy transition:
+
+```bash
+yeet vm runtime rollback <vm> --restart
+```
+
+A package upgrade inside the guest cannot request a host runtime update. A
+natural guest reboot can consume an already staged candidate, so check `staged`
+before rebooting when timing matters. Use the candidate channel only for a
+deliberate canary:
+
+```bash
+yeet vm runtime upgrade <vm> --channel=candidate --restart
+```
+
+See [VMs](/docs/payloads/vms#manage-the-host-firecracker-runtime) for policy,
+support states, custom imports, and pruning.
+
 ## Update a service
 
 For binaries, scripts, Dockerfiles, and Compose files, update the local payload
