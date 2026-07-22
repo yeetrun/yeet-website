@@ -29,10 +29,10 @@ Yeet currently has two official catalog images:
 
 Official image bundles are built and published from
 [yeetrun/yeet-vm-images](https://github.com/yeetrun/yeet-vm-images). That repo
-owns the public image catalog, release manifests, root filesystems,
-Firecracker kernel assets, and guest package-source defaults. Yeet reads the
-catalog from there, so normal official image updates do not require a Yeet code
-release.
+owns the public catalogs, release manifests, root filesystems, boot kernels,
+host Firecracker runtimes, and guest package-source defaults. Yeet reads those
+catalogs from there, so normal official component updates do not require a Yeet
+code release.
 
 List what the selected catch host can use:
 
@@ -442,7 +442,23 @@ yeet vm images prune --dry-run
 ```
 
 `yeet vm images update` refreshes official image families for future VM
-creates. It does not rewrite VM disks.
+creates. It may download a newer promoted guest base or kernel, but it does not
+rewrite VM disks, change an existing VM's component lock, select a host runtime,
+or restart a VM.
+
+New VMs pin an immutable composition with three independent identities: the
+initial guest root filesystem, the boot kernel, and the matching host
+Firecracker+jailer pair. Guest package updates remain ordinary in-guest package
+operations. A kernel selector installed by a guest package is only an untrusted
+request: Catch resolves it through the verified host kernel catalog when an
+operator runs `yeet vm kernel sync <vm>`. The guest and guest agent cannot
+select, download, stage, or promote a host runtime.
+
+VMs created from older monolithic bundles keep their exact image version and
+paths. Catch measures the rootfs, effective kernel, Firecracker, and jailer and
+records an immutable component composition without restarting the VM or
+replacing its disk. If those artifacts cannot be verified, the VM stays on its
+existing launch paths and status reports `adoption-blocked`.
 
 When creating a VM with a stale cached image, interactive runs prompt by
 default. For non-interactive runs, choose explicitly:
