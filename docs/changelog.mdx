@@ -3,6 +3,22 @@ title: Changelog
 description: Release notes for users deciding whether to install or upgrade.
 ---
 
+## July 22, 2026
+
+### v0.10.0
+
+- VM guest bases, kernels, and host Firecracker/jailer runtimes now have
+  independent immutable lifecycles. Operators can inspect, stage, upgrade, and
+  roll back the host runtime without replacing the guest OS, while normal Catch
+  upgrades continue to leave running VMs alone.
+- Firecracker now always launches through its matching jailer as the dedicated
+  `yeet-vm` host account. Runtime trials use disk-only ZFS recovery points with
+  automatic launcher rollback; full memory checkpoints are no longer supported.
+- Container projects can use isolated networking with stable per-component
+  addresses and DNS. Catch can also migrate host state to `/var/lib/yeet` or
+  custom/ZFS roots, and native services can run under explicit non-root
+  identities.
+
 ## July 10, 2026
 
 ### v0.9.7
