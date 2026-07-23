@@ -5,6 +5,12 @@ description: Release notes for users deciding whether to install or upgrade.
 
 ## July 22, 2026
 
+### v0.10.2
+
+- Catch upgrades now safely adopt VMs created by pre-jailer releases: each
+  existing VM keeps running while its unit is converted to use the matching
+  bundled jailer, so host runtime upgrades work after the Catch upgrade.
+
 ### v0.10.1
 
 - `yeet vm runtime status` is now readable in ordinary terminals: a selected
