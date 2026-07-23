@@ -5,6 +5,13 @@ description: Release notes for users deciding whether to install or upgrade.
 
 ## July 22, 2026
 
+### v0.10.3
+
+- Supersedes v0.10.2 for Catch hosts with VMs created before jailer support.
+  Catch upgrades now fetch and verify the exact jailer matching each VM's
+  pinned Firecracker version without restarting it. If v0.10.2 failed while
+  preparing a legacy VM, rerun `yeet upgrade`.
+
 ### v0.10.2
 
 - Catch upgrades now safely adopt VMs created by pre-jailer releases: each
