@@ -5,6 +5,13 @@ description: Release notes for users deciding whether to install or upgrade.
 
 ## July 23, 2026
 
+### v0.10.6
+
+- Supersedes v0.10.5 for VMs created from image releases that predate jailer
+  metadata. Catch now adopts the verified sibling jailer without rewriting the
+  published image manifest or restarting the VM, so host runtime upgrades work
+  after `yeet upgrade`.
+
 ### v0.10.5
 
 - Supersedes v0.10.4 for Catch hosts with VMs created before jailer support.
