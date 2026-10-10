@@ -3,6 +3,18 @@ title: Changelog
 description: Release notes for users deciding whether to install or upgrade.
 ---
 
+## October 10, 2026
+
+### v0.11.13
+
+- `yeet rm --clean-data` and `--clean` remove exclusively owned Docker named and
+  anonymous volumes for ordinary and iso services. Shared and external volumes
+  and images remain. Removal without data-cleanup flags preserves data, and
+  failed cleanup retains the service for retry.
+- VMs start with Firecracker logging at warning level, reducing routine host-log
+  noise. Existing VMs adopt this on their next start or restart.
+- Includes security fixes for the Go runtime and networking libraries.
+
 ## September 7, 2026
 
 ### v0.11.12
