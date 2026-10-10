@@ -242,13 +242,36 @@ yeet rm --clean <svc>
 
 Useful flags:
 
-- `--clean`: delete service data and the local `yeet.toml` entry.
+- `--clean`: delete service data, exclusively owned Docker volumes, and the local
+  `yeet.toml` entry.
 - `--yes`: skip prompts. This does not imply `--clean` or `--clean-data`.
 - `--clean-config`: delete the local `yeet.toml` entry.
-- `--clean-data`: delete service data, including VM guest disks.
+- `--clean-data`: delete service data, including VM guest disks and exclusively
+  owned Docker volumes.
 
-Read confirmation prompts carefully before deleting data. `--yes` answers the
-prompt; it does not decide that data should be deleted.
+Read confirmation prompts carefully before deleting data. `--yes` skips the
+prompts; it does not decide that data should be deleted.
+
+For Docker services, `--clean-data` and `--clean` also remove project-owned named
+volumes and anonymous volumes attached to the service's containers. This applies
+to ordinary and iso services. External volumes and volumes referenced by another
+container, including a stopped container, remain. Volumes using a remote driver
+or custom storage options remain because their data may be shared. Bind-mounted
+data outside the managed service root remains.
+
+If requested Docker cleanup fails, removal returns an error and retains the
+service configuration and cleanup record. Retry with `--yes --clean-data` after
+resolving the error. An iso removal also retains its cleanup intent for automatic
+recovery. Anonymous volumes orphaned by earlier removals cannot be reliably
+attributed to a service and are not removed by this command.
+
+Docker images remain cached after removal, including with `--clean`. Service
+removal never runs a host-wide prune. On the Docker host, inspect cache usage with
+`docker system df`. Run `docker image prune` to remove dangling images when you
+choose to clear that cache. `docker image prune -a` also removes unused tagged
+images, which may include other services' rollback images. Review volumes
+individually with `docker volume inspect <volume>` and delete only confirmed
+unused data with `docker volume rm <volume>`.
 
 ## Config, Env, And Files
 
