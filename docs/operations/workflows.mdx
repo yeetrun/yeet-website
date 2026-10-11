@@ -375,11 +375,14 @@ yeet config --host=<catch-host>
 
 ## Remove a service
 
-Uninstall the service but keep its data:
+Stop and uninstall the service but keep its data:
 
 ```bash
 yeet rm <svc>
 ```
+
+You can remove a running service directly. If Docker shutdown fails or cannot
+be verified, its configuration remains available for retrying removal.
 
 Remove service data and the local config entry too:
 

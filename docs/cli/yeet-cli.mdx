@@ -228,11 +228,14 @@ yeet events@<catch-host>
 
 ### `remove` / `rm`
 
-Remove a service:
+Remove a service, stopping it first if it is running:
 
 ```bash
 yeet rm <svc>
 ```
+
+If Docker shutdown fails or cannot be verified, the service configuration stays
+available so you can correct the problem and retry removal.
 
 Remove service data and the local config entry too:
 

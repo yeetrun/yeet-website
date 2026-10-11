@@ -3,6 +3,14 @@ title: Changelog
 description: Release notes for users deciding whether to install or upgrade.
 ---
 
+## October 11, 2026
+
+### v0.11.15
+
+- Removing a running Docker service stops it without a misleading “still
+  running” warning. Catch verifies shutdown before deleting the service
+  configuration and retains it for retry if shutdown fails or cannot be verified.
+
 ## October 10, 2026
 
 ### v0.11.14
