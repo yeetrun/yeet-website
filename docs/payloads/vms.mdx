@@ -289,6 +289,19 @@ yeet vm runtime status
 yeet vm runtime status <vm> --format=json-pretty
 ```
 
+Runtime status lists every VM, including those whose component metadata is
+missing. A `metadata-missing` row means Catch cannot report a verified runtime
+identity from its database. Run Catch install/upgrade to verify adoption and
+inspect its per-VM warnings if recovery is blocked.
+
+For VMs that already have a verified runtime descriptor, Catch can reconstruct
+missing component metadata without restarting the guest or changing its disk,
+unit, or runtime descriptor. It retains configured and previous runtimes and
+uses manual/stable policy because the lost policy cannot be inferred. Guest and
+kernel provenance is measured from the existing host artifacts. Staged trials,
+untrusted artifacts, and inconsistent paths block recovery and are left intact
+for operator inspection.
+
 The important identities are:
 
 | Field        | Meaning                                                                  |
@@ -469,7 +482,8 @@ VMs created from older monolithic bundles keep their exact image version and
 paths. Catch measures the rootfs, effective kernel, Firecracker, and jailer and
 records an immutable component composition without restarting the VM or
 replacing its disk. If those artifacts cannot be verified, the VM stays on its
-existing launch paths and status reports `adoption-blocked`.
+existing launch paths. Install/upgrade reports the adoption-blocked reason, and
+runtime status retains a `metadata-missing` row.
 
 When creating a VM with a stale cached image, interactive runs prompt by
 default. For non-interactive runs, choose explicitly:

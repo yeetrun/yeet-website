@@ -5,6 +5,14 @@ description: Release notes for users deciding whether to install or upgrade.
 
 ## October 10, 2026
 
+### v0.11.14
+
+- Runtime status lists VMs with missing component metadata instead of hiding
+  them or rejecting a named VM.
+- Catch upgrades recover verified runtime metadata from existing VM launch
+  configurations without restarting guests or changing their disks. Unsafe or
+  incomplete recovery attempts leave the VM unchanged and explain the blocker.
+
 ### v0.11.13
 
 - `yeet rm --clean-data` and `--clean` remove exclusively owned Docker named and
