@@ -80,7 +80,9 @@ yeet run <vm> vm://ubuntu/26.04 --vcpus=4 --memory=4g --disk=128g
 
 `--memory` is the VM's maximum RAM. Firecracker ballooning is enabled by default,
 so catch can reclaim guest memory under host pressure without lowering the
-configured maximum. This does not increase available host memory.
+configured maximum. If a guest stops making progress toward its reclaim target,
+catch lowers that target and waits before trying again. When host memory pressure
+clears, catch gradually returns reclaimed memory to guests.
 
 Set the minimum floor when you create the VM:
 

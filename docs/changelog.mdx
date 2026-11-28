@@ -3,6 +3,15 @@ title: Changelog
 description: Release notes for users deciding whether to install or upgrade.
 ---
 
+## November 27, 2026
+
+### v0.11.17
+
+- Catch lowers stalled VM memory balloon targets and gradually returns memory
+  to guests when host pressure clears. The change applies to running VMs with
+  automatic ballooning after Catch upgrades.
+- Includes an OpenTelemetry security fix.
+
 ## November 22, 2026
 
 ### v0.11.16
