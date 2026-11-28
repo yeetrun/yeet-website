@@ -3,6 +3,14 @@ title: Changelog
 description: Release notes for users deciding whether to install or upgrade.
 ---
 
+## November 28, 2026
+
+### v0.11.18
+
+- Switch an existing service from an image to a Compose file with `yeet run web ./compose.yaml`.
+  Yeet keeps the host’s network settings, including the service’s Tailscale identity and addresses,
+  even when your workstation has no saved configuration for the service.
+
 ## November 27, 2026
 
 ### v0.11.17

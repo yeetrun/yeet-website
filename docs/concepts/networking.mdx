@@ -54,10 +54,13 @@ Tailscale inside the guest when it needs a tailnet identity.
 change restarts the service immediately. If the replacement cannot be
 activated, Catch attempts to restore the previous network. If that rollback
 cannot be completed, Catch stops the service or quarantines its network state
-instead of leaving a partially active network. `yeet run` remains the payload
-deployment command. If its saved or supplied network settings differ from
-Catch's desired configuration, it stops with guidance to use
-`yeet service set` before changing the workload.
+instead of leaving a partially active network.
+
+To replace a payload, use the same service name. For example, run
+`yeet run web ./compose.yaml` to switch from an image to a Compose file.
+When you omit the network flags, Yeet uses the settings on the host, even if
+your local configuration is out of date. A service on Tailscale keeps its
+node identity and its Tailscale IPv4 and IPv6 addresses.
 
 The network flags form a patch:
 
