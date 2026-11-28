@@ -11,7 +11,7 @@ const navLinks: Array<SimpleLink> = [
   },
   {
     text: "GitHub",
-    href: "https://github.com/yeetrun/yeet",
+    href: "https://github.com/yeetrun/yeet-os",
   },
 ];
 
@@ -47,7 +47,7 @@ export default function NavFooterLayout(props: NavFooterLayoutProps) {
           },
         ]}
         copyright={`© ${currentYear} AUTHORS`}
-        copyrightHref="https://github.com/yeetrun/yeet/blob/main/AUTHORS"
+        copyrightHref="https://github.com/yeetrun/yeet-os/blob/main/AUTHORS"
       />
     </RootLayout>
   );

@@ -37,50 +37,13 @@ yeet list-hosts
 See [Tailscale Setup](/docs/concepts/tailscale#first-time-host-setup) for the
 tailnet policy shape.
 
-## `yeet init` says catch needs a tag
+## Check the server name and tags
 
-Catch rejects user-owned Tailscale nodes. It must join the tailnet with a tag-based
-identity. That keeps the daemon in the server side of the trust model.
-
-Fix the Tailscale policy first, then rerun init:
-
-```bash
-yeet init root@<machine-host>
-```
-
-## `yeet init` got a different catch hostname
-
-Tailscale assigned a suffix such as `catch-1` because another device already
-owns the requested hostname. This is not random naming. It is stale or
-conflicting state showing up as DNS.
-
-Use the assigned catch host:
-
-```bash
-yeet --host=catch-1 status
-```
-
-Or remove the stale/conflicting Tailscale device and rerun `yeet init`.
-
-If you are adding a second catch host, choose a distinct name instead of
-reusing the default `catch` name:
-
-```bash
-yeet --host=morpheus-catch init root@<machine-host>
-```
+Confirm the server device has the tag chosen during installation. If Tailscale assigned a hostname suffix, use the full assigned hostname in `yeet config --host=<catch-host>`.
 
 ## Docker payloads fail
 
-Container payloads require Docker on the catch host. On Debian/Ubuntu-style
-hosts, interactive init can ask before installing it:
-
-```bash
-yeet init root@<machine-host>
-```
-
-If local image pushes do not show up on the host, rerun bootstrap and allow
-Docker setup. Yeet configures the Docker settings it needs during catch
-install.
+Yeet OS includes Docker and Compose. Check `systemctl status docker` on the host.
 
 For Compose services:
 
@@ -240,12 +203,7 @@ done
 ```
 
 If KVM is missing, use containers, binaries, scripts, and cron jobs on that
-host. If KVM and TUN/TAP exist but tools are missing on Debian/Ubuntu,
-interactive `yeet init` can ask before installing them:
-
-```bash
-yeet init root@<machine-host>
-```
+host.
 
 See [VMs](/docs/payloads/vms) for image cache and console diagnostics.
 

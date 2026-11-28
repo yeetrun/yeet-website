@@ -18,7 +18,7 @@ import s from "./DocsPage.module.css";
 // This is the location that we expect our docs mdx files to be located,
 // relative to the root of the Next.js project.
 export const DOCS_DIRECTORY = "./docs";
-const GITHUB_REPO_URL = "https://github.com/yeetrun/yeet-website";
+const GITHUB_REPO_URL = "https://github.com/yeetrun/yeet-os";
 // This is the URL path for all of our docs pages
 export const DOCS_PAGES_ROOT_PATH = "/docs";
 
@@ -105,10 +105,10 @@ export default function DocsPage({
   breadcrumbs,
 }: DocsPageProps) {
   // Calculate the "Edit in Github" link. If it's not provided
-  // in the frontmatter, point to the website repo mdx file.
+  // in the frontmatter, point to the canonical manual.
   editOnGithubLink = editOnGithubLink
     ? editOnGithubLink
-    : `${GITHUB_REPO_URL}/edit/main/${relativeFilePath}`;
+    : `${GITHUB_REPO_URL}/edit/main/yeet/website/docs/${relativeFilePath}`;
 
   return (
     <NavFooterLayout

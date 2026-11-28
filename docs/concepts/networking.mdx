@@ -260,11 +260,7 @@ interface make sense. A WAN-only VPS usually should not use `lan`. If there is
 no meaningful LAN, use `svc` or `ts` instead.
 
 For VM `lan` networking, yeet needs a bridge on the host LAN. If the host
-already has one on the default route, yeet uses it. On supported Debian/Ubuntu
-hosts without a bridge, interactive `yeet init` or the first `yeet run <vm> ...
---net=lan` can prepare `br0` after confirmation. Bridge preparation can briefly
-interrupt host networking; if your command disconnects during the change, rerun
-it after the host comes back.
+already has one on the default route, yeet uses it. Configure the LAN bridge in the host networking settings.
 
 ## Tailscale (`ts`)
 

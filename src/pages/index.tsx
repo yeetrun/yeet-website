@@ -43,7 +43,7 @@ const docsLinks = [
   {
     href: "/docs/getting-started/quick-start",
     title: "Quick Start",
-    text: "Install yeet, bootstrap catch, and deploy a first disposable service.",
+    text: "Install Yeet OS, connect your workstation, and deploy your first service.",
   },
   {
     href: "/docs/payloads",
@@ -92,9 +92,8 @@ export default function Home({ docsNavTree }: HomePageProps) {
                 <span>Your service just runs.</span>
               </H1>
               <P className={s.heroSubtitle} weight="regular">
-                Point yeet at a Linux host and deploy from your workstation.
-                Bring the payload you already have; catch turns the host into
-                the service layer instead of making you build one first.
+                Install Yeet OS on your server, then deploy from your workstation.
+                Use a Compose file, container image, binary, or script.
               </P>
               <div className={s.heroActions}>
                 <ButtonLink
@@ -121,7 +120,7 @@ export default function Home({ docsNavTree }: HomePageProps) {
             <div className={s.heroPanel}>
               <div className={s.panelHeader}>Yeet it up</div>
               <CodeBlock>
-                <code>{`yeet init root@<host>
+                <code>{`yeet config --host=yeet-minilab
 yeet run app ./compose.yml
 yeet logs -f app
 yeet rm app`}</code>

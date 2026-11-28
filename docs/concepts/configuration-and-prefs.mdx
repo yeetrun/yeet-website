@@ -27,7 +27,7 @@ workspaces = ["/srv/yeet-services"]
 
 `default_host` is the **catch host** (Tailscale hostname) that yeet uses when
 you do not specify a host with `@<host>`, `--host`, or `yeet.toml`. This is not
-the SSH machine host from `yeet init`; it is the operating target after catch
+the machine’s SSH hostname; it is the operating target after catch
 is installed. See
 [Tailscale](/docs/concepts/tailscale) for details.
 
@@ -47,8 +47,7 @@ yeet config --remove-workspace ~/lab-services
 yeet config --clear-workspaces
 ```
 
-`--workspace` and `--add-workspace` require the directory to already exist. To
-create and register a workspace during host setup, use `yeet init --workspace`.
+`--workspace` and `--add-workspace` require the directory to already exist. Create the directory before registering it.
 
 ## Project config (`yeet.toml`)
 

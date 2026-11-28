@@ -12,13 +12,7 @@ unexpectedly, check those boundaries first.
 
 ## Pick the host
 
-Setup uses an SSH machine host:
-
-```bash
-yeet init root@<machine-host>
-```
-
-Normal commands use the catch host:
+The installer shows the SSH address for setup. For deployments, use the Yeet server name:
 
 ```bash
 CATCH_HOST=<catch-host> yeet status
@@ -26,12 +20,7 @@ yeet --host=<catch-host> status
 yeet status@<catch-host>
 ```
 
-The default catch host is `catch`. For a second host, pick a distinct catch
-hostname during setup:
-
-```bash
-yeet --host=morpheus-catch init root@<machine-host>
-```
+Pick a distinct Yeet server name for each host during installation.
 
 Run new-service deploy commands from a
 [Service Workspace](/docs/getting-started/service-workspace) so the generated

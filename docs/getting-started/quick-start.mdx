@@ -6,67 +6,18 @@ description: Fast path from empty host to one disposable service.
 This is the shortest useful path: install `yeet`, prepare Tailscale, install
 `catch`, run a disposable container, and remove it.
 
-## TLDR
+## Connect to your host
 
-You need:
+Follow the [Yeet OS installation guide](https://github.com/yeetrun/yeet-os#install-yeet-os), then install Yeet on your workstation.
 
-- A Linux host with systemd and SSH access.
-- Tailscale installed on your workstation and connected to the same tailnet.
-- Tailscale admin access for first setup.
-- A Tailscale OAuth client secret for catch.
-- Docker on the host for the disposable container test.
-
-Skip VMs for the first run. Containers prove the basic path with fewer host
-requirements.
-
-## 1. Prepare Tailscale
-
-Do this before `yeet init`.
-
-Catch joins your tailnet as a tagged device, usually `tag:catch`. Your setup
-user also needs the `yeetrun.com/app/yeet` permissions `read`, `manage`, and
-`ssh` on TCP `41548`.
-
-The short version:
-
-1. Open [Tailscale Setup](/docs/concepts/tailscale#first-time-host-setup).
-2. Create the tag policy and OAuth credential there.
-3. Keep the `tskey-client-...` OAuth client secret ready.
-4. Make sure your workstation is connected to the same tailnet.
-
-## 2. Install yeet
-
-Run this on your workstation:
-
-```bash
-curl -fsSL https://yeetrun.com/install.sh | sh
+```sh
+curl -fsSL https://github.com/yeetrun/yeet-os/releases/latest/download/install.sh | sh
+yeet config --host=yeet-minilab
 ```
 
-Check that the CLI is available:
+Use the server name you chose in the installer.
 
-```bash
-yeet --help
-```
-
-For nightly builds, upgrades, host requirements, and non-default setup, use the
-[Host Setup](/docs/getting-started/host-setup).
-
-## 3. Install catch on one host
-
-Run this from your workstation. The target is the SSH machine host:
-
-```bash
-yeet init root@<machine-host>
-```
-
-During first setup, paste the Tailscale OAuth client secret from step 1.
-If Docker is missing on a Debian/Ubuntu-style host, interactive init asks before
-installing it.
-
-Use `root@<machine-host>` for SSH setup. After setup, normal commands target
-the catch hostname on your tailnet.
-
-## 4. Confirm yeet can reach catch
+## 1. Confirm yeet can reach catch
 
 If setup saved a default host, these should work:
 
@@ -82,21 +33,15 @@ explicit:
 yeet --host=<catch-host> status
 ```
 
-## 5. Choose a service workspace
+## 2. Choose a service workspace
 
-Interactive `yeet init` offers to adopt `~/yeet-services` so yeet can remember
-where your `yeet.toml` lives. Keep that directory as the examples' working
-directory, because relative payload paths stay simple there.
+Create a directory for your apps.
 
-```bash
-mkdir -p ~/yeet-services
-cd ~/yeet-services
+```sh
+mkdir -p ~/yeet-services && cd ~/yeet-services
 ```
 
-If you skip that prompt during setup, create or enter the workspace before your
-first deploy. This keeps local deploy state visible and easy to reuse.
-
-## 6. Run a disposable service
+## 3. Run a disposable service
 
 Start with nginx. It is small, familiar, and easy to delete.
 
@@ -112,7 +57,7 @@ Check the published port from the host:
 yeet ssh -- curl -fsS http://127.0.0.1:18080/ >/dev/null
 ```
 
-## 7. Clean it up
+## 4. Clean it up
 
 ```bash
 yeet rm --clean hello

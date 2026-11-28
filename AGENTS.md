@@ -1,8 +1,6 @@
 # Website Agent Notes
 
-This submodule contains the yeet user manual and changelog. Changes here must
-be committed and pushed inside the website repository before the root repository
-commits the updated submodule pointer.
+The manual and changelog are authored in yeetrun/yeet-os under yeet/website/docs. This repository publishes the website. Refresh its docs from the released manual as described in README.md.
 
 ## Local Rules
 
@@ -32,8 +30,7 @@ commits the updated submodule pointer.
 
 - Run `git -C website diff --check` from the root repository after docs edits.
 - Run the website's local checks when changing build or site behavior.
-- Before a root release commit, confirm `git -C website status --short --branch`
-  is clean and pushed.
+- Verify the published Cloudflare build after landing a website change.
 
 ## Related Context
 

@@ -31,7 +31,7 @@ Parent datasets must already exist. If the dataset already exists or its
 mountpoint already contains files, catch prints a warning and deploys into it.
 That warning is worth reading; existing files are existing state.
 
-For host-wide storage, `yeet init --zfs` and `yeet host set --zfs` treat the
+For host-wide storage, `yeet host set --zfs` treats the
 services-root dataset as a prefix. Services under that default root, including
 `catch`, use child datasets such as `tank/apps/<svc>`.
 

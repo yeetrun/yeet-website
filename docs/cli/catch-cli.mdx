@@ -3,12 +3,7 @@ title: catch Reference
 description: Host-side catch commands for manual installs and startup debugging.
 ---
 
-Catch runs on remote Linux hosts and receives requests from yeet. For normal
-operation, install and update catch with `yeet init`.
-
-Use catch directly only when you are debugging startup, doing a manual install,
-or checking the binary on the host. Direct catch commands bypass some of the
-guardrails `yeet init` gives you.
+Yeet OS runs Catch as a system service. Use `catch version` to check the installed daemon and `sudo yeet-os upgrade` to update the host.
 
 ## Usage
 
@@ -34,24 +29,6 @@ catch [flags] [install|version|is-catch]
 
 See [Data Layout](/docs/concepts/data-layout) for host storage and
 [Tailscale](/docs/concepts/tailscale) for Tailscale setup.
-
-## Docker during install
-
-During `catch install`, catch requires Docker for container payloads. If Docker
-is missing, interactive installs can prompt to install it. This is host
-setup, not something each app needs to ship.
-
-For normal installs, prefer:
-
-```bash
-yeet init root@<machine-host>
-```
-
-For manual non-interactive catch installs on Debian/Ubuntu-style hosts, set:
-
-```bash
-CATCH_INSTALL_DOCKER=1
-```
 
 ## When to run catch directly
 

@@ -8,7 +8,7 @@ Yeet has two parts:
 - `yeet` runs on your workstation.
 - `catch` runs on each Linux host you manage.
 
-You use `yeet init` once per host to install catch. After that, yeet talks to
+Yeet OS starts Catch on each host. After that, yeet talks to
 catch over Tailscale and asks it to install, update, inspect, and remove
 services.
 
@@ -31,11 +31,7 @@ payload detection, see [Service Types](/docs/concepts/service-types).
 
 ## Host targeting
 
-Setup uses the SSH machine host:
-
-```bash
-yeet init root@<machine-host>
-```
+The installer shows the SSH address to use for setup.
 
 Normal commands use the catch host:
 

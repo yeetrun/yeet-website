@@ -12,7 +12,7 @@ which one contains data you intend to keep.
 
 ## Data directory
 
-Fresh `yeet init` installs and manual catch runs default to `/var/lib/yeet`.
+Fresh installations default to `/var/lib/yeet`.
 The default service root follows the data directory at
 `<data-dir>/services`, so the fresh default is `/var/lib/yeet/services`.
 Pass `--data-dir` or `--services-root` when the host needs a different path.
@@ -115,8 +115,6 @@ yeet host set \
 yeet host cleanup --from=/root/yeet-data --yes
 ```
 
-Only the eligible historical layout qualifies for guided init cleanup. It runs
-after the operator gives one consent for the move and removal.
 
 Run `yeet info` to inspect the current host data directory, services root, catch
 service root, and service/VM inventory. Use `yeet info --host=<catch-host>` when

@@ -19,12 +19,28 @@ There are two separate questions here: can your workstation reach catch, and
 what is the caller allowed to do after it reaches catch? Tailscale handles both
 layers, but they fail differently.
 
+## Yeet OS installer
+
+For a machine named `minilab`, use `ssh yeet@minilab` for a regular shell and
+`yeet --host=yeet-minilab status` to manage deployments. The installer lets you
+choose both names. A single OAuth client with **Auth Keys write** enrolls the
+two devices and supplies a separate one-time key for each new service. In the
+policy example below, also add `"tag:yeet-host": ["tag:yeet"]` to `tagOwners`.
+Grant your operators TCP 22 on the machine tag and grant app clients the ports
+they need on the service tag. Enable MagicDNS to reach devices by name.
+
+With automatic service enrollment selected, `yeet run web nginx:alpine`
+uses `svc,ts` and the installer's service tag. An explicit `--net=svc` keeps
+that service private to Yeet. Existing services retain their networking.
+A VM has its own guest operating system and controls its own Tailscale login.
+The installer also offers Yeet-server-only setup for browser sign-in or an auth key.
+
 ## First-time host setup
 
 Catch must join your tailnet as a tagged node, usually `tag:catch`. Catch
 rejects user-owned nodes.
 
-Before you run `yeet init`, set up Tailscale in this order:
+Before installing Yeet OS, set up Tailscale in this order:
 
 1. Add a yeet owner tag, such as `tag:yeet`.
 2. Let that owner tag own the catch tag, usually `tag:catch`.
@@ -39,7 +55,7 @@ Before you run `yeet init`, set up Tailscale in this order:
    create keys for `tag:catch` and service tags such as `tag:app`.
 7. Copy the `tskey-client-...` OAuth client secret.
 
-Then run `yeet init root@<machine-host>` and paste that secret when prompted.
+Paste the secret in the installer’s Tailscale setup screen.
 Validate the host with `yeet status`.
 
 Minimal policy shape:
@@ -85,40 +101,9 @@ services, a least-privilege OAuth client can assign `tag:catch` directly. The
 owner-tag pattern is more flexible because the credential can mint the future
 service tags you deliberately allowed.
 
-## Run init
-
-Interactive init prompts for the OAuth client secret during first setup:
-
-```bash
-yeet init root@<machine-host>
-```
-
-The OAuth secret belongs to catch itself. If the resulting catch node is not
-tagged, catch refuses connections. The install may have succeeded; the identity
-still failed.
-
 ## Host naming
 
-`yeet init root@<machine-host>` uses SSH. Normal commands use the catch Tailscale
-hostname and require your workstation to be able to reach that tailnet address:
-
-```bash
-CATCH_HOST=<catch-host> yeet status
-yeet --host=<catch-host> status
-yeet run <svc>@<catch-host> ./compose.yml
-```
-
-With no saved or explicit host, catch asks Tailscale for the hostname `catch`.
-For more than one catch host, choose a distinct name during setup:
-
-```bash
-yeet --host=morpheus-catch init root@<machine-host>
-```
-
-If another tailnet device already owns the requested catch hostname, Tailscale
-may assign a suffixed name such as `catch-1`. Use that assigned catch host, or
-remove the stale/conflicting Tailscale device and rerun `yeet init`. Host names
-are state too.
+Choose the machine and Yeet server names in the installer. For a machine named `minilab`, use `ssh yeet@minilab` for a shell and `yeet --host=yeet-minilab status` to list apps. Use a distinct name for each tailnet device.
 
 ## Service networking (`--net=ts`)
 

@@ -3,7 +3,7 @@ title: First-Run Validation
 description: Smoke-test a fresh host before you trust it with real services.
 ---
 
-Use this playbook after `yeet init` on a fresh host. It checks the connection
+Use this playbook after installing Yeet OS on a fresh host. It checks the connection
 to catch first, then the payload paths that should work on a normal
 Debian/Ubuntu-style server. Run the optional KVM, LAN, and ZFS checks only when
 you plan to use those features.
@@ -49,13 +49,7 @@ catch node is visible in your tailnet. It is optional for this playbook because
 normal yeet commands use the catch Tailscale identity and ordinary network
 reachability from your workstation.
 
-If `yeet status` cannot connect, confirm `yeet init` stored a Tailscale OAuth
-client secret or catch-node auth key, and confirm the catch node has the
-required tag. After fixing the tag or policy, rerun init:
-
-```bash
-yeet init root@<machine-host>
-```
+If `yeet status` cannot connect, check your configured host name and the tailnet grants for its server tag.
 
 See [Tailscale](/docs/concepts/tailscale) if the SSH machine host and catch
 host names are confusing, or if the tailnet policy needs `tagOwners`/grant
@@ -240,15 +234,6 @@ for c in qemu-img zstd e2fsck resize2fs mount umount ip; do
 done
 '
 ```
-
-If the VM devices exist but tools are missing on a Debian/Ubuntu host,
-interactive `yeet init` can ask before installing them. You can also install
-the packages listed in [VMs](/docs/payloads/vms#host-requirements).
-
-On a VM-capable Debian/Ubuntu host, interactive `yeet init` can also ask to
-prepare VM LAN bridge support. Say yes when you plan to run VMs with
-`--net=lan`. Say no to defer it; the first VM LAN create prompts again before
-it creates the VM service.
 
 If KVM and TUN/TAP are available and the required tools are present, create a
 disposable VM:
